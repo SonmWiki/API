@@ -2,8 +2,9 @@ using Domain.Common;
 
 namespace Domain.Entities;
 
-public sealed class Category: BaseEntity<string>
+public class Category: BaseEntity<string>
 {
-    public string Title { get; set; }
+    public required string Title { get; set; }
     public int Weight { get; set; }
+    public virtual ICollection<Article> Articles { get; set; } = new HashSet<Article>();
 }
