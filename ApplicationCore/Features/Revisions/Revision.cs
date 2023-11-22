@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-using Domain.Common;
+using Application.Common;
+using Application.Features.Articles;
 
-namespace Domain.Entities;
+namespace Application.Features.Revisions;
 
 public class Revision : BaseEntity<string>
 {

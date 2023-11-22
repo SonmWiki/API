@@ -1,6 +1,7 @@
-using Domain.Common;
+using Application.Common;
+using Application.Features.Articles;
 
-namespace Domain.Entities;
+namespace Application.Features.Categories;
 
 public class Category: BaseEntity<string>
 {

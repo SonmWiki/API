@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Infrastructure.Migrations
+namespace Application.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -16,42 +16,42 @@ namespace Infrastructure.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<string>(type: "text", nullable: false),
                     Title = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     Weight = table.Column<int>(type: "integer", nullable: false, defaultValue: 0)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.id);
+                    table.PrimaryKey("PK_Categories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Articles",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Path = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     IsVisible = table.Column<bool>(type: "boolean", nullable: false),
                     Weight = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    Categoryid = table.Column<string>(type: "text", nullable: true)
+                    CategoryId = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Articles", x => x.id);
+                    table.PrimaryKey("PK_Articles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Articles_Categories_Categoryid",
-                        column: x => x.Categoryid,
+                        name: "FK_Articles_Categories_CategoryId",
+                        column: x => x.CategoryId,
                         principalTable: "Categories",
-                        principalColumn: "id");
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Revisions",
                 columns: table => new
                 {
-                    id = table.Column<string>(type: "text", nullable: false),
-                    Articleid = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    ArticleId = table.Column<int>(type: "integer", nullable: true),
                     Title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
                     Author = table.Column<string>(type: "text", nullable: false),
@@ -63,19 +63,18 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Revisions", x => x.id);
+                    table.PrimaryKey("PK_Revisions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Revisions_Articles_Articleid",
-                        column: x => x.Articleid,
+                        name: "FK_Revisions_Articles_ArticleId",
+                        column: x => x.ArticleId,
                         principalTable: "Articles",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Articles_Categoryid",
+                name: "IX_Articles_CategoryId",
                 table: "Articles",
-                column: "Categoryid");
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Articles_Path",
@@ -84,9 +83,9 @@ namespace Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Revisions_Articleid",
+                name: "IX_Revisions_ArticleId",
                 table: "Revisions",
-                column: "Articleid");
+                column: "ArticleId");
         }
 
         /// <inheritdoc />

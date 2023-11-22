@@ -1,6 +1,8 @@
-using Domain.Common;
+using Application.Common;
+using Application.Features.Categories;
+using Application.Features.Revisions;
 
-namespace Domain.Entities;
+namespace Application.Features.Articles;
 
 public class Article : BaseEntity<int>
 {

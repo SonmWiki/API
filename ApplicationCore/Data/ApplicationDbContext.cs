@@ -1,7 +1,9 @@
-using Domain.Entities;
+using Application.Features.Articles;
+using Application.Features.Categories;
+using Application.Features.Revisions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Database;
+namespace Application.Data;
 
 public class ApplicationDbContext : DbContext
 {

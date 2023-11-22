@@ -1,11 +1,9 @@
 using Application;
-using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddInfrastructureServices(builder.Configuration)
-    .AddApplicationServices();
+    .AddServices(builder.Configuration);
 
 var app = builder.Build();
 
