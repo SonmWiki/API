@@ -1,7 +1,6 @@
 using Application.Common;
-using Application.Features.Articles;
 
-namespace Application.Features.Revisions;
+namespace Application.Entities;
 
 public class Revision : BaseEntity<string>
 {

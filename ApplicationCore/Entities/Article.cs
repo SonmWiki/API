@@ -1,11 +1,9 @@
 using Application.Common;
-using Application.Features.Categories;
-using Application.Features.Revisions;
 
-namespace Application.Features.Articles;
+namespace Application.Entities;
 
 public class Article : BaseEntity<int>
-{
+{   
     public required string Path { get; set; } 
     public bool IsVisible { get; set; }
     public int Weight { get; set; }

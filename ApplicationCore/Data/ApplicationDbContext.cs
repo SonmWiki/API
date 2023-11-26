@@ -1,6 +1,4 @@
-using Application.Features.Articles;
-using Application.Features.Categories;
-using Application.Features.Revisions;
+using Application.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Data;
