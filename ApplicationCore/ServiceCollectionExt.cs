@@ -16,6 +16,7 @@ public static class ServiceCollectionExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         
         services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
         return services;
     }
