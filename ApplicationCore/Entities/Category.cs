@@ -4,7 +4,8 @@ namespace Application.Entities;
 
 public class Category: BaseEntity<string>
 {
-    public required string Title { get; set; }
-    public int Weight { get; set; }
-    public virtual ICollection<Article> Articles { get; set; } = new HashSet<Article>();
+    public string? ParentId { get; set; }
+    public virtual Category? Parent { get; set; }
+    public virtual ICollection<Category> SubCategories { get; set; } = new List<Category>();
+    public virtual ICollection<Article> Articles { get; set; } = new List<Article>();
 }
