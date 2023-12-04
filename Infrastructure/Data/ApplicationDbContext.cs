@@ -1,9 +1,10 @@
+using Application.Data;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Data;
+namespace Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public DbSet<Article> Articles { get; set; }
     public DbSet<Category> Categories { get; set; }

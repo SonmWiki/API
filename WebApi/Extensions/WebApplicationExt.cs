@@ -1,4 +1,4 @@
-using Application.Data;
+using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.Extensions;
