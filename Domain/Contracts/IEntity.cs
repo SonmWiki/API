@@ -1,4 +1,4 @@
-namespace Application.Common;
+namespace Domain.Contracts;
 
 public interface IEntity<T>
 { 

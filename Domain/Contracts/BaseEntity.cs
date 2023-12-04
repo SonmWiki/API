@@ -1,4 +1,4 @@
-namespace Application.Common;
+namespace Domain.Contracts;
 
 public abstract class BaseEntity<T> : IEntity<T>
 {

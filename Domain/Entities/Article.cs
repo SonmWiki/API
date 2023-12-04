@@ -1,6 +1,6 @@
-using Application.Common;
+using Domain.Contracts;
 
-namespace Application.Entities;
+namespace Domain.Entities;
 
 public class Article : BaseEntity<string>
 {
