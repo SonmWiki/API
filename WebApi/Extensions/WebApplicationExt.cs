@@ -13,7 +13,6 @@ public static class WebApplicationExt
 
         try
         {
-            dbContext.Database.EnsureCreated();
             dbContext.Database.Migrate();
         }
         catch (Exception e)
