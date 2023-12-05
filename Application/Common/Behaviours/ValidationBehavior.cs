@@ -1,33 +1,58 @@
+using System.Reflection;
+using ErrorOr;
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using ValidationException = Application.Common.Exceptions.ValidationException;
 
 namespace Application.Common.Behaviours;
 
-public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
+    where TResponse : IErrorOr
 {
-    private readonly IEnumerable<IValidator<TRequest>> _validators;
+    private readonly IValidator<TRequest>? _validator;
 
-    public ValidationBehaviour(IEnumerable<IValidator<TRequest>> validators)
+    public ValidationBehavior(IValidator<TRequest>? validator = null)
     {
-        _validators = validators;
+        _validator = validator;
     }
 
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(
+        TRequest request,
+        RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken)
     {
-        if (_validators.Any())
+        if (_validator == null)
         {
-            var context = new ValidationContext<TRequest>(request);
-
-            var validationResults = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
-            var failures = validationResults.SelectMany(r => r.Errors).Where(f => f != null).ToList();
-
-            if (failures.Count != 0)
-            {
-                throw new ValidationException(failures);
-            }
+            return await next();
         }
-        return await next();
+
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+
+        if (validationResult.IsValid)
+        {
+            return await next();
+        }
+
+        return TryCreateResponseFromErrors(validationResult.Errors, out var response)
+            ? response
+            : throw new ValidationException(validationResult.Errors);
+    }
+
+    private static bool TryCreateResponseFromErrors(List<ValidationFailure> validationFailures, out TResponse response)
+    {
+        var errors = validationFailures.ConvertAll(x => Error.Validation(
+            code: x.PropertyName,
+            description: x.ErrorMessage));
+
+        response = (TResponse?)typeof(TResponse)
+            .GetMethod(
+                name: nameof(ErrorOr<object>.From),
+                bindingAttr: BindingFlags.Static | BindingFlags.Public,
+                types: new[] { typeof(List<Error>) })?
+            .Invoke(null, new[] { errors })!;
+
+        return response is not null;
     }
 }

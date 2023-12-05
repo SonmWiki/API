@@ -1,13 +1,10 @@
 using System.Reflection;
 using Application.Common.Behaviours;
-using Application.Data;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Application;
+namespace Application.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -15,7 +12,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         return services;
     }
