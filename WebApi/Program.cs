@@ -1,7 +1,7 @@
-using Application;
-using Application.Data;
+using Application.Extensions;
+using Application.Features.Articles.Extensions;
+using Application.Features.Categories.Extensions;
 using Infrastructure.Extensions;
-using Microsoft.EntityFrameworkCore;
 using WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,12 +22,13 @@ var app = builder.Build();
 
 app.SetupDatabase();
 
+app.MapArticles();
+app.MapCategories();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.MapGet("/", () => "Hello World!");
 
 app.Run();
