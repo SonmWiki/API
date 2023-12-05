@@ -11,9 +11,12 @@ namespace Application.Features.Categories;
 
 public static class GetCategoryArticles
 {
-    public record Query(string Name) : IRequest<ErrorOr<List<Response>>>;
+    public record Query(string Name) : IRequest<ErrorOr<Response>>;
 
-    public record Response(string Title);
+    public record Response(List<Response.Element> Data)
+    {
+        public record Element(string Title);
+    }
 
     public static void Map(this IEndpointRouteBuilder app)
     {
@@ -33,9 +36,9 @@ public static class GetCategoryArticles
             .WithOpenApi();
     }
 
-    public class QueryHandler(IApplicationDbContext dbContext) : IRequestHandler<Query, ErrorOr<List<Response>>>
+    public class QueryHandler(IApplicationDbContext dbContext) : IRequestHandler<Query, ErrorOr<Response>>
     {
-        public async Task<ErrorOr<List<Response>>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var category = await dbContext.Categories.AsNoTracking()
                 .FirstOrDefaultAsync(e => e.Id == request.Name, cancellationToken);
@@ -46,10 +49,10 @@ public static class GetCategoryArticles
                 .Where(e => e.CategoryId == request.Name)
                 .Select(e => e.Article)
                 .Where(e => e.IsVisible == true && e.RedirectArticleId == null)
-                .Select(e => new Response(e.Id))
+                .Select(e => new Response.Element(e.Id))
                 .ToListAsync(cancellationToken);
             
-            return articlesList;
+            return new Response(articlesList);
         }
     }
 }
