@@ -2,7 +2,7 @@ using Domain.Contracts;
 
 namespace Domain.Entities;
 
-public class Category: BaseEntity<string>
+public class Category : BaseEntity<string>
 {
     public string? ParentId { get; set; }
     public virtual Category? Parent { get; set; }

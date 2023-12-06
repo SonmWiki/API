@@ -42,7 +42,7 @@ public static class GetCategories
             var list = await dbContext.Categories
                 .Select(e => new Response.Element(e.Id, e.ParentId))
                 .ToListAsync(cancellationToken: cancellationToken);
-            
+
             return new Response(list);
         }
     }

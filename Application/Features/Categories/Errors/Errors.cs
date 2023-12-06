@@ -8,7 +8,7 @@ public static class Category
         code: "Category.NotFound",
         description: "Category with this name was not found."
     );
-    
+
     public static Error ParentNotFound = Error.NotFound(
         code: "Category.ParentNotFound",
         description: "Category with this name was not found."

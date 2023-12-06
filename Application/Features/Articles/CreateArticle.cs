@@ -1,6 +1,5 @@
 ﻿using Application.Data;
 using Application.Extensions;
-using Application.Features.Articles.Extensions;
 using Domain.Entities;
 using ErrorOr;
 using FluentValidation;
@@ -19,7 +18,7 @@ public static class CreateArticle
     public record Command(string Title) : IRequest<ErrorOr<Response>>;
 
     public record Response(string Title);
-    
+
     public class Validator : AbstractValidator<Command>
     {
         public Validator()
@@ -29,7 +28,7 @@ public static class CreateArticle
                 .NotEmpty();
         }
     }
-    
+
     public static void Map(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/articles",
@@ -41,7 +40,6 @@ public static class CreateArticle
                         value => Results.Created($"/api/articles/{command.Title}", value),
                         error => error.ToIResult()
                     );
-
                 })
             .WithName(nameof(CreateArticle))
             .WithTags("Article")
@@ -50,7 +48,7 @@ public static class CreateArticle
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithOpenApi();
     }
-    
+
     public class CommandHandler(IApplicationDbContext dbContext) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)

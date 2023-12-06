@@ -30,7 +30,7 @@ public static class CreateCategory
                 .MaximumLength(128);
         }
     }
-    
+
     public static void Map(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/categories", async (IMediator mediator, Request request) =>
@@ -50,14 +50,14 @@ public static class CreateCategory
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithOpenApi();
     }
-    
+
     public class CommandHandler(IApplicationDbContext dbContext) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var existingCategory = await dbContext.Categories.AsNoTracking()
                 .FirstOrDefaultAsync(e => e.Id == command.Name, cancellationToken);
-            
+
             if (existingCategory != null) return Errors.Category.DuplicateName;
 
             Category? parent;
@@ -69,9 +69,9 @@ public static class CreateCategory
             {
                 var existingParent = await dbContext.Categories.AsNoTracking()
                     .FirstOrDefaultAsync(e => e.Id == command.ParentName, cancellationToken);
-                
+
                 if (existingParent == null) return Errors.Category.ParentNotFound;
-                
+
                 parent = existingParent;
             }
 

@@ -46,12 +46,12 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
             code: x.PropertyName,
             description: x.ErrorMessage));
 
-        response = (TResponse?)typeof(TResponse)
+        response = (TResponse?) typeof(TResponse)
             .GetMethod(
                 name: nameof(ErrorOr<object>.From),
                 bindingAttr: BindingFlags.Static | BindingFlags.Public,
-                types: new[] { typeof(List<Error>) })?
-            .Invoke(null, new[] { errors })!;
+                types: new[] {typeof(List<Error>)})?
+            .Invoke(null, new[] {errors})!;
 
         return response is not null;
     }

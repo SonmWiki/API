@@ -19,8 +19,6 @@ builder.Services.AddSwaggerGen(options =>
     }
 );
 
-//TODO Error pipeline behaviour i.e. NotFoundException, ConflictException
-
 var app = builder.Build();
 
 app.SetupDatabase();

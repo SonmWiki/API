@@ -28,19 +28,19 @@ public static class UpdateCategory
                 .NotEmpty();
         }
     }
-    
+
     public static void Map(this IEndpointRouteBuilder app)
     {
         app.MapPut("/api/categories/{name}",
-            async (string name, IMediator mediator, Request request) =>
-            {
-                var command = new Command(name, request.Name, request.ParentName);
-                var response = await mediator.Send(command);
-                return response.MatchFirst(
-                    value => Results.Ok(value),
-                    error => error.ToIResult()
-                );
-            })
+                async (string name, IMediator mediator, Request request) =>
+                {
+                    var command = new Command(name, request.Name, request.ParentName);
+                    var response = await mediator.Send(command);
+                    return response.MatchFirst(
+                        value => Results.Ok(value),
+                        error => error.ToIResult()
+                    );
+                })
             .WithName(nameof(UpdateCategory))
             .WithTags("Category")
             .Produces<Response>()
@@ -48,7 +48,7 @@ public static class UpdateCategory
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi();
     }
-    
+
     public class CommandHandler(IApplicationDbContext dbContext) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
@@ -66,9 +66,9 @@ public static class UpdateCategory
             {
                 var existingParent = await dbContext.Categories.AsNoTracking()
                     .FirstOrDefaultAsync(e => e.Id == command.ParentName, cancellationToken);
-                
+
                 if (existingParent == null) return Errors.Category.ParentNotFound;
-                
+
                 parent = existingParent;
             }
 

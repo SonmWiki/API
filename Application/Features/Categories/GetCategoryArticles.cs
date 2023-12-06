@@ -44,14 +44,14 @@ public static class GetCategoryArticles
                 .FirstOrDefaultAsync(e => e.Id == request.Name, cancellationToken);
 
             if (category == null) return Errors.Category.NotFound;
-            
+
             var articlesList = await dbContext.ArticleCategories.AsNoTracking()
                 .Where(e => e.CategoryId == request.Name)
                 .Select(e => e.Article)
                 .Where(e => e.IsVisible == true && e.RedirectArticleId == null)
                 .Select(e => new Response.Element(e.Id))
                 .ToListAsync(cancellationToken);
-            
+
             return new Response(articlesList);
         }
     }

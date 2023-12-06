@@ -11,7 +11,7 @@ public static class EndpointRouteBuilderExt
         UpdateCategory.Map(app);
         DeleteCategory.Map(app);
         GetCategoryArticles.Map(app);
-        
+
         return app;
     }
 }

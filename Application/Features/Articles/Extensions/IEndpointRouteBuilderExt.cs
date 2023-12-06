@@ -9,7 +9,7 @@ public static class EndpointRouteBuilderExt
         GetArticle.Map(app);
         CreateArticle.Map(app);
         DeleteArticle.Map(app);
-        
+
         return app;
     }
 }

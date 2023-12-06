@@ -31,9 +31,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 .WithMany(e => e.SubCategories)
                 .OnDelete(DeleteBehavior.Restrict);
         });
-        modelBuilder.Entity<Revision>(entity =>
-        {
-            entity.Property(e => e.ReviewTimestamp).HasDefaultValue(null);
-        });
+        modelBuilder.Entity<Revision>(entity => { entity.Property(e => e.ReviewTimestamp).HasDefaultValue(null); });
     }
 }
