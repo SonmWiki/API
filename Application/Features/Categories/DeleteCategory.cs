@@ -10,17 +10,17 @@ namespace Application.Features.Categories;
 
 public static class DeleteCategory
 {
-    public record Command(string Name) : IRequest<ErrorOr<Response>>;
+    public record Command(string Id) : IRequest<ErrorOr<Response>>;
 
-    public record Response(string Name);
+    public record Response(string Id);
 
     public static void Map(this IEndpointRouteBuilder app)
     {
-        app.MapDelete("/api/categories/{name}",
-                async (string name, IMediator mediator) =>
+        app.MapDelete("/api/categories/{id}",
+                async (string id, IMediator mediator) =>
                 {
-                    var command = new Command(name);
-                    var result = await mediator.Send(new Command(name));
+                    var command = new Command(id);
+                    var result = await mediator.Send(command);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -37,7 +37,7 @@ public static class DeleteCategory
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var category = await dbContext.Categories.FindAsync(new object[] {command.Name}, cancellationToken);
+            var category = await dbContext.Categories.FindAsync(new object[] {command.Id}, cancellationToken);
             if (category == null) return Errors.Category.NotFound;
             dbContext.Categories.Remove(category);
             await dbContext.SaveChangesAsync(cancellationToken);

@@ -15,7 +15,7 @@ public static class GetCategories
 
     public record Response(List<Response.Element> Data)
     {
-        public record Element(string Name, string? ParentName);
+        public record Element(string Id, string Name, string? ParentId);
     }
 
     public static void Map(this IEndpointRouteBuilder app)
@@ -40,7 +40,7 @@ public static class GetCategories
         public async Task<ErrorOr<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var list = await dbContext.Categories
-                .Select(e => new Response.Element(e.Id, e.ParentId))
+                .Select(e => new Response.Element(e.Id, e.Name, e.ParentId))
                 .ToListAsync(cancellationToken: cancellationToken);
 
             return new Response(list);

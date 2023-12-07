@@ -12,9 +12,10 @@ namespace Application.Features.Articles;
 
 public static class GetArticle
 {
-    public record Query(string Title) : IRequest<ErrorOr<Response>>;
+    public record Query(string Id) : IRequest<ErrorOr<Response>>;
 
     public record Response(
+        string Id,
         string Title,
         string Content,
         string RevisionAuthor,
@@ -24,10 +25,10 @@ public static class GetArticle
 
     public static void Map(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/articles/{title}",
-                async Task<IResult> (string title, IMediator mediator) =>
+        app.MapGet("/api/articles/{id}",
+                async Task<IResult> (string id, IMediator mediator) =>
                 {
-                    var result = await mediator.Send(new Query(title));
+                    var result = await mediator.Send(new Query(id));
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -45,27 +46,29 @@ public static class GetArticle
         public async Task<ErrorOr<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var article = await dbContext.Articles.AsNoTracking()
-                .FirstOrDefaultAsync(e => e.IsVisible == true && e.Id == request.Title, cancellationToken);
+                .Include(e=>e.RedirectArticle)
+                .FirstOrDefaultAsync(e => e.IsVisible == true && e.Id == request.Id, cancellationToken);
 
             if (article == null) return Errors.Article.NotFound;
 
-            var articleId = article.RedirectArticleId ?? article.Id;
+            article = article.RedirectArticle ?? article;
 
             var articleCategoriesIds = await dbContext.ArticleCategories.AsNoTracking()
-                .Where(e => e.ArticleId == articleId)
+                .Where(e => e.ArticleId == article.Id)
                 .Select(e => e.CategoryId)
                 .ToListAsync(cancellationToken);
 
             var revision = await dbContext.Revisions.AsNoTracking()
                 .Include(e => e.Article)
-                .Where(e => e.Article.Id == articleId && e.Status == RevisionStatus.Active)
+                .Where(e => e.Article.Id == article.Id && e.Status == RevisionStatus.Active)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (revision == null) return Errors.Article.NotFound;
 
             return new Response
             (
-                articleId,
+                article.Id,
+                article.Title,
                 revision.Content,
                 revision.Author,
                 (DateTime) revision.ReviewTimestamp!,

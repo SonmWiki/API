@@ -8,16 +8,17 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Slugify;
 
 namespace Application.Features.Categories;
 
 public static class CreateCategory
 {
-    public record Request(string Name, string? ParentName);
+    public record Request(string Name, string? ParentId);
 
-    public record Command(string Name, string? ParentName) : IRequest<ErrorOr<Response>>;
+    public record Command(string Name, string? ParentId) : IRequest<ErrorOr<Response>>;
 
-    public record Response(string Name);
+    public record Response(string Id);
 
     public class Validator : AbstractValidator<Command>
     {
@@ -26,8 +27,6 @@ public static class CreateCategory
             RuleFor(v => v.Name)
                 .MaximumLength(128)
                 .NotEmpty();
-            RuleFor(v => v.ParentName)
-                .MaximumLength(128);
         }
     }
 
@@ -35,10 +34,10 @@ public static class CreateCategory
     {
         app.MapPost("/api/categories", async (IMediator mediator, Request request) =>
             {
-                var command = new Command(request.Name, request.ParentName);
+                var command = new Command(request.Name, request.ParentId);
                 var result = await mediator.Send(command);
                 return result.MatchFirst(
-                    value => Results.Created($"/api/categories/{request.Name}", value),
+                    value => Results.Created($"/api/categories/{value.Id}", value),
                     error => error.ToIResult()
                 );
             })
@@ -51,24 +50,28 @@ public static class CreateCategory
             .WithOpenApi();
     }
 
-    public class CommandHandler(IApplicationDbContext dbContext) : IRequestHandler<Command, ErrorOr<Response>>
+    public class CommandHandler(IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var existingCategory = await dbContext.Categories.AsNoTracking()
-                .FirstOrDefaultAsync(e => e.Id == command.Name, cancellationToken);
+            var id = slugHelper.GenerateSlug(command.Name);
 
-            if (existingCategory != null) return Errors.Category.DuplicateName;
+            if (string.IsNullOrEmpty(id)) return Errors.Category.EmptyId;
+
+            var existingCategory = await dbContext.Categories
+                .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+
+            if (existingCategory != null) return Errors.Category.DuplicateId;
 
             Category? parent;
-            if (string.IsNullOrEmpty(command.ParentName))
+            if (string.IsNullOrEmpty(command.ParentId))
             {
                 parent = null;
             }
             else
             {
-                var existingParent = await dbContext.Categories.AsNoTracking()
-                    .FirstOrDefaultAsync(e => e.Id == command.ParentName, cancellationToken);
+                var existingParent = await dbContext.Categories
+                    .FirstOrDefaultAsync(e => e.Id == command.ParentId, cancellationToken);
 
                 if (existingParent == null) return Errors.Category.ParentNotFound;
 
@@ -77,7 +80,8 @@ public static class CreateCategory
 
             var entity = new Category
             {
-                Id = command.Name,
+                Id = id,
+                Name = command.Name,
                 Parent = parent
             };
 

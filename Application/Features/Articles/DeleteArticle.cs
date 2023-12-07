@@ -10,17 +10,17 @@ namespace Application.Features.Articles;
 
 public static class DeleteArticle
 {
-    public record Command(string Title) : IRequest<ErrorOr<Response>>;
+    public record Command(string Id) : IRequest<ErrorOr<Response>>;
 
-    public record Response(string Title);
+    public record Response(string Id);
 
     public static void Map(this IEndpointRouteBuilder app)
     {
-        app.MapDelete("/api/articles/{title}",
-                async (string title, IMediator mediator) =>
+        app.MapDelete("/api/articles/{id}",
+                async (string id, IMediator mediator) =>
                 {
-                    var command = new Command(title);
-                    var result = await mediator.Send(new Command(title));
+                    var command = new Command(id);
+                    var result = await mediator.Send(command);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -37,7 +37,7 @@ public static class DeleteArticle
     {
         public async Task<ErrorOr<Response>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var article = await dbContext.Articles.FindAsync(new object[] {request.Title}, cancellationToken);
+            var article = await dbContext.Articles.FindAsync(new object[] {request.Id}, cancellationToken);
             if (article == null) return Errors.Article.NotFound;
             dbContext.Articles.Remove(article);
             await dbContext.SaveChangesAsync(cancellationToken);

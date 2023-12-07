@@ -8,22 +8,23 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Slugify;
 
 namespace Application.Features.Categories;
 
 public static class UpdateCategory
 {
-    public record Request(string Name, string? ParentName);
+    public record Request(string Name, string? ParentId);
 
-    public record Command(string OriginalName, string UpdatedName, string? ParentName) : IRequest<ErrorOr<Response>>;
+    public record Command(string Id, string Name, string? ParentId) : IRequest<ErrorOr<Response>>;
 
-    public record Response(string Name);
+    public record Response(string Id);
 
     public class UpdateCategoryCommandValidator : AbstractValidator<Command>
     {
         public UpdateCategoryCommandValidator()
         {
-            RuleFor(v => v.UpdatedName)
+            RuleFor(v => v.Name)
                 .MaximumLength(128)
                 .NotEmpty();
         }
@@ -31,10 +32,10 @@ public static class UpdateCategory
 
     public static void Map(this IEndpointRouteBuilder app)
     {
-        app.MapPut("/api/categories/{name}",
-                async (string name, IMediator mediator, Request request) =>
+        app.MapPut("/api/categories/{id}",
+                async (string id, IMediator mediator, Request request) =>
                 {
-                    var command = new Command(name, request.Name, request.ParentName);
+                    var command = new Command(id, request.Name, request.ParentId);
                     var response = await mediator.Send(command);
                     return response.MatchFirst(
                         value => Results.Ok(value),
@@ -49,30 +50,38 @@ public static class UpdateCategory
             .WithOpenApi();
     }
 
-    public class CommandHandler(IApplicationDbContext dbContext) : IRequestHandler<Command, ErrorOr<Response>>
+    public class CommandHandler(IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var entity = await dbContext.Categories.FindAsync(new object[] {command.OriginalName}, cancellationToken);
+            var entity = await dbContext.Categories.FindAsync(new object[] {command.Id}, cancellationToken);
 
             if (entity == null) return Errors.Category.NotFound;
 
+            var updatedId = slugHelper.GenerateSlug(command.Name);
+
+            if (string.IsNullOrEmpty(updatedId)) return Errors.Category.EmptyId;
+
+            if (entity.Id != updatedId && await dbContext.Categories.AnyAsync(e => e.Id == updatedId, cancellationToken))
+                return Errors.Category.DuplicateId;
+            
             Category? parent;
-            if (string.IsNullOrEmpty(command.ParentName))
+            if (string.IsNullOrEmpty(command.ParentId))
             {
                 parent = null;
             }
             else
             {
-                var existingParent = await dbContext.Categories.AsNoTracking()
-                    .FirstOrDefaultAsync(e => e.Id == command.ParentName, cancellationToken);
+                var existingParent = await dbContext.Categories
+                    .FirstOrDefaultAsync(e => e.Id == command.ParentId, cancellationToken);
 
                 if (existingParent == null) return Errors.Category.ParentNotFound;
 
                 parent = existingParent;
             }
 
-            entity.Id = command.UpdatedName;
+            entity.Id = updatedId;
+            entity.Name = command.Name;
             entity.Parent = parent;
 
             await dbContext.SaveChangesAsync(cancellationToken);

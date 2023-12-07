@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Slugify;
 
 namespace Application.Features.Articles;
 
@@ -17,7 +18,7 @@ public static class CreateArticle
 
     public record Command(string Title) : IRequest<ErrorOr<Response>>;
 
-    public record Response(string Title);
+    public record Response(string Id);
 
     public class Validator : AbstractValidator<Command>
     {
@@ -37,7 +38,7 @@ public static class CreateArticle
                     var command = new Command(request.Title);
                     var result = await mediator.Send(command);
                     return result.MatchFirst(
-                        value => Results.Created($"/api/articles/{command.Title}", value),
+                        value => Results.Created($"/api/articles/{value.Id}", value),
                         error => error.ToIResult()
                     );
                 })
@@ -49,17 +50,22 @@ public static class CreateArticle
             .WithOpenApi();
     }
 
-    public class CommandHandler(IApplicationDbContext dbContext) : IRequestHandler<Command, ErrorOr<Response>>
+    public class CommandHandler(IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var existingArticle = await dbContext.Articles.AsNoTracking()
-                .FirstOrDefaultAsync(e => e.Id == command.Title, cancellationToken);
-            if (existingArticle != null) return Errors.Article.DuplicateTitle;
+            var id = slugHelper.GenerateSlug(command.Title);
+
+            if (string.IsNullOrEmpty(id)) return Errors.Article.EmptyId;
+            
+            var existingArticle = await dbContext.Articles
+                .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            if (existingArticle != null) return Errors.Article.DuplicateId;
 
             var article = new Article()
             {
-                Id = command.Title,
+                Id = id,
+                Title = command.Title,
                 IsVisible = false
             };
 
