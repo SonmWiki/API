@@ -4,6 +4,7 @@ namespace Domain.Entities;
 
 public class Article : BaseEntity<string>
 {
+    public required string Title { get; set; }
     public bool IsVisible { get; set; }
     public string? RedirectArticleId { get; set; }
     public virtual Article? RedirectArticle { get; set; }
