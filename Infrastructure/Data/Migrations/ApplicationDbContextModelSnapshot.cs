@@ -25,13 +25,18 @@ namespace Infrastructure.Data.Migrations
             modelBuilder.Entity("Domain.Entities.Article", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
 
                     b.Property<bool>("IsVisible")
                         .HasColumnType("boolean");
 
                     b.Property<string>("RedirectArticleId")
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
                     b.HasKey("Id");
@@ -44,10 +49,10 @@ namespace Infrastructure.Data.Migrations
             modelBuilder.Entity("Domain.Entities.ArticleCategory", b =>
                 {
                     b.Property<string>("ArticleId")
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("character varying(512)");
 
                     b.Property<string>("CategoryId")
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("character varying(512)");
 
                     b.HasKey("ArticleId", "CategoryId");
 
@@ -59,11 +64,16 @@ namespace Infrastructure.Data.Migrations
             modelBuilder.Entity("Domain.Entities.Category", b =>
                 {
                     b.Property<string>("Id")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
                     b.Property<string>("ParentId")
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("character varying(512)");
 
                     b.HasKey("Id");
 
@@ -80,7 +90,7 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<string>("ArticleId")
                         .IsRequired()
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("character varying(512)");
 
                     b.Property<string>("Author")
                         .IsRequired()
@@ -121,7 +131,8 @@ namespace Infrastructure.Data.Migrations
                 {
                     b.HasOne("Domain.Entities.Article", "RedirectArticle")
                         .WithMany()
-                        .HasForeignKey("RedirectArticleId");
+                        .HasForeignKey("RedirectArticleId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("RedirectArticle");
                 });
@@ -135,7 +146,7 @@ namespace Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Category", "Category")
-                        .WithMany()
+                        .WithMany("CategoryArticles")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -150,7 +161,7 @@ namespace Infrastructure.Data.Migrations
                     b.HasOne("Domain.Entities.Category", "Parent")
                         .WithMany("SubCategories")
                         .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Parent");
                 });
@@ -181,6 +192,8 @@ namespace Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
                 {
+                    b.Navigation("CategoryArticles");
+
                     b.Navigation("SubCategories");
                 });
 #pragma warning restore 612, 618

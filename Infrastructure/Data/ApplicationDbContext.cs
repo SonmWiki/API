@@ -19,17 +19,25 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         modelBuilder.Entity<Article>(entity =>
         {
-            entity.Property(e => e.Id).HasMaxLength(128);
+            entity.Property(e => e.Id).HasMaxLength(512);
+            entity.Property(e => e.Title).HasMaxLength(128);
             entity.HasMany(e => e.Categories)
                 .WithMany(e => e.Articles)
                 .UsingEntity<ArticleCategory>();
+            entity.HasOne(e=>e.RedirectArticle)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Cascade);
         });
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.Property(e => e.Id).HasMaxLength(128);
+            entity.Property(e => e.Id).HasMaxLength(512);
+            entity.Property(e => e.Name).HasMaxLength(128);
             entity.HasOne(e => e.Parent)
                 .WithMany(e => e.SubCategories)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasMany(e => e.Articles)
+                .WithMany(e => e.Categories)
+                .UsingEntity<ArticleCategory>();
         });
         modelBuilder.Entity<Revision>(entity => { entity.Property(e => e.ReviewTimestamp).HasDefaultValue(null); });
     }
