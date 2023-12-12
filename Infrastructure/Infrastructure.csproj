@@ -11,4 +11,9 @@
       <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Keycloak.AuthServices.Authentication" Version="1.6.0" />
+      <PackageReference Include="Keycloak.AuthServices.Authorization" Version="1.6.0" />
+    </ItemGroup>
+
 </Project>
