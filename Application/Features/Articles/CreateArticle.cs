@@ -4,11 +4,13 @@ using Domain.Entities;
 using ErrorOr;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Slugify;
+using static Application.Common.Constants.AuthorizationConstants;
 
 namespace Application.Features.Articles;
 
@@ -47,6 +49,7 @@ public static class CreateArticle
             .Produces<Response>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status409Conflict)
+            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
             .WithOpenApi();
     }
 

@@ -1,5 +1,7 @@
 ﻿using Application.Data;
 using Infrastructure.Data;
+using Keycloak.AuthServices.Authentication;
+using Keycloak.AuthServices.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +17,9 @@ public static class ServiceCollectionExt
 
         services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
+        
+        services.AddKeycloakAuthentication(configuration);
+        services.AddKeycloakAuthorization(configuration);
 
         return services;
     }

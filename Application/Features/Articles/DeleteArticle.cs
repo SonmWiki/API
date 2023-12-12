@@ -1,10 +1,13 @@
-﻿using Application.Data;
+﻿using Application.Common.Constants;
+using Application.Data;
 using Application.Extensions;
 using ErrorOr;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using static Application.Common.Constants.AuthorizationConstants;
 
 namespace Application.Features.Articles;
 
@@ -30,6 +33,7 @@ public static class DeleteArticle
             .WithTags("Article")
             .Produces<Response>()
             .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
             .WithOpenApi();
     }
 
