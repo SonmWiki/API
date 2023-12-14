@@ -9,7 +9,8 @@ public class Revision : BaseEntity<Guid>
     public Guid? PreviousRevisionId { get; set; }
     public virtual Revision? PreviousRevision { get; set; }
     public required string Content { get; set; }
-    public required string Author { get; set; }
+    public required string AuthorId { get; set; }
+    public virtual required Author Author { get; set; }
     public DateTime Timestamp { get; set; }
     public RevisionStatus Status { get; set; }
     public string? Reviewer { get; set; }

@@ -10,6 +10,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Category> Categories { get; set; }
     public DbSet<ArticleCategory> ArticleCategories { get; set; }
     public DbSet<Revision> Revisions { get; set; }
+    public DbSet<Author> Authors { get; set; }
 
     public ApplicationDbContext(DbContextOptions options) : base(options)
     {

@@ -28,6 +28,10 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)");
 
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsVisible")
                         .HasColumnType("boolean");
 
@@ -40,6 +44,8 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("character varying(128)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
 
                     b.HasIndex("RedirectArticleId");
 
@@ -59,6 +65,20 @@ namespace Infrastructure.Data.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("ArticleCategories");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Author", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Authors");
                 });
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
@@ -92,7 +112,7 @@ namespace Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("character varying(512)");
 
-                    b.Property<string>("Author")
+                    b.Property<string>("AuthorId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -122,6 +142,8 @@ namespace Infrastructure.Data.Migrations
 
                     b.HasIndex("ArticleId");
 
+                    b.HasIndex("AuthorId");
+
                     b.HasIndex("PreviousRevisionId");
 
                     b.ToTable("Revisions");
@@ -129,10 +151,18 @@ namespace Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.Article", b =>
                 {
+                    b.HasOne("Domain.Entities.Author", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Article", "RedirectArticle")
                         .WithMany()
                         .HasForeignKey("RedirectArticleId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Author");
 
                     b.Navigation("RedirectArticle");
                 });
@@ -174,11 +204,19 @@ namespace Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.Author", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Revision", "PreviousRevision")
                         .WithMany()
                         .HasForeignKey("PreviousRevisionId");
 
                     b.Navigation("Article");
+
+                    b.Navigation("Author");
 
                     b.Navigation("PreviousRevision");
                 });
