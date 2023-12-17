@@ -32,6 +32,8 @@ public static class DeleteArticle
             .WithName(nameof(DeleteArticle))
             .WithTags("Article")
             .Produces<Response>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
             .WithOpenApi();
