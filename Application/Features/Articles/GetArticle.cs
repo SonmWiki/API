@@ -18,10 +18,13 @@ public static class GetArticle
         string Id,
         string Title,
         string Content,
-        string RevisionAuthor,
+        List<Response.Author> Contributors,
         DateTime Timestamp,
         List<string> Categories
-    );
+    )
+    {
+        public record Author(string Id, string Name);
+    }
 
     public static void Map(this IEndpointRouteBuilder app)
     {
@@ -59,18 +62,25 @@ public static class GetArticle
                 .ToListAsync(cancellationToken);
 
             var revision = await dbContext.Revisions.AsNoTracking()
-                .Include(e => e.Article)
-                .Where(e => e.Article.Id == article.Id && e.Status == RevisionStatus.Active)
+                .Where(e => e.ArticleId == article.Id && e.Status == RevisionStatus.Active)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (revision == null) return Errors.Article.NotFound;
+            
+            var contributors = await dbContext.Revisions.AsNoTracking()
+                .Include(e => e.Author)
+                .Where(e => e.ArticleId == article.Id && (e.Status == RevisionStatus.Accepted || e.Status == RevisionStatus.Active))
+                .OrderBy(e=>e.ReviewTimestamp)
+                .Select(e => new Response.Author(e.Author.Id, e.Author.Name))
+                .Distinct()
+                .ToListAsync(cancellationToken);
 
             return new Response
             (
                 article.Id,
                 article.Title,
                 revision.Content,
-                revision.Author,
+                contributors,
                 (DateTime) revision.ReviewTimestamp!,
                 articleCategoriesIds
             );
