@@ -1,4 +1,5 @@
-﻿using Application.Data;
+﻿using Application.Authorization.Abstractions;
+using Application.Data;
 using Application.Extensions;
 using Domain.Entities;
 using ErrorOr;
@@ -16,9 +17,9 @@ namespace Application.Features.Articles;
 
 public static class CreateArticle
 {
-    public record Request(string Title);
+    public record Request(string Title, string Content, List<string> CategoryIds);
 
-    public record Command(string Title) : IRequest<ErrorOr<Response>>;
+    public record Command(string Title, string Content, List<string> CategoryIds) : IRequest<ErrorOr<Response>>;
 
     public record Response(string Id);
 
@@ -29,6 +30,8 @@ public static class CreateArticle
             RuleFor(v => v.Title)
                 .MaximumLength(128)
                 .NotEmpty();
+            RuleFor(v => v.Content)
+                .NotEmpty();
         }
     }
 
@@ -37,7 +40,7 @@ public static class CreateArticle
         app.MapPost("/api/articles",
                 async Task<IResult> (IMediator mediator, Request request) =>
                 {
-                    var command = new Command(request.Title);
+                    var command = new Command(request.Title, request.Content, request.CategoryIds);
                     var result = await mediator.Send(command);
                     return result.MatchFirst(
                         value => Results.Created($"/api/articles/{value.Id}", value),
@@ -53,7 +56,7 @@ public static class CreateArticle
             .WithOpenApi();
     }
 
-    public class CommandHandler(IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<Command, ErrorOr<Response>>
+    public class CommandHandler(IApplicationDbContext dbContext, ISlugHelper slugHelper, IIdentityService identityService) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
@@ -61,18 +64,29 @@ public static class CreateArticle
 
             if (string.IsNullOrEmpty(id)) return Errors.Article.EmptyId;
             
-            var existingArticle = await dbContext.Articles
-                .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            var existingArticle = await dbContext.Articles.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
             if (existingArticle != null) return Errors.Article.DuplicateId;
 
-            var article = new Article()
+            var article = new Article
             {
                 Id = id,
                 Title = command.Title,
                 IsVisible = false
             };
 
+            var revision = new Revision
+            {
+                ArticleId = id,
+                Article = article,
+                AuthorId = identityService.UserId!,
+                Author = new Author{Id = identityService.UserId!, Name = identityService.UserName!},
+                Content = command.Content,
+                Timestamp = DateTime.Now,
+                Status = RevisionStatus.Draft
+            };
+
             await dbContext.Articles.AddAsync(article, cancellationToken);
+            await dbContext.Revisions.AddAsync(revision, cancellationToken);
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
