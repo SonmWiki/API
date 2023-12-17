@@ -1,4 +1,5 @@
-﻿using Application.Authorization.Abstractions;
+﻿using System.Security.Claims;
+using Application.Authorization.Abstractions;
 using Application.Data;
 using Infrastructure.Authorization;
 using Infrastructure.Data;
@@ -22,6 +23,7 @@ public static class ServiceCollectionExt
             options.UseNpgsql(connectionString));
         
         services.AddKeycloakAuthentication(configuration);
+        services.AddAuthorization();
         services.AddKeycloakAuthorization(configuration);
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();

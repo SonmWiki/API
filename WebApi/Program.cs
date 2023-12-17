@@ -12,8 +12,6 @@ builder.Host.ConfigureKeycloakConfigurationSource("keycloak.json");
 
 builder.Services.AddLogging();
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddEndpointsApiExplorer();
