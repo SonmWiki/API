@@ -28,10 +28,6 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)");
 
-                    b.Property<string>("AuthorId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsVisible")
                         .HasColumnType("boolean");
 
@@ -44,8 +40,6 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("character varying(128)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
 
                     b.HasIndex("RedirectArticleId");
 
@@ -151,18 +145,10 @@ namespace Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.Article", b =>
                 {
-                    b.HasOne("Domain.Entities.Author", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Article", "RedirectArticle")
                         .WithMany()
                         .HasForeignKey("RedirectArticleId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Author");
 
                     b.Navigation("RedirectArticle");
                 });
