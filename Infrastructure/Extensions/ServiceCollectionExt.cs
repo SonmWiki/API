@@ -1,11 +1,12 @@
 ﻿using System.Security.Claims;
 using Application.Authorization.Abstractions;
 using Application.Data;
-using Domain.Entities;
+using Application.Features.Authors;
 using Infrastructure.Authorization;
 using Infrastructure.Data;
 using Keycloak.AuthServices.Authentication;
 using Keycloak.AuthServices.Authorization;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -30,21 +31,15 @@ public static class ServiceCollectionExt
             options.Events.OnTokenValidated += async context =>
             {
                 var principal = context.Principal;
-                var id = principal?.FindFirst(ClaimTypes.NameIdentifier);
-                if (id == null) return;
+                var idClaim = principal?.FindFirst(ClaimTypes.NameIdentifier);
+                if (idClaim == null) return;
                 if (principal?.Identity?.Name == null) return;
                 if (principal.Identity.IsAuthenticated == false) return;
 
-                var dbContext = context.HttpContext.RequestServices.GetService<IApplicationDbContext>();
+                var mediator = context.HttpContext.RequestServices.GetService<IMediator>();
+                var command = new CreateOrUpdateAuthor.Command(idClaim.Value, principal.Identity.Name);
 
-                var author = new Author {Id = id.Value, Name = principal.Identity.Name};
-                var exists = dbContext.Authors.Any(e => e.Id == id.Value);
-                if (exists)
-                    dbContext.Authors.Update(author);
-                else
-                    dbContext.Authors.Add(author);
-
-                await dbContext.SaveChangesAsync();
+                await mediator.Send(command);
             };
         });
         services.AddAuthorization();
