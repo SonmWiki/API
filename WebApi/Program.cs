@@ -1,9 +1,9 @@
 using Application.Extensions;
-using Application.Features.Articles.Extensions;
-using Application.Features.Categories.Extensions;
 using Infrastructure.Extensions;
 using Keycloak.AuthServices.Authentication;
 using WebApi.Extensions;
+using WebApi.Features.Articles;
+using WebApi.Features.Categories;
 using WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +18,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
     {
         options.SupportNonNullableReferenceTypes();
-        options.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
     }
 );
 
@@ -29,8 +28,8 @@ app.SetupDatabase();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapArticles();
-app.MapCategories();
+app.AddArticlesEndpoints();
+app.AddCategoriesEndpoints();
 
 if (app.Environment.IsDevelopment())
 {

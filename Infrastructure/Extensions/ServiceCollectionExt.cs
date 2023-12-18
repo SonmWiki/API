@@ -1,7 +1,8 @@
 ﻿using System.Security.Claims;
 using Application.Authorization.Abstractions;
 using Application.Data;
-using Application.Features.Authors;
+using Application.Features.Authors.CreateAuthor;
+using Application.Features.Authors.UpdateAuthor;
 using Infrastructure.Authorization;
 using Infrastructure.Data;
 using Keycloak.AuthServices.Authentication;
@@ -37,9 +38,14 @@ public static class ServiceCollectionExt
                 if (principal.Identity.IsAuthenticated == false) return;
 
                 var mediator = context.HttpContext.RequestServices.GetService<IMediator>();
-                var command = new CreateOrUpdateAuthor.Command(idClaim.Value, principal.Identity.Name);
+                var createCommand = new CreateAuthorCommand(idClaim.Value, principal.Identity.Name);
 
-                await mediator.Send(command);
+                var result = await mediator.Send(createCommand);
+                if (result.IsError)
+                {
+                    var updateCommand = new UpdateAuthorCommand(idClaim.Value, principal.Identity.Name);
+                    await mediator.Send(updateCommand);
+                }
             };
         });
         services.AddAuthorization();

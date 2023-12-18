@@ -1,7 +1,6 @@
 using ErrorOr;
-using Microsoft.AspNetCore.Http;
 
-namespace Application.Extensions;
+namespace WebApi.Extensions;
 
 public static class ErrorExt
 {
