@@ -1,6 +1,7 @@
 ﻿using Application.Extensions;
 using Application.Features.Articles.CreateArticle;
 using Application.Features.Articles.DeleteArticle;
+using Application.Features.Articles.EditArticle;
 using Application.Features.Articles.GetArticle;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -49,6 +50,29 @@ public static class ArticlesModule
             .WithTags("Article")
             .Produces<GetArticleResponse>()
             .ProducesProblem(StatusCodes.Status404NotFound)
+            .WithOpenApi();
+        
+        app.MapPut("/api/articles/{id}",
+                async Task<IResult> (string id, IMediator mediator, EditArticleRequest request) =>
+                {
+                    var command =
+                        new EditArticleCommand(id, request.Title, request.Content,
+                            request.CategoryIds);
+                    var result = await mediator.Send(command);
+                    return result.MatchFirst(
+                        value => Results.Created($"/api/articles/{value.Id}", value),
+                        error => error.ToIResult()
+                    );
+                })
+            .WithName("EditArticle")
+            .WithTags("Article")
+            .Produces<EditArticleResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
             .WithOpenApi();
         
         app.MapDelete("/api/articles/{id}",
