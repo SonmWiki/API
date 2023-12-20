@@ -36,7 +36,7 @@ public class CreateArticleCommandHandler(
             ArticleId = id,
             Article = article,
             AuthorId = identityService.UserId!,
-            Author = new Author{Id = identityService.UserId!, Name = identityService.UserName!},
+            Author = default!,
             Content = command.Content,
             Timestamp = DateTime.Now,
             Status = RevisionStatus.Submitted
