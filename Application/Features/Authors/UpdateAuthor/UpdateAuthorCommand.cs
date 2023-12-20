@@ -1,7 +1,6 @@
-﻿using Application.Features.Authors.CreateAuthor;
-using ErrorOr;
+﻿using ErrorOr;
 using MediatR;
 
 namespace Application.Features.Authors.UpdateAuthor;
 
-public record UpdateAuthorCommand(string Id, string Name) : IRequest<ErrorOr<CreateAuthorResponse>>;
+public record UpdateAuthorCommand(string Id, string Name) : IRequest<ErrorOr<UpdateAuthorResponse>>;

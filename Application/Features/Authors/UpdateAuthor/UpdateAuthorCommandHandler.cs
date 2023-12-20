@@ -1,14 +1,13 @@
 ﻿using Application.Data;
-using Application.Features.Authors.CreateAuthor;
 using Domain.Entities;
 using ErrorOr;
 using MediatR;
 
 namespace Application.Features.Authors.UpdateAuthor;
 
-public class UpdateAuthorCommandHandler(IApplicationDbContext dbContext) : IRequestHandler<CreateAuthorCommand, ErrorOr<CreateAuthorResponse>>
+public class UpdateAuthorCommandHandler(IApplicationDbContext dbContext) : IRequestHandler<UpdateAuthorCommand, ErrorOr<UpdateAuthorResponse>>
 {
-    public async Task<ErrorOr<CreateAuthorResponse>> Handle(CreateAuthorCommand command, CancellationToken cancellationToken)
+    public async Task<ErrorOr<UpdateAuthorResponse>> Handle(UpdateAuthorCommand command, CancellationToken cancellationToken)
     {
         var author = new Author {Id = command.Id, Name = command.Name};
             
@@ -18,6 +17,6 @@ public class UpdateAuthorCommandHandler(IApplicationDbContext dbContext) : IRequ
         dbContext.Authors.Update(author);
         await dbContext.SaveChangesAsync(cancellationToken);
             
-        return new CreateAuthorResponse(author.Id);
+        return new UpdateAuthorResponse(author.Id);
     }
 }
