@@ -30,7 +30,7 @@ public class CreateArticleCommandHandler(
             Title = command.Title,
             ArticleStatus = ArticleStatus.Submitted
         };
-
+        
         var revision = new Revision
         {
             ArticleId = id,
@@ -41,6 +41,12 @@ public class CreateArticleCommandHandler(
             Timestamp = DateTime.Now.ToUniversalTime(),
             Status = RevisionStatus.Submitted
         };
+        
+        var categories = await dbContext.Categories
+            .Where(e => command.CategoryIds.Contains(e.Id))
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        article.Categories = categories;
 
         await dbContext.Articles.AddAsync(article, cancellationToken);
         await dbContext.Revisions.AddAsync(revision, cancellationToken);
