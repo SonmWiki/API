@@ -1,4 +1,5 @@
 using Application.Data;
+using Domain.Entities;
 using ErrorOr;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,7 @@ public class GetCategoryArticlesQueryHandler(IApplicationDbContext dbContext) : 
         var articlesList = await dbContext.ArticleCategories.AsNoTracking()
             .Where(e => e.CategoryId == request.Id)
             .Select(e => e.Article)
-            .Where(e => e.IsVisible == true && e.RedirectArticleId == null)
+            .Where(e => e.ArticleStatus == ArticleStatus.Active && e.RedirectArticleId == null)
             .Select(e => new GetCategoryArticlesElement(e.Id, e.Title))
             .ToListAsync(cancellationToken);
 

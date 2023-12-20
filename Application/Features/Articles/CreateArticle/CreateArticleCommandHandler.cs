@@ -28,7 +28,7 @@ public class CreateArticleCommandHandler(
         {
             Id = id,
             Title = command.Title,
-            IsVisible = false
+            ArticleStatus = ArticleStatus.Submitted
         };
 
         var revision = new Revision
@@ -39,7 +39,7 @@ public class CreateArticleCommandHandler(
             Author = new Author{Id = identityService.UserId!, Name = identityService.UserName!},
             Content = command.Content,
             Timestamp = DateTime.Now,
-            Status = RevisionStatus.Draft
+            Status = RevisionStatus.Submitted
         };
 
         await dbContext.Articles.AddAsync(article, cancellationToken);
