@@ -38,7 +38,7 @@ public class CreateArticleCommandHandler(
             AuthorId = identityService.UserId!,
             Author = default!,
             Content = command.Content,
-            Timestamp = DateTime.Now,
+            Timestamp = DateTime.Now.ToUniversalTime(),
             Status = RevisionStatus.Submitted
         };
 
