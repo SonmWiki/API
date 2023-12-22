@@ -28,7 +28,7 @@ public class CreateArticleCommandHandler(
         {
             Id = id,
             Title = command.Title,
-            ArticleStatus = ArticleStatus.Submitted
+            IsHidden = true
         };
         
         var revision = new Revision
