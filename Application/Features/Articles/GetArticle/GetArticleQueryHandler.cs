@@ -21,16 +21,15 @@ public class GetArticleQueryHandler(IApplicationDbContext dbContext) : IRequestH
 
         article = article.RedirectArticle ?? article;
 
+        var revision = await dbContext.Revisions.AsNoTracking()
+            .Where(e => e.ArticleId == article.Id && e.Status == RevisionStatus.Active)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (revision == null) return Errors.Article.NotFound;
+        
         var articleCategoriesIds = await dbContext.ArticleCategories.AsNoTracking()
             .Where(e => e.ArticleId == article.Id)
             .Select(e => e.CategoryId)
             .ToListAsync(cancellationToken);
-
-        var revision = await dbContext.Revisions.AsNoTracking()
-            .Where(e => e.ArticleId == article.Id && e.Status == RevisionStatus.Active)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (revision == null) return Errors.Article.NotFound;
             
         var contributors = await dbContext.Revisions.AsNoTracking()
             .Include(e => e.Author)
