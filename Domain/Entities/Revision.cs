@@ -8,7 +8,9 @@ public class Revision : BaseEntity<Guid>
     public virtual required Article Article { get; set; }
     public Guid? PreviousRevisionId { get; set; }
     public virtual Revision? PreviousRevision { get; set; }
+    public required string Title { get; set; }
     public required string Content { get; set; }
+    public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
     public required string AuthorId { get; set; }
     public virtual required Author Author { get; set; }
     public DateTime Timestamp { get; set; }
