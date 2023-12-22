@@ -20,6 +20,7 @@ public class GetCategoryArticlesQueryHandler(IApplicationDbContext dbContext) : 
             .Select(e => e.Article)
             .Where(e => e.IsHidden == false && e.RedirectArticleId == null)
             .Select(e => new GetCategoryArticlesElement(e.Id, e.Title))
+            .AsNoTracking()
             .ToListAsync(cancellationToken);
 
         return new GetCategoryArticlesResponse(articlesList);

@@ -12,6 +12,7 @@ public class GetCategoriesQueryHandler(IApplicationDbContext dbContext) : IReque
     {
         var list = await dbContext.Categories
             .Select(e => new GetCategoriesResponseElement(e.Id, e.Name, e.ParentId))
+            .AsNoTracking()
             .ToListAsync(cancellationToken: cancellationToken);
 
         return new GetCategoriesResponse(list);
