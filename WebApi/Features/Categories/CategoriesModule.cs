@@ -1,10 +1,8 @@
-﻿using Application.Extensions;
-using Application.Features.Categories;
-using Application.Features.Categories.CreateCategory;
+﻿using Application.Features.Categories.CreateCategory;
 using Application.Features.Categories.DeleteCategory;
+using Application.Features.Categories.EditCategory;
 using Application.Features.Categories.GetCategories;
 using Application.Features.Categories.GetCategoryArticles;
-using Application.Features.Categories.UpdateCategory;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Extensions;
@@ -68,7 +66,7 @@ public static class CategoriesModule
         app.MapPut("/api/categories/{id}",
                 async (string id, IMediator mediator, UpdateCategoryRequest request) =>
                 {
-                    var command = new UpdateCategoryCommand(id, request.Name, request.ParentId);
+                    var command = new EditCategoryCommand(id, request.Name, request.ParentId);
                     var response = await mediator.Send(command);
                     return response.MatchFirst(
                         value => Results.Ok(value),
@@ -77,7 +75,7 @@ public static class CategoriesModule
                 })
             .WithName("UpdateCategory")
             .WithTags("Category")
-            .Produces<UpdateCategoryResponse>()
+            .Produces<EditCategoryResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
