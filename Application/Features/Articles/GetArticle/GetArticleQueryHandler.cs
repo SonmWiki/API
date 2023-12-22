@@ -12,10 +12,7 @@ public class GetArticleQueryHandler(IApplicationDbContext dbContext) : IRequestH
     {
         var article = await dbContext.Articles.AsNoTracking()
             .Include(e=>e.RedirectArticle)
-            .FirstOrDefaultAsync(e => 
-                (e.ArticleStatus == ArticleStatus.Active || e.ArticleStatus == ArticleStatus.Redirect) 
-                && e.Id == query.Id, cancellationToken
-                );
+            .FirstOrDefaultAsync(e => e.Id == query.Id && e.IsHidden == false, cancellationToken);
 
         if (article == null) return Errors.Article.NotFound;
 
