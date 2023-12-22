@@ -25,7 +25,7 @@ public class EditArticleCommandHandler(
 
         var article = await dbContext.Articles
             .Include(e => e.ArticleCategories)
-            .FirstOrDefaultAsync(e => e.Id == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(e => e.Id == request.Id && e.IsHidden == false, cancellationToken);
         
         if (article == null) return Errors.Article.NotFound;
 
@@ -38,7 +38,7 @@ public class EditArticleCommandHandler(
             {
                 Id = id,
                 Title = request.Title,
-                ArticleStatus = ArticleStatus.Submitted
+                IsHidden = true
             };
 
             await dbContext.Articles.AddAsync(article, cancellationToken);
