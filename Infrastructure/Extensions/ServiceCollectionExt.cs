@@ -2,7 +2,7 @@
 using Application.Authorization.Abstractions;
 using Application.Data;
 using Application.Features.Authors.CreateAuthor;
-using Application.Features.Authors.UpdateAuthor;
+using Application.Features.Authors.EditAuthor;
 using Infrastructure.Authorization;
 using Infrastructure.Data;
 using Keycloak.AuthServices.Authentication;
@@ -43,7 +43,7 @@ public static class ServiceCollectionExt
                 var result = await mediator.Send(createCommand);
                 if (result.IsError)
                 {
-                    var updateCommand = new UpdateAuthorCommand(idClaim.Value, principal.Identity.Name);
+                    var updateCommand = new EditAuthorCommand(idClaim.Value, principal.Identity.Name);
                     await mediator.Send(updateCommand);
                 }
             };
