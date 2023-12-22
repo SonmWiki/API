@@ -5,17 +5,17 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Slugify;
 
-namespace Application.Features.Categories.UpdateCategory;
+namespace Application.Features.Categories.EditCategory;
 
-public class UpdateCategoryCommandHandler(IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<UpdateCategoryCommand, ErrorOr<UpdateCategoryResponse>>
+public class EditCategoryCommandHandler(IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<EditCategoryCommand, ErrorOr<EditCategoryResponse>>
 {
-    public async Task<ErrorOr<UpdateCategoryResponse>> Handle(UpdateCategoryCommand updateCategoryCommand, CancellationToken cancellationToken)
+    public async Task<ErrorOr<EditCategoryResponse>> Handle(EditCategoryCommand editCategoryCommand, CancellationToken cancellationToken)
     {
-        var entity = await dbContext.Categories.FindAsync(new object[] {updateCategoryCommand.Id}, cancellationToken);
+        var entity = await dbContext.Categories.FindAsync(new object[] {editCategoryCommand.Id}, cancellationToken);
 
         if (entity == null) return Errors.Category.NotFound;
 
-        var updatedId = slugHelper.GenerateSlug(updateCategoryCommand.Name);
+        var updatedId = slugHelper.GenerateSlug(editCategoryCommand.Name);
 
         if (string.IsNullOrEmpty(updatedId)) return Errors.Category.EmptyId;
 
@@ -23,14 +23,14 @@ public class UpdateCategoryCommandHandler(IApplicationDbContext dbContext, ISlug
             return Errors.Category.DuplicateId;
 
         Category? parent;
-        if (string.IsNullOrEmpty(updateCategoryCommand.ParentId))
+        if (string.IsNullOrEmpty(editCategoryCommand.ParentId))
         {
             parent = null;
         }
         else
         {
             var existingParent = await dbContext.Categories
-                .FirstOrDefaultAsync(e => e.Id == updateCategoryCommand.ParentId, cancellationToken);
+                .FirstOrDefaultAsync(e => e.Id == editCategoryCommand.ParentId, cancellationToken);
 
             if (existingParent == null) return Errors.Category.ParentNotFound;
 
@@ -38,11 +38,11 @@ public class UpdateCategoryCommandHandler(IApplicationDbContext dbContext, ISlug
         }
 
         entity.Id = updatedId;
-        entity.Name = updateCategoryCommand.Name;
+        entity.Name = editCategoryCommand.Name;
         entity.Parent = parent;
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return new UpdateCategoryResponse(entity.Id);
+        return new EditCategoryResponse(entity.Id);
     }
 }
