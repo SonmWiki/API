@@ -2,6 +2,7 @@
 using Domain.Entities;
 using ErrorOr;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Authors.UpdateAuthor;
 
@@ -9,12 +10,12 @@ public class UpdateAuthorCommandHandler(IApplicationDbContext dbContext) : IRequ
 {
     public async Task<ErrorOr<UpdateAuthorResponse>> Handle(UpdateAuthorCommand command, CancellationToken cancellationToken)
     {
-        var author = new Author {Id = command.Id, Name = command.Name};
-            
-        var exists = dbContext.Authors.Any(e => e.Id == author.Id);
-        if (!exists) return Errors.Author.NotFound;
+        var author = await dbContext.Authors.FirstOrDefaultAsync(e => e.Id == command.Id, cancellationToken);
 
-        dbContext.Authors.Update(author);
+        if (author == null) return Errors.Author.NotFound;
+
+        author.Name = command.Name;
+
         await dbContext.SaveChangesAsync(cancellationToken);
             
         return new UpdateAuthorResponse(author.Id);
