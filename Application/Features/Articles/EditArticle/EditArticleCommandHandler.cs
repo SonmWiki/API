@@ -5,7 +5,6 @@ using ErrorOr;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Slugify;
-using static Application.Common.Constants.AuthorizationConstants;
 
 namespace Application.Features.Articles.EditArticle;
 
@@ -43,20 +42,26 @@ public class EditArticleCommandHandler(
 
             await dbContext.Articles.AddAsync(article, cancellationToken);
         }
-
-        var principal = identityService.Principal;
         
-        // TODO: Allow user to change title when generated slug unchanged
-        if (principal != null && (principal.IsInRole(Roles.Admin) || principal.IsInRole(Roles.Editor))) 
-            article.Title = request.Title;
-        
-        var activeRevision = await dbContext.Revisions.FirstOrDefaultAsync(e =>
-                e.Status == RevisionStatus.Active && e.ArticleId == request.Id,
-            cancellationToken: cancellationToken);
+        var activeRevision = await dbContext.Revisions
+            .Include(e=>e.Categories)
+            .FirstOrDefaultAsync(e => e.Status == RevisionStatus.Active && e.ArticleId == request.Id, 
+                cancellationToken: cancellationToken
+            );
 
         if (activeRevision == null) return Errors.Article.NotFound;
 
-        if (activeRevision.Content != request.Content)
+        var requestCategories = await dbContext.Categories
+            .Where(e => request.CategoryIds.Contains(e.Id))
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        var activeRevisionCategoriesIds = activeRevision.Categories.Select(e => e.Id).ToHashSet();
+        var requestCategoriesIds = requestCategories.Select(e => e.Id).ToHashSet();
+        
+        if (activeRevision.Title != request.Title 
+            || activeRevision.Content != request.Content 
+            || !activeRevisionCategoriesIds.SetEquals(requestCategoriesIds)
+        )
         {
             var revision = new Revision
             {
@@ -64,20 +69,15 @@ public class EditArticleCommandHandler(
                 Article = default!,
                 AuthorId = identityService.UserId!,
                 Author = default!,
+                Title = request.Title,
                 Content = request.Content,
+                Categories = requestCategories,
                 Timestamp = DateTime.Now.ToUniversalTime(),
                 Status = RevisionStatus.Submitted
             };
 
             await dbContext.Revisions.AddAsync(revision, cancellationToken);
         }
-
-        var categories = await dbContext.Categories
-            .Where(e => request.CategoryIds.Contains(e.Id))
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        article.Categories.Clear();
-        article.Categories = categories;
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
