@@ -31,22 +31,22 @@ public class CreateArticleCommandHandler(
             IsHidden = true
         };
         
-        var revision = new Revision
-        {
-            ArticleId = id,
-            Article = article,
-            AuthorId = identityService.UserId!,
-            Author = default!,
-            Content = command.Content,
-            Timestamp = DateTime.Now.ToUniversalTime(),
-            Status = RevisionStatus.Submitted
-        };
-        
         var categories = await dbContext.Categories
             .Where(e => command.CategoryIds.Contains(e.Id))
             .ToListAsync(cancellationToken: cancellationToken);
-
-        article.Categories = categories;
+        
+        var revision = new Revision
+        {
+            ArticleId = id,
+            Article = default!,
+            AuthorId = identityService.UserId!,
+            Author = default!,
+            Title = command.Title,
+            Content = command.Content,
+            Categories = categories,
+            Timestamp = DateTime.Now.ToUniversalTime(),
+            Status = RevisionStatus.Submitted
+        };
 
         await dbContext.Articles.AddAsync(article, cancellationToken);
         await dbContext.Revisions.AddAsync(revision, cancellationToken);
