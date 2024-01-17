@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240116221526_AddedReviewTable")]
+    partial class AddedReviewTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,9 +46,6 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)");
 
-                    b.Property<Guid?>("CurrentRevisionId")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("IsHidden")
                         .HasColumnType("boolean");
 
@@ -58,9 +58,6 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("character varying(128)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CurrentRevisionId")
-                        .IsUnique();
 
                     b.HasIndex("RedirectArticleId");
 
@@ -170,6 +167,9 @@ namespace Infrastructure.Data.Migrations
                     b.Property<Guid?>("LatestReviewId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("PreviousRevisionId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
@@ -185,6 +185,8 @@ namespace Infrastructure.Data.Migrations
 
                     b.HasIndex("LatestReviewId")
                         .IsUnique();
+
+                    b.HasIndex("PreviousRevisionId");
 
                     b.ToTable("Revisions");
                 });
@@ -206,16 +208,10 @@ namespace Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.Article", b =>
                 {
-                    b.HasOne("Domain.Entities.Revision", "CurrentRevision")
-                        .WithOne()
-                        .HasForeignKey("Domain.Entities.Article", "CurrentRevisionId");
-
                     b.HasOne("Domain.Entities.Article", "RedirectArticle")
                         .WithMany()
                         .HasForeignKey("RedirectArticleId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("CurrentRevision");
 
                     b.Navigation("RedirectArticle");
                 });
@@ -286,11 +282,17 @@ namespace Infrastructure.Data.Migrations
                         .WithOne()
                         .HasForeignKey("Domain.Entities.Revision", "LatestReviewId");
 
+                    b.HasOne("Domain.Entities.Revision", "PreviousRevision")
+                        .WithMany()
+                        .HasForeignKey("PreviousRevisionId");
+
                     b.Navigation("Article");
 
                     b.Navigation("Author");
 
                     b.Navigation("LatestReview");
+
+                    b.Navigation("PreviousRevision");
                 });
 
             modelBuilder.Entity("Domain.Entities.Article", b =>
