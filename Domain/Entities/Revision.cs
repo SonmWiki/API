@@ -12,17 +12,7 @@ public class Revision : BaseEntity<Guid>
     public required string AuthorId { get; set; }
     public virtual required Author Author { get; set; }
     public DateTime Timestamp { get; set; }
-    public RevisionStatus Status { get; set; }
-    public string? Reviewer { get; set; }
-    public string? Review { get; set; }
-    public DateTime? ReviewTimestamp { get; set; }
-}
-
-public enum RevisionStatus
-{
-    Draft,
-    Submitted,
-    Rejected,
-    Accepted,
-    Active
+    public Guid? LatestReviewId { get; set; }
+    public virtual Review? LatestReview { get; set; }
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }
