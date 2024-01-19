@@ -8,9 +8,6 @@ public class EditArticleCommandValidator : AbstractValidator<EditArticleCommand>
     {
         RuleFor(v => v.Id)
             .NotEmpty();
-        RuleFor(v => v.Title)
-            .MaximumLength(128)
-            .NotEmpty();
         RuleFor(v => v.Content)
             .NotEmpty();
     }

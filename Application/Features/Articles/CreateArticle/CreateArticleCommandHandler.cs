@@ -28,7 +28,6 @@ public class CreateArticleCommandHandler(
         {
             Id = id,
             Title = command.Title,
-            IsHidden = true
         };
         
         var categories = await dbContext.Categories
@@ -41,11 +40,9 @@ public class CreateArticleCommandHandler(
             Article = default!,
             AuthorId = identityService.UserId!,
             Author = default!,
-            Title = command.Title,
             Content = command.Content,
             Categories = categories,
-            Timestamp = DateTime.Now.ToUniversalTime(),
-            Status = RevisionStatus.Submitted
+            Timestamp = DateTime.Now.ToUniversalTime()
         };
 
         await dbContext.Articles.AddAsync(article, cancellationToken);

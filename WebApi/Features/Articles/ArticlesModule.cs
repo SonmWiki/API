@@ -56,8 +56,7 @@ public static class ArticlesModule
                 async Task<IResult> (string id, IMediator mediator, EditArticleRequest request) =>
                 {
                     var command =
-                        new EditArticleCommand(id, request.Title, request.Content,
-                            request.CategoryIds);
+                        new EditArticleCommand(id, request.Content, request.CategoryIds);
                     var result = await mediator.Send(command);
                     return result.MatchFirst(
                         value => Results.Created($"/api/articles/{value.Id}", value),

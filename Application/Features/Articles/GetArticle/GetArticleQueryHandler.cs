@@ -11,19 +11,16 @@ public class GetArticleQueryHandler(IApplicationDbContext dbContext) : IRequestH
     public async Task<ErrorOr<GetArticleResponse>> Handle(GetArticleQuery query, CancellationToken cancellationToken)
     {
         var article = await dbContext.Articles
+            .Include(e=>e.CurrentRevision)
             .Include(e=>e.RedirectArticle)
+            .ThenInclude(e=>e != null ? e.CurrentRevision : null)
             .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == query.Id && e.IsHidden == false, cancellationToken);
-
+            .FirstOrDefaultAsync(e => e.Id == query.Id, cancellationToken);
+        
         if (article == null) return Errors.Article.NotFound;
-
+        
         article = article.RedirectArticle ?? article;
-
-        var revision = await dbContext.Revisions
-            .Where(e => e.ArticleId == article.Id && e.Status == RevisionStatus.Active)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(cancellationToken);
-        if (revision == null) return Errors.Article.NotFound;
+        
         
         var articleCategoriesIds = await dbContext.ArticleCategories
             .Where(e => e.ArticleId == article.Id)
@@ -33,20 +30,21 @@ public class GetArticleQueryHandler(IApplicationDbContext dbContext) : IRequestH
             
         var contributors = await dbContext.Revisions
             .Include(e => e.Author)
-            .Where(e => e.ArticleId == article.Id && (e.Status == RevisionStatus.Accepted || e.Status == RevisionStatus.Active))
-            .OrderBy(e=>e.ReviewTimestamp)
+            .Include(e => e.LatestReview)
+            .Where(e => e.ArticleId == article.Id && e.LatestReview != null && e.LatestReview.Status == ReviewStatus.Accepted )
+            .OrderBy(e => e.LatestReview!.ReviewTimestamp)
             .Select(e => new GetArticleResponse.Author(e.Author.Id, e.Author.Name))
             .Distinct()
             .AsNoTracking()
             .ToListAsync(cancellationToken);
-
+        
         return new GetArticleResponse
         (
             article.Id,
             article.Title,
-            revision.Content,
+            article.CurrentRevision != null ? article.CurrentRevision.Content : "NoContent",
             contributors,
-            (DateTime) revision.ReviewTimestamp!,
+            article.CurrentRevision != null ? article.CurrentRevision.LatestReview!.ReviewTimestamp : DateTime.Now,
             articleCategoriesIds
         );
     }

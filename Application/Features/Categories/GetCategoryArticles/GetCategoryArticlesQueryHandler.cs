@@ -15,10 +15,11 @@ public class GetCategoryArticlesQueryHandler(IApplicationDbContext dbContext) : 
 
         if (category == null) return Errors.Category.NotFound;
 
-        var articlesList = await dbContext.ArticleCategories.AsNoTracking()
+        var articlesList = await dbContext.ArticleCategories
             .Where(e => e.CategoryId == request.Id)
+            .Include(e=>e.Article.CurrentRevision)
             .Select(e => e.Article)
-            .Where(e => e.IsHidden == false && e.RedirectArticleId == null)
+            .Where(e => e.CurrentRevisionId != null && e.RedirectArticleId == null)
             .Select(e => new GetCategoryArticlesElement(e.Id, e.Title))
             .AsNoTracking()
             .ToListAsync(cancellationToken);
