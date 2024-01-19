@@ -10,6 +10,5 @@ public class Article : BaseEntity<string>
     public Guid? CurrentRevisionId { get; set; }
     public virtual Revision? CurrentRevision { get; set; }
     public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
-    public virtual ICollection<ArticleCategory> ArticleCategories { get; set; } = new List<ArticleCategory>();
     public virtual ICollection<Revision> Revisions { get; set; } = new List<Revision>();
 }
