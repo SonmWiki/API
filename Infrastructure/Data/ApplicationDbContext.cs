@@ -1,3 +1,4 @@
+using Application.Common.Constants;
 using Application.Data;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -21,8 +22,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         modelBuilder.Entity<Article>(entity =>
         {
-            entity.Property(e => e.Id).HasMaxLength(512);
-            entity.Property(e => e.Title).HasMaxLength(128);
+            entity.Property(e => e.Id).HasMaxLength(ApplicationConstants.MaxSlugLength);
+            entity.Property(e => e.Title).HasMaxLength(ApplicationConstants.MaxTitleLenght);
             entity.HasMany(e => e.Categories)
                 .WithMany(e => e.Articles)
                 .UsingEntity<ArticleCategory>();
@@ -38,8 +39,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         });
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.Property(e => e.Id).HasMaxLength(512);
-            entity.Property(e => e.Name).HasMaxLength(128);
+            entity.Property(e => e.Id).HasMaxLength(ApplicationConstants.MaxSlugLength);
+            entity.Property(e => e.Name).HasMaxLength(ApplicationConstants.MaxTitleLenght);
             entity.HasOne(e => e.Parent)
                 .WithMany(e => e.SubCategories)
                 .OnDelete(DeleteBehavior.SetNull);

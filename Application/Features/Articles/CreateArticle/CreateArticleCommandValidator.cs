@@ -1,3 +1,4 @@
+using Application.Common.Constants;
 using FluentValidation;
 
 namespace Application.Features.Articles.CreateArticle;
@@ -7,7 +8,7 @@ public class CreateArticleCommandValidator : AbstractValidator<CreateArticleComm
     public CreateArticleCommandValidator()
     {
         RuleFor(v => v.Title)
-            .MaximumLength(128)
+            .MaximumLength(ApplicationConstants.MaxTitleLenght)
             .NotEmpty();
         RuleFor(v => v.Content)
             .NotEmpty();
