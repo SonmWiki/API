@@ -74,7 +74,7 @@ public static class ArticlesModule
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
             .WithOpenApi();
 
-        app.MapPost("/api/articles/revisions/{id}",
+        app.MapPost("/api/articles/revisions/{id}/reviews",
                 async Task<IResult> (Guid id, IMediator mediator, ReviewArticleRevisionRequest request) =>
                 {
                     var command = new ReviewRevisionCommand(id, request.Status, request.Review);
