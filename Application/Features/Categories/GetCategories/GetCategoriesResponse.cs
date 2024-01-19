@@ -1,5 +1,6 @@
 namespace Application.Features.Categories.GetCategories;
 
-public record GetCategoriesResponse(List<GetCategoriesResponseElement> Data);
-
-public record GetCategoriesResponseElement(string Id, string Name, string? ParentId);
+public record GetCategoriesResponse(List<GetCategoriesResponse.Element> Data)
+{
+    public record Element(string Id, string Name, string? ParentId);
+}

@@ -19,7 +19,7 @@ public class GetCategoryArticlesQueryHandler(IApplicationDbContext dbContext) : 
             .Include(e=>e.Article.CurrentRevision)
             .Select(e => e.Article)
             .Where(e => e.CurrentRevisionId != null && e.RedirectArticleId == null)
-            .Select(e => new GetCategoryArticlesElement(e.Id, e.Title))
+            .Select(e => new GetCategoryArticlesResponse.Element(e.Id, e.Title))
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
