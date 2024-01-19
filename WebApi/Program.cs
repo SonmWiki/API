@@ -10,7 +10,7 @@ using WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.ConfigureKeycloakConfigurationSource("keycloak.json");
+builder.Host.ConfigureKeycloakConfigurationSource();
 
 builder.Services.AddLogging();
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
@@ -40,13 +40,13 @@ builder.Services.AddSwaggerGen(options =>
                 {
                     AuthorizationUrl = new Uri($"{kcoptions.KeycloakUrlRealm}/protocol/openid-connect/auth"),
                     TokenUrl = new Uri($"{kcoptions.KeycloakUrlRealm}/protocol/openid-connect/token"),
-                    Scopes = new Dictionary<string, string>(),
+                    Scopes = new Dictionary<string, string>()
                 },
                 AuthorizationCode = new OpenApiOAuthFlow
                 {
                     AuthorizationUrl = new Uri($"{kcoptions.KeycloakUrlRealm}/protocol/openid-connect/auth"),
                     TokenUrl = new Uri($"{kcoptions.KeycloakUrlRealm}/protocol/openid-connect/token"),
-                    Scopes = new Dictionary<string, string>(),
+                    Scopes = new Dictionary<string, string>()
                 }
             }
         };

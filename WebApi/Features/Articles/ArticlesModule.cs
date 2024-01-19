@@ -1,5 +1,4 @@
-﻿using Application.Extensions;
-using Application.Features.Articles.CreateArticle;
+﻿using Application.Features.Articles.CreateArticle;
 using Application.Features.Articles.DeleteArticle;
 using Application.Features.Articles.EditArticle;
 using Application.Features.Articles.GetArticle;

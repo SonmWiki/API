@@ -9,7 +9,7 @@ namespace Application.Features.Articles.EditArticle;
 
 public class EditArticleCommandHandler(
         IApplicationDbContext dbContext,
-        IIdentityService identityService
+        ICurrentUserService identityService
     )
     : IRequestHandler<EditArticleCommand, ErrorOr<EditArticleResponse>>
 {
@@ -26,13 +26,14 @@ public class EditArticleCommandHandler(
 
         var revision = new Revision
         {
+            Id = default!,
             ArticleId = request.Id,
             Article = default!,
             AuthorId = identityService.UserId!,
             Author = default!,
             Content = request.Content,
             Categories = requestCategories,
-            Timestamp = DateTime.Now.ToUniversalTime(),
+            Timestamp = DateTime.UtcNow
         };
 
         await dbContext.Revisions.AddAsync(revision, cancellationToken);

@@ -11,7 +11,7 @@ namespace Application.Features.Articles.CreateArticle;
 public class CreateArticleCommandHandler(
         IApplicationDbContext dbContext,
         ISlugHelper slugHelper,
-        IIdentityService identityService
+        ICurrentUserService identityService
     )
     : IRequestHandler<CreateArticleCommand, ErrorOr<CreateArticleResponse>>
 {
@@ -27,7 +27,7 @@ public class CreateArticleCommandHandler(
         var article = new Article
         {
             Id = id,
-            Title = command.Title,
+            Title = command.Title
         };
         
         var categories = await dbContext.Categories
@@ -36,13 +36,14 @@ public class CreateArticleCommandHandler(
         
         var revision = new Revision
         {
+            Id = default!,
             ArticleId = id,
             Article = default!,
             AuthorId = identityService.UserId!,
             Author = default!,
             Content = command.Content,
             Categories = categories,
-            Timestamp = DateTime.Now.ToUniversalTime()
+            Timestamp = DateTime.UtcNow
         };
 
         await dbContext.Articles.AddAsync(article, cancellationToken);

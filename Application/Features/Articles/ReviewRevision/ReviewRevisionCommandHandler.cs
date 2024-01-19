@@ -4,14 +4,12 @@ using Domain.Entities;
 using ErrorOr;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Slugify;
 
 namespace Application.Features.Articles.ReviewRevision;
 
 public class ReviewRevisionCommandHandler(
         IApplicationDbContext dbContext,
-        ISlugHelper slugHelper,
-        IIdentityService identityService
+        ICurrentUserService identityService
     )
     : IRequestHandler<ReviewRevisionCommand, ErrorOr<ReviewRevisionResponse>>
 {
@@ -31,11 +29,12 @@ public class ReviewRevisionCommandHandler(
 
         var review = new Review
         {
+            Id = default!,
             ReviewerId = identityService.UserId!,
             Reviewer = default!,
             Status = command.Status,
             Message = command.Review,
-            ReviewTimestamp = DateTime.Now.ToUniversalTime(),
+            ReviewTimestamp = DateTime.UtcNow,
             RevisionId = revision.Id,
             Revision = revision
         };
@@ -71,7 +70,7 @@ public class ReviewRevisionCommandHandler(
         return new ReviewRevisionResponse(review.Id);
     }
 
-    private void SynchronizeArticleWithRevision(Article article, Revision revision)
+    private static void SynchronizeArticleWithRevision(Article article, Revision revision)
     {
         article.Categories.Clear();
         foreach (var revisionCategory in revision.Categories)

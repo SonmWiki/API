@@ -44,7 +44,7 @@ public class GetArticleQueryHandler(IApplicationDbContext dbContext) : IRequestH
             article.Title,
             article.CurrentRevision != null ? article.CurrentRevision.Content : "NoContent",
             contributors,
-            article.CurrentRevision != null ? article.CurrentRevision.LatestReview!.ReviewTimestamp : DateTime.Now,
+            article.CurrentRevision != null ? article.CurrentRevision.LatestReview!.ReviewTimestamp : DateTime.UtcNow,
             articleCategoriesIds
         );
     }

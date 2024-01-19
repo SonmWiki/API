@@ -5,18 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext, IApplicationDbContext
+public class ApplicationDbContext(DbContextOptions options) : DbContext(options), IApplicationDbContext
 {
-    public DbSet<Article> Articles { get; set; }
-    public DbSet<Category> Categories { get; set; }
-    public DbSet<ArticleCategory> ArticleCategories { get; set; }
-    public DbSet<Revision> Revisions { get; set; }
-    public DbSet<Review> Reviews { get; set; }
-    public DbSet<Author> Authors { get; set; }
-
-    public ApplicationDbContext(DbContextOptions options) : base(options)
-    {
-    }
+    public required DbSet<Article> Articles { get; set; }
+    public required DbSet<Category> Categories { get; set; }
+    public required DbSet<ArticleCategory> ArticleCategories { get; set; }
+    public required DbSet<Revision> Revisions { get; set; }
+    public required DbSet<Review> Reviews { get; set; }
+    public required DbSet<Author> Authors { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -1,5 +1,4 @@
 using Application.Data;
-using Domain.Entities;
 using ErrorOr;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
