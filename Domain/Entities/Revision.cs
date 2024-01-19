@@ -6,7 +6,6 @@ public class Revision : BaseEntity<Guid>
 {
     public required string ArticleId { get; set; }
     public virtual required Article Article { get; set; }
-    public required string Title { get; set; }
     public required string Content { get; set; }
     public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
     public required string AuthorId { get; set; }
