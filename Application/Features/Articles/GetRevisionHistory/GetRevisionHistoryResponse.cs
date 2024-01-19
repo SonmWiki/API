@@ -1,0 +1,23 @@
+﻿using Domain.Entities;
+
+namespace Application.Features.Articles.GetRevisionHistory;
+
+public record GetRevisionHistoryResponse(List<GetRevisionHistoryResponse.Element> Data)
+{
+    public record Element(
+        Guid Id,
+        Author Contributor,
+        DateTime Timestamp,
+        Review? LatestReview
+    );
+
+    public record Author(string Id, string Name);
+
+    public record Review(
+        Guid Id,
+        Author Reviewer,
+        ReviewStatus Status,
+        string Message,
+        DateTime ReviewTimestamp
+    );
+}

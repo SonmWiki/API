@@ -2,6 +2,7 @@
 using Application.Features.Articles.DeleteArticle;
 using Application.Features.Articles.EditArticle;
 using Application.Features.Articles.GetArticle;
+using Application.Features.Articles.GetRevisionHistory;
 using Application.Features.Articles.ReviewRevision;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -72,6 +73,22 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
+            .WithOpenApi();
+
+        app.MapGet("/api/articles/{id}/revisions",
+                async Task<IResult> (string id, IMediator mediator) =>
+                {
+                    var command = new GetRevisionHistoryQuery(id);
+                    var result = await mediator.Send(command);
+                    return result.MatchFirst(
+                        value => Results.Ok(value),
+                        error => error.ToIResult()
+                    );
+                })
+            .WithName("RevisionHistory")
+            .WithTags("Article")
+            .Produces<GetRevisionHistoryResponse>()
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
         app.MapPost("/api/articles/revisions/{id}/reviews",
