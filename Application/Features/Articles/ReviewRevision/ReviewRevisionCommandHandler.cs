@@ -18,7 +18,6 @@ public class ReviewRevisionCommandHandler(
     {
         var revision = await dbContext.Revisions
             .Include(e => e.Article)
-            .ThenInclude(e=>e.Categories)
             .Include(e => e.Categories)
             .Include(e => e.LatestReview)
             .FirstOrDefaultAsync(e => e.Id == command.RevisionId, cancellationToken);
@@ -41,20 +40,22 @@ public class ReviewRevisionCommandHandler(
         
         revision.LatestReview = review;
         
+        dbContext.ArticleCategories.RemoveRange(dbContext.ArticleCategories.Where(e=>e.ArticleId == article.Id));
+        
         if (command.Status is ReviewStatus.Removed)
             revision.Content = "[REDACTED]";
         
-        if (article.CurrentRevisionId == revision.Id && command is {Status: ReviewStatus.Removed or ReviewStatus.Rejected})
+        if (article.CurrentRevision == revision && command is {Status: ReviewStatus.Removed or ReviewStatus.Rejected})
         {
             var rollbackRevision = await dbContext.Revisions
                 .Include(e => e.LatestReview)
-                .Where(e => e.ArticleId == article.Id && e.LatestReview != null && e.LatestReview.Status == ReviewStatus.Accepted)
+                .Where(e => e.Id != revision.Id && e.ArticleId == article.Id && e.LatestReview != null && e.LatestReview.Status == ReviewStatus.Accepted)
                 .OrderByDescending(e=>e.Timestamp)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (rollbackRevision == null)
             {
-                article.CurrentRevisionId = null;
+                article.CurrentRevision = null;
             }
             else
             {
@@ -70,11 +71,15 @@ public class ReviewRevisionCommandHandler(
         return new ReviewRevisionResponse(review.Id);
     }
 
-    private static void SynchronizeArticleWithRevision(Article article, Revision revision)
+    private async void SynchronizeArticleWithRevision(Article article, Revision revision)
     {
-        article.Categories.Clear();
-        foreach (var revisionCategory in revision.Categories)
-            article.Categories.Add(revisionCategory);
+        await dbContext.ArticleCategories.AddRangeAsync(revision.Categories.Select(e => new ArticleCategory
+        {
+            ArticleId = article.Id,
+            CategoryId = e.Id,
+            Article = default!,
+            Category = default!
+        }));
         
         article.CurrentRevision = revision;
     }
