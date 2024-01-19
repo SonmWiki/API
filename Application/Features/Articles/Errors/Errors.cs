@@ -19,3 +19,11 @@ public static class Article
         description: "Generated ID for this article is empty."
     );
 }
+
+public static class Revision
+{
+    public static readonly Error NotFound = Error.NotFound(
+        code: "Revision.NotFound",
+        description: "Revision with this ID was not found."
+    );
+}

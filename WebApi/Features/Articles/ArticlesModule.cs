@@ -3,6 +3,7 @@ using Application.Features.Articles.CreateArticle;
 using Application.Features.Articles.DeleteArticle;
 using Application.Features.Articles.EditArticle;
 using Application.Features.Articles.GetArticle;
+using Application.Features.Articles.ReviewRevision;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Extensions;
@@ -72,6 +73,26 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
+            .WithOpenApi();
+
+        app.MapPost("/api/articles/revisions/{id}",
+                async Task<IResult> (Guid id, IMediator mediator, ReviewArticleRevisionRequest request) =>
+                {
+                    var command = new ReviewRevisionCommand(id, request.Status, request.Review);
+                    var result = await mediator.Send(command);
+                    return result.MatchFirst(
+                        value => Results.Created($"/api/articles/revisions/{id}/reviews/{value.Id}", value),
+                        error => error.ToIResult()
+                    );
+                })
+            .WithName("ReviewArticleRevision")
+            .WithTags("Article")
+            .Produces<ReviewRevisionResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
             .WithOpenApi();
         
         app.MapDelete("/api/articles/{id}",
