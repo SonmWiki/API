@@ -12,19 +12,19 @@ public class GetRevisionHistoryQueryHandler
         CancellationToken token)
     {
         var article = await dbContext.Articles
-            .Include(e => e.Revisions).ThenInclude(e => e.Author)
-            .Include(e => e.Revisions).ThenInclude(e => e.LatestReview).ThenInclude(e => e.Reviewer)
             .Include(e => e.RedirectArticle)
-            .ThenInclude(e => e.CurrentRevision)
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == query.Id, token);
 
         if (article == null) return Errors.Article.NotFound;
 
-        article = article.RedirectArticle ?? article;
+        if (article.RedirectArticle != null) 
+            article = article.RedirectArticle;
 
-
-        return new GetRevisionHistoryResponse(article.Revisions.Select(e => new GetRevisionHistoryResponse.Element(
+        var revisions = await dbContext.Revisions
+            .Where(e => e.ArticleId == article.Id)
+            .OrderByDescending(e=>e.Timestamp)
+            .Select(e => new GetRevisionHistoryResponse.Element(
                     e.Id,
                     new GetRevisionHistoryResponse.Author(e.Author.Id, e.Author.Name),
                     e.Timestamp,
@@ -41,7 +41,10 @@ public class GetRevisionHistoryQueryHandler
                             e.LatestReview.ReviewTimestamp
                         )
                 )
-            ).ToList()
-        );
+            )
+            .AsNoTracking()
+            .ToListAsync(token);
+
+        return new GetRevisionHistoryResponse(revisions);
     }
 }
