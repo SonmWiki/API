@@ -20,9 +20,7 @@ public static class ArticlesModule
         app.MapPost("/api/articles",
                 async Task<IResult> (IMediator mediator, CreateArticleRequest request) =>
                 {
-                    var command =
-                        new CreateArticleCommand(request.Title, request.Content,
-                            request.CategoryIds);
+                    var command = new CreateArticleCommand(request.Title, request.Content, request.CategoryIds);
                     var result = await mediator.Send(command);
                     return result.MatchFirst(
                         value => Results.Created($"/api/articles/{value.Id}", value),
@@ -38,7 +36,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status409Conflict)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
             .WithOpenApi();
-        
+
         app.MapGet("/api/articles/{id}",
                 async Task<IResult> (string id, Guid? revisionId, IMediator mediator) =>
                 {
@@ -53,12 +51,11 @@ public static class ArticlesModule
             .Produces<GetArticleResponse>()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi();
-        
+
         app.MapPut("/api/articles/{id}",
                 async Task<IResult> (string id, IMediator mediator, EditArticleRequest request) =>
                 {
-                    var command =
-                        new EditArticleCommand(id, request.Content, request.CategoryIds);
+                    var command = new EditArticleCommand(id, request.Content, request.CategoryIds);
                     var result = await mediator.Send(command);
                     return result.MatchFirst(
                         value => Results.Created($"/api/articles/{value.Id}", value),
@@ -91,7 +88,7 @@ public static class ArticlesModule
             .Produces<GetRevisionHistoryResponse>()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi();
-        
+
         app.MapGet("/api/articles/revisions/{id}/reviews",
                 async Task<IResult> (Guid id, IMediator mediator) =>
                 {
@@ -127,7 +124,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status404NotFound)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
             .WithOpenApi();
-        
+
         app.MapDelete("/api/articles/{id}",
                 async (string id, IMediator mediator) =>
                 {
