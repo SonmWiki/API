@@ -3,6 +3,7 @@ using Application.Features.Articles.DeleteArticle;
 using Application.Features.Articles.EditArticle;
 using Application.Features.Articles.GetArticle;
 using Application.Features.Articles.GetRevisionHistory;
+using Application.Features.Articles.GetRevisionReviewHistory;
 using Application.Features.Articles.ReviewRevision;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -39,9 +40,9 @@ public static class ArticlesModule
             .WithOpenApi();
         
         app.MapGet("/api/articles/{id}",
-                async Task<IResult> (string id, IMediator mediator) =>
+                async Task<IResult> (string id, Guid? revisionId, IMediator mediator) =>
                 {
-                    var result = await mediator.Send(new GetArticleQuery(id));
+                    var result = await mediator.Send(new GetArticleQuery(id, revisionId));
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()

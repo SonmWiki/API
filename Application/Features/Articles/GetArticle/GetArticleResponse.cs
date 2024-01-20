@@ -1,11 +1,16 @@
-﻿namespace Application.Features.Articles.GetArticle;
+﻿using Domain.Entities;
+
+namespace Application.Features.Articles.GetArticle;
 
 public record GetArticleResponse(
     string Id,
     string Title,
-    string Content,
+    string? Content,
     List<GetArticleResponse.Author> Contributors,
-    DateTime Timestamp,
+    Guid? RevisionId,
+    ReviewStatus? ReviewStatus,
+    DateTime? SubmittedTimestamp,
+    DateTime? ReviewTimestamp,
     List<string> Categories
 )
 {

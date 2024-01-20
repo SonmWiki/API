@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Application.Features.Articles.GetArticle;
 
-public record GetArticleQuery(string Id) : IRequest<ErrorOr<GetArticleResponse>>;
+public record GetArticleQuery(string Id, Guid? RevisionId = null) : IRequest<ErrorOr<GetArticleResponse>>;
