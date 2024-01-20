@@ -16,15 +16,12 @@ public class GetCategoryArticlesQueryHandler
 
         if (category == null) return Errors.Category.NotFound;
 
-        var articlesList = await dbContext.ArticleCategories
-            .Where(e => e.CategoryId == request.Id)
-            .Include(e => e.Article.CurrentRevision)
-            .Select(e => e.Article)
-            .Where(e => e.CurrentRevisionId != null && e.RedirectArticleId == null)
-            .Select(e => new GetCategoryArticlesResponse.Element(e.Id, e.Title))
+        var articlesList = await dbContext.Articles
+            .Where(e => e.RedirectArticleId == null && e.CurrentRevision.Categories.Any(x => x.Id == request.Id))
+            .Select(e=> new GetCategoryArticlesResponse.Element(e.Id, e.Title))
             .AsNoTracking()
             .ToListAsync(token);
-
+    
         return new GetCategoryArticlesResponse(articlesList);
     }
 }

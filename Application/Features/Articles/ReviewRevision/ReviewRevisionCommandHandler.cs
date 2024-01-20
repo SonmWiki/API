@@ -39,9 +39,7 @@ public class ReviewRevisionCommandHandler(
         };
 
         revision.LatestReview = review;
-
-        dbContext.ArticleCategories.RemoveRange(dbContext.ArticleCategories.Where(e => e.ArticleId == article.Id));
-
+        
         if (command.Status is ReviewStatus.Removed)
             revision.Content = "[REDACTED]";
 
@@ -54,34 +52,13 @@ public class ReviewRevisionCommandHandler(
                 .OrderByDescending(e => e.Timestamp)
                 .FirstOrDefaultAsync(token);
 
-            if (rollbackRevision == null)
-            {
-                article.CurrentRevision = null;
-            }
-            else
-            {
-                SynchronizeArticleWithRevision(article, rollbackRevision);
-                dbContext.Articles.Update(article);
-            }
+            article.CurrentRevision = rollbackRevision == null ? null : revision;
         }
 
         if (command is {Status: ReviewStatus.Accepted})
-            SynchronizeArticleWithRevision(article, revision);
+            article.CurrentRevision = revision;
 
         await dbContext.SaveChangesAsync(token);
         return new ReviewRevisionResponse(review.Id);
-    }
-
-    private async void SynchronizeArticleWithRevision(Article article, Revision revision)
-    {
-        await dbContext.ArticleCategories.AddRangeAsync(revision.Categories.Select(e => new ArticleCategory
-        {
-            ArticleId = article.Id,
-            CategoryId = e.Id,
-            Article = default!,
-            Category = default!
-        }));
-
-        article.CurrentRevision = revision;
     }
 }

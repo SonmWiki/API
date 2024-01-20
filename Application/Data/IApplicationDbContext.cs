@@ -7,7 +7,6 @@ public interface IApplicationDbContext
 {
     public DbSet<Article> Articles { get; set; }
     public DbSet<Category> Categories { get; set; }
-    public DbSet<ArticleCategory> ArticleCategories { get; set; }
     public DbSet<Revision> Revisions { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Author> Authors { get; set; }

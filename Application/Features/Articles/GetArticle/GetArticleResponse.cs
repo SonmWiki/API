@@ -11,8 +11,10 @@ public record GetArticleResponse(
     ReviewStatus? ReviewStatus,
     DateTime? SubmittedTimestamp,
     DateTime? ReviewTimestamp,
-    List<string> Categories
+    List<GetArticleResponse.Category> Categories
 )
 {
     public record Author(string Id, string Name);
+
+    public record Category(string Id, string Name);
 }

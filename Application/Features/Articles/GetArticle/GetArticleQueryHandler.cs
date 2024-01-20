@@ -33,11 +33,13 @@ public class GetArticleQueryHandler
             if (revision == null) return Errors.Revision.NotFound;
         }
 
-        var articleCategoriesIds = await dbContext.ArticleCategories
-            .Where(e => e.ArticleId == article.Id)
-            .Select(e => e.CategoryId)
-            .AsNoTracking()
-            .ToListAsync(token);
+        var categories = new List<GetArticleResponse.Category>();
+        
+        if (revision != null)
+        {
+            await dbContext.Revisions.Entry(revision).Reference(e => e.Categories).LoadAsync(token);
+            categories = revision.Categories.Select(e => new GetArticleResponse.Category(e.Id, e.Name)).ToList();
+        }
 
         var contributors = await dbContext.Revisions
             .Include(e => e.Author)
@@ -61,7 +63,7 @@ public class GetArticleQueryHandler
             revision?.LatestReview?.Status,
             revision?.Timestamp,
             revision?.LatestReview?.ReviewTimestamp,
-            articleCategoriesIds
+            categories
         );
     }
 }
