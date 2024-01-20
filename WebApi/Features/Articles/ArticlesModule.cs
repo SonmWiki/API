@@ -2,6 +2,7 @@
 using Application.Features.Articles.DeleteArticle;
 using Application.Features.Articles.EditArticle;
 using Application.Features.Articles.GetArticle;
+using Application.Features.Articles.GetPendingRevisions;
 using Application.Features.Articles.GetRevisionHistory;
 using Application.Features.Articles.GetRevisionReviewHistory;
 using Application.Features.Articles.ReviewRevision;
@@ -92,6 +93,24 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
+            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
+            .WithOpenApi();
+        
+        app.MapGet("/api/articles/revisions/pending",
+                async Task<IResult> (IMediator mediator) =>
+                {
+                    var command = new GetPendingRevisionsQuery();
+                    var result = await mediator.Send(command);
+                    return result.MatchFirst(
+                        value => Results.Ok(value),
+                        error => error.ToIResult()
+                    );
+                })
+            .WithName("PendingRevisions")
+            .WithTags("Article")
+            .Produces<GetPendingRevisionsResponse>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
             .WithOpenApi();
 
