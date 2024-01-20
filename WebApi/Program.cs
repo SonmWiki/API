@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using WebApi.Extensions;
 using WebApi.Features.Articles;
 using WebApi.Features.Categories;
+using WebApi.Features.Navigations;
 using WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -68,6 +69,7 @@ app.UseAuthorization();
 
 app.AddArticlesEndpoints();
 app.AddCategoriesEndpoints();
+app.AddNavigationsEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
