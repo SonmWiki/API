@@ -2,6 +2,7 @@
 using Application.Features.Categories.DeleteCategory;
 using Application.Features.Categories.EditCategory;
 using Application.Features.Categories.GetCategories;
+using Application.Features.Categories.GetCategoriesTree;
 using Application.Features.Categories.GetCategoryArticles;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -45,6 +46,20 @@ public static class CategoriesModule
             .WithName("GetCategories")
             .WithTags("Category")
             .Produces<GetCategoriesResponse>()
+            .WithOpenApi();
+        
+        app.MapGet("/api/categories/tree",
+                async Task<IResult> (IMediator mediator) =>
+                {
+                    var response = await mediator.Send(new GetCategoriesTreeQuery());
+                    return response.MatchFirst(
+                        value => Results.Ok(value),
+                        error => error.ToIResult()
+                    );
+                })
+            .WithName("GetCategoriesTree")
+            .WithTags("Category")
+            .Produces<GetCategoriesTreeResponse>()
             .WithOpenApi();
 
         app.MapGet("/api/categories/{id}/articles",
