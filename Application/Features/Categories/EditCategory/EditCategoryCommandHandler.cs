@@ -7,11 +7,14 @@ using Slugify;
 
 namespace Application.Features.Categories.EditCategory;
 
-public class EditCategoryCommandHandler(IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<EditCategoryCommand, ErrorOr<EditCategoryResponse>>
+public class EditCategoryCommandHandler
+    (IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<EditCategoryCommand,
+        ErrorOr<EditCategoryResponse>>
 {
-    public async Task<ErrorOr<EditCategoryResponse>> Handle(EditCategoryCommand editCategoryCommand, CancellationToken cancellationToken)
+    public async Task<ErrorOr<EditCategoryResponse>> Handle(EditCategoryCommand editCategoryCommand,
+        CancellationToken token)
     {
-        var entity = await dbContext.Categories.FindAsync(new object[] {editCategoryCommand.Id}, cancellationToken);
+        var entity = await dbContext.Categories.FindAsync(new object[] {editCategoryCommand.Id}, token);
 
         if (entity == null) return Errors.Category.NotFound;
 
@@ -19,7 +22,7 @@ public class EditCategoryCommandHandler(IApplicationDbContext dbContext, ISlugHe
 
         if (string.IsNullOrEmpty(updatedId)) return Errors.Category.EmptyId;
 
-        if (entity.Id != updatedId && await dbContext.Categories.AnyAsync(e => e.Id == updatedId, cancellationToken))
+        if (entity.Id != updatedId && await dbContext.Categories.AnyAsync(e => e.Id == updatedId, token))
             return Errors.Category.DuplicateId;
 
         Category? parent;
@@ -30,7 +33,7 @@ public class EditCategoryCommandHandler(IApplicationDbContext dbContext, ISlugHe
         else
         {
             var existingParent = await dbContext.Categories
-                .FirstOrDefaultAsync(e => e.Id == editCategoryCommand.ParentId, cancellationToken);
+                .FirstOrDefaultAsync(e => e.Id == editCategoryCommand.ParentId, token);
 
             if (existingParent == null) return Errors.Category.ParentNotFound;
 
@@ -41,7 +44,7 @@ public class EditCategoryCommandHandler(IApplicationDbContext dbContext, ISlugHe
         entity.Name = editCategoryCommand.Name;
         entity.Parent = parent;
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(token);
 
         return new EditCategoryResponse(entity.Id);
     }

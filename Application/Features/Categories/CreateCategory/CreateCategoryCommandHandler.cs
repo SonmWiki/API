@@ -7,16 +7,18 @@ using Slugify;
 
 namespace Application.Features.Categories.CreateCategory;
 
-public class CreateCategoryCommandHandler(IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<CreateCategoryCommand, ErrorOr<CreateCategoryResponse>>
+public class CreateCategoryCommandHandler
+    (IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<CreateCategoryCommand,
+        ErrorOr<CreateCategoryResponse>>
 {
-    public async Task<ErrorOr<CreateCategoryResponse>> Handle(CreateCategoryCommand command, CancellationToken cancellationToken)
+    public async Task<ErrorOr<CreateCategoryResponse>> Handle(CreateCategoryCommand command, CancellationToken token)
     {
         var id = slugHelper.GenerateSlug(command.Name);
 
         if (string.IsNullOrEmpty(id)) return Errors.Category.EmptyId;
 
         var existingCategory = await dbContext.Categories
-            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(e => e.Id == id, token);
 
         if (existingCategory != null) return Errors.Category.DuplicateId;
 
@@ -28,7 +30,7 @@ public class CreateCategoryCommandHandler(IApplicationDbContext dbContext, ISlug
         else
         {
             var existingParent = await dbContext.Categories
-                .FirstOrDefaultAsync(e => e.Id == command.ParentId, cancellationToken);
+                .FirstOrDefaultAsync(e => e.Id == command.ParentId, token);
 
             if (existingParent == null) return Errors.Category.ParentNotFound;
 
@@ -44,7 +46,7 @@ public class CreateCategoryCommandHandler(IApplicationDbContext dbContext, ISlug
 
         dbContext.Categories.Add(entity);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(token);
 
         return new CreateCategoryResponse(entity.Id);
     }

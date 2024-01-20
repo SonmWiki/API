@@ -21,19 +21,13 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken)
+        CancellationToken token)
     {
-        if (_validator == null)
-        {
-            return await next();
-        }
+        if (_validator == null) return await next();
 
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        var validationResult = await _validator.ValidateAsync(request, token);
 
-        if (validationResult.IsValid)
-        {
-            return await next();
-        }
+        if (validationResult.IsValid) return await next();
 
         return TryCreateResponseFromErrors(validationResult.Errors, out var response)
             ? response
@@ -43,14 +37,14 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
     private static bool TryCreateResponseFromErrors(List<ValidationFailure> validationFailures, out TResponse response)
     {
         var errors = validationFailures.ConvertAll(x => Error.Validation(
-            code: x.PropertyName,
-            description: x.ErrorMessage));
+            x.PropertyName,
+            x.ErrorMessage));
 
         response = (TResponse?) typeof(TResponse)
             .GetMethod(
-                name: nameof(ErrorOr<object>.From),
-                bindingAttr: BindingFlags.Static | BindingFlags.Public,
-                types: new[] {typeof(List<Error>)})?
+                nameof(ErrorOr<object>.From),
+                BindingFlags.Static | BindingFlags.Public,
+                new[] {typeof(List<Error>)})?
             .Invoke(null, new[] {errors})!;
 
         return response is not null;

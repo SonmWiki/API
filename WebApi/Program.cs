@@ -19,7 +19,7 @@ builder.Services.AddApplicationServices();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
     {
-        options.CustomSchemaIds(x => x.FullName.Replace("+", ".").Replace(x.Namespace+".", ""));
+        options.CustomSchemaIds(x => x.FullName.Replace("+", ".").Replace(x.Namespace + ".", ""));
         options.SupportNonNullableReferenceTypes();
         KeycloakAuthenticationOptions kcoptions = new();
 
@@ -76,7 +76,7 @@ if (app.Environment.IsDevelopment())
     app.Configuration
         .GetSection(KeycloakAuthenticationOptions.Section)
         .Bind(kcoptions, opt => opt.BindNonPublicProperties = true);
-    
+
     app.UseSwagger();
     app.UseSwaggerUI(options => options.OAuthClientId(kcoptions.Resource));
 }

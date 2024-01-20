@@ -32,7 +32,7 @@ public static class CategoriesModule
             .ProducesProblem(StatusCodes.Status409Conflict)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
             .WithOpenApi();
-        
+
         app.MapGet("/api/categories",
                 async Task<IResult> (IMediator mediator) =>
                 {
@@ -46,7 +46,7 @@ public static class CategoriesModule
             .WithTags("Category")
             .Produces<GetCategoriesResponse>()
             .WithOpenApi();
-        
+
         app.MapGet("/api/categories/{id}/articles",
                 async Task<IResult> (string id, IMediator mediator) =>
                 {
@@ -62,7 +62,7 @@ public static class CategoriesModule
             .Produces<GetCategoryArticlesResponse>()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi();
-        
+
         app.MapPut("/api/categories/{id}",
                 async (string id, IMediator mediator, UpdateCategoryRequest request) =>
                 {
@@ -80,7 +80,7 @@ public static class CategoriesModule
             .ProducesProblem(StatusCodes.Status404NotFound)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
             .WithOpenApi();
-        
+
         app.MapDelete("/api/categories/{id}",
                 async (string id, IMediator mediator) =>
                 {

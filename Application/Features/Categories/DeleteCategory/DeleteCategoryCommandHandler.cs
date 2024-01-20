@@ -4,14 +4,16 @@ using MediatR;
 
 namespace Application.Features.Categories.DeleteCategory;
 
-public class DeleteCategoryCommandHandler(IApplicationDbContext dbContext) : IRequestHandler<DeleteCategoryCommand, ErrorOr<DeleteCategoryResponse>>
+public class DeleteCategoryCommandHandler
+    (IApplicationDbContext dbContext) : IRequestHandler<DeleteCategoryCommand, ErrorOr<DeleteCategoryResponse>>
 {
-    public async Task<ErrorOr<DeleteCategoryResponse>> Handle(DeleteCategoryCommand deleteCategoryCommand, CancellationToken cancellationToken)
+    public async Task<ErrorOr<DeleteCategoryResponse>> Handle(DeleteCategoryCommand deleteCategoryCommand,
+        CancellationToken token)
     {
-        var category = await dbContext.Categories.FindAsync(new object[] {deleteCategoryCommand.Id}, cancellationToken);
+        var category = await dbContext.Categories.FindAsync(new object[] {deleteCategoryCommand.Id}, token);
         if (category == null) return Errors.Category.NotFound;
         dbContext.Categories.Remove(category);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(token);
         return new DeleteCategoryResponse(category.Id);
     }
 }

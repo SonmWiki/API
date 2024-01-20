@@ -15,13 +15,13 @@ public class CreateArticleCommandHandler(
     )
     : IRequestHandler<CreateArticleCommand, ErrorOr<CreateArticleResponse>>
 {
-    public async Task<ErrorOr<CreateArticleResponse>> Handle(CreateArticleCommand command, CancellationToken cancellationToken)
+    public async Task<ErrorOr<CreateArticleResponse>> Handle(CreateArticleCommand command, CancellationToken token)
     {
         var id = slugHelper.GenerateSlug(command.Title);
 
         if (string.IsNullOrEmpty(id)) return Errors.Article.EmptyId;
-            
-        var existingArticle = await dbContext.Articles.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        
+        var existingArticle = await dbContext.Articles.FirstOrDefaultAsync(e => e.Id == id, token);
         if (existingArticle != null) return Errors.Article.DuplicateId;
 
         var article = new Article
@@ -29,11 +29,11 @@ public class CreateArticleCommandHandler(
             Id = id,
             Title = command.Title
         };
-        
+
         var categories = await dbContext.Categories
             .Where(e => command.CategoryIds.Contains(e.Id))
-            .ToListAsync(cancellationToken: cancellationToken);
-        
+            .ToListAsync(token);
+
         var revision = new Revision
         {
             Id = default!,
@@ -46,10 +46,10 @@ public class CreateArticleCommandHandler(
             Timestamp = DateTime.UtcNow
         };
 
-        await dbContext.Articles.AddAsync(article, cancellationToken);
-        await dbContext.Revisions.AddAsync(revision, cancellationToken);
+        await dbContext.Articles.AddAsync(article, token);
+        await dbContext.Revisions.AddAsync(revision, token);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(token);
 
         return new CreateArticleResponse(article.Id);
     }

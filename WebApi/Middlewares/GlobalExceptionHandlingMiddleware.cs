@@ -27,9 +27,9 @@ public class GlobalExceptionHandlingMiddleware(ILogger<GlobalExceptionHandlingMi
             };
 
             var json = JsonSerializer.Serialize(problem);
-            
+
             context.Response.ContentType = "application/json";
-            
+
             await context.Response.WriteAsync(json);
         }
     }

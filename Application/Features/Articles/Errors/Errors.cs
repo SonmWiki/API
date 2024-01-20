@@ -5,25 +5,25 @@ namespace Application.Features.Articles.Errors;
 public static class Article
 {
     public static readonly Error NotFound = Error.NotFound(
-        code: "Article.NotFound",
-        description: "Article with this ID was not found."
+        "Article.NotFound",
+        "Article with this ID was not found."
     );
 
     public static readonly Error DuplicateId = Error.Conflict(
-        code: "Article.DuplicateId",
-        description: "Article with similar title that results in same ID already exists."
+        "Article.DuplicateId",
+        "Article with similar title that results in same ID already exists."
     );
 
     public static readonly Error EmptyId = Error.Validation(
-        code: "Article.EmptyId",
-        description: "Generated ID for this article is empty."
+        "Article.EmptyId",
+        "Generated ID for this article is empty."
     );
 }
 
 public static class Revision
 {
     public static readonly Error NotFound = Error.NotFound(
-        code: "Revision.NotFound",
-        description: "Revision with this ID was not found."
+        "Revision.NotFound",
+        "Revision with this ID was not found."
     );
 }

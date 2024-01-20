@@ -7,22 +7,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.EditArticle;
 
-public class EditArticleCommandHandler(
-        IApplicationDbContext dbContext,
-        ICurrentUserService identityService
-    )
-    : IRequestHandler<EditArticleCommand, ErrorOr<EditArticleResponse>>
+public class EditArticleCommandHandler
+    (IApplicationDbContext dbContext, ICurrentUserService identityService) : IRequestHandler<EditArticleCommand,
+        ErrorOr<EditArticleResponse>>
 {
-    public async Task<ErrorOr<EditArticleResponse>> Handle(EditArticleCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ErrorOr<EditArticleResponse>> Handle(EditArticleCommand request, CancellationToken token)
     {
-        var article = await dbContext.Articles.FirstOrDefaultAsync(e => e.Id == request.Id, cancellationToken);
+        var article = await dbContext.Articles.FirstOrDefaultAsync(e => e.Id == request.Id, token);
 
         if (article == null) return Errors.Article.NotFound;
 
         var requestCategories = await dbContext.Categories
             .Where(e => request.CategoryIds.Contains(e.Id))
-            .ToListAsync(cancellationToken: cancellationToken);
+            .ToListAsync(token);
 
         var revision = new Revision
         {
@@ -36,8 +33,8 @@ public class EditArticleCommandHandler(
             Timestamp = DateTime.UtcNow
         };
 
-        await dbContext.Revisions.AddAsync(revision, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.Revisions.AddAsync(revision, token);
+        await dbContext.SaveChangesAsync(token);
 
         return new EditArticleResponse(request.Id);
     }

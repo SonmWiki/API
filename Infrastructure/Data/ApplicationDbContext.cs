@@ -23,7 +23,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
             entity.HasMany(e => e.Categories)
                 .WithMany(e => e.Articles)
                 .UsingEntity<ArticleCategory>();
-            entity.HasOne(e=>e.RedirectArticle)
+            entity.HasOne(e => e.RedirectArticle)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Cascade);
             entity.HasMany(e => e.Revisions)
@@ -47,7 +47,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Entity<Revision>(entity =>
         {
             entity.HasMany(e => e.Reviews)
-                .WithOne(e=>e.Revision)
+                .WithOne(e => e.Revision)
                 .HasForeignKey(e => e.RevisionId);
             entity.HasOne(e => e.LatestReview)
                 .WithOne()

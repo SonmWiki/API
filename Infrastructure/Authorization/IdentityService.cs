@@ -16,10 +16,14 @@ public class IdentityService(IAuthorizationService authorizationService, ICurren
         return Principal != null && (await authorizationService.AuthorizeAsync(Principal, policyName)).Succeeded;
     }
 
-    public Task<bool> IsInRoleAsync(string role) => Task.FromResult(Principal?.IsInRole(role) ?? false);
-    
+    public Task<bool> IsInRoleAsync(string role)
+    {
+        return Task.FromResult(Principal?.IsInRole(role) ?? false);
+    }
+
     public Task<List<string>?> Roles()
     {
-        return Task.FromResult(Principal?.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c=>c.Value).ToList() ?? null);
+        return Task.FromResult(Principal?.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList() ??
+                               null);
     }
 }

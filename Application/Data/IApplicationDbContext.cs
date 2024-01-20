@@ -12,5 +12,5 @@ public interface IApplicationDbContext
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Author> Authors { get; set; }
 
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<int> SaveChangesAsync(CancellationToken token = default);
 }

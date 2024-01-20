@@ -14,13 +14,13 @@ public class ReviewRevisionCommandHandler(
     : IRequestHandler<ReviewRevisionCommand, ErrorOr<ReviewRevisionResponse>>
 {
     public async Task<ErrorOr<ReviewRevisionResponse>> Handle(ReviewRevisionCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken token)
     {
         var revision = await dbContext.Revisions
             .Include(e => e.Article)
             .Include(e => e.Categories)
             .Include(e => e.LatestReview)
-            .FirstOrDefaultAsync(e => e.Id == command.RevisionId, cancellationToken);
+            .FirstOrDefaultAsync(e => e.Id == command.RevisionId, token);
 
         if (revision == null) return Errors.Revision.NotFound;
 
@@ -37,21 +37,22 @@ public class ReviewRevisionCommandHandler(
             RevisionId = revision.Id,
             Revision = revision
         };
-        
+
         revision.LatestReview = review;
-        
-        dbContext.ArticleCategories.RemoveRange(dbContext.ArticleCategories.Where(e=>e.ArticleId == article.Id));
-        
+
+        dbContext.ArticleCategories.RemoveRange(dbContext.ArticleCategories.Where(e => e.ArticleId == article.Id));
+
         if (command.Status is ReviewStatus.Removed)
             revision.Content = "[REDACTED]";
-        
+
         if (article.CurrentRevision == revision && command is {Status: ReviewStatus.Removed or ReviewStatus.Rejected})
         {
             var rollbackRevision = await dbContext.Revisions
                 .Include(e => e.LatestReview)
-                .Where(e => e.Id != revision.Id && e.ArticleId == article.Id && e.LatestReview != null && e.LatestReview.Status == ReviewStatus.Accepted)
-                .OrderByDescending(e=>e.Timestamp)
-                .FirstOrDefaultAsync(cancellationToken);
+                .Where(e => e.Id != revision.Id && e.ArticleId == article.Id && e.LatestReview != null &&
+                            e.LatestReview.Status == ReviewStatus.Accepted)
+                .OrderByDescending(e => e.Timestamp)
+                .FirstOrDefaultAsync(token);
 
             if (rollbackRevision == null)
             {
@@ -67,7 +68,7 @@ public class ReviewRevisionCommandHandler(
         if (command is {Status: ReviewStatus.Accepted})
             SynchronizeArticleWithRevision(article, revision);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(token);
         return new ReviewRevisionResponse(review.Id);
     }
 
@@ -80,7 +81,7 @@ public class ReviewRevisionCommandHandler(
             Article = default!,
             Category = default!
         }));
-        
+
         article.CurrentRevision = revision;
     }
 }
