@@ -13,10 +13,11 @@ public class EditArticleCommandHandler
 {
     public async Task<ErrorOr<EditArticleResponse>> Handle(EditArticleCommand request, CancellationToken token)
     {
-        var article = await dbContext.Articles.FirstOrDefaultAsync(e => e.Id == request.Id, token);
-
+        var article = await dbContext.Articles.Include(e=>e.RedirectArticle).FirstOrDefaultAsync(e => e.Id == request.Id, token);
         if (article == null) return Errors.Article.NotFound;
 
+        if (article.RedirectArticle != null) article = article.RedirectArticle;
+        
         var requestCategories = await dbContext.Categories
             .Where(e => request.CategoryIds.Contains(e.Id))
             .ToListAsync(token);
@@ -24,7 +25,7 @@ public class EditArticleCommandHandler
         var revision = new Revision
         {
             Id = default!,
-            ArticleId = request.Id,
+            ArticleId = article.Id,
             Article = default!,
             AuthorId = identityService.UserId!,
             Author = default!,
@@ -36,6 +37,6 @@ public class EditArticleCommandHandler
         await dbContext.Revisions.AddAsync(revision, token);
         await dbContext.SaveChangesAsync(token);
 
-        return new EditArticleResponse(request.Id);
+        return new EditArticleResponse(article.Id);
     }
 }
