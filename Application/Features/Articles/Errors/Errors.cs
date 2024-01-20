@@ -18,6 +18,16 @@ public static class Article
         "Article.EmptyId",
         "Generated ID for this article is empty."
     );
+
+    public static readonly Error RedirectExists = Error.Conflict(
+        "Article.RedirectAlreadySet",
+        "Redirect for this article has already been set."
+    );
+    
+    public static readonly Error UnfitRedirectTarget = Error.Conflict(
+        "Article.UnfitRedirectTarget",
+        "Article with a redirect set cannot be set as a redirect target."
+    );
 }
 
 public static class Revision

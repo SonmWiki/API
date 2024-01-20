@@ -5,6 +5,7 @@ using Application.Features.Articles.GetArticle;
 using Application.Features.Articles.GetRevisionHistory;
 using Application.Features.Articles.GetRevisionReviewHistory;
 using Application.Features.Articles.ReviewRevision;
+using Application.Features.Articles.SetRedirect;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Extensions;
@@ -71,6 +72,27 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
+            .WithOpenApi();
+        
+        app.MapPut("/api/articles/{id}/redirect",
+                async Task<IResult> (string id, IMediator mediator, SerArticleRedirectRequest request) =>
+                {
+                    var command = new SetRedirectCommand(id, request.RedirectArticleId);
+                    var result = await mediator.Send(command);
+                    return result.MatchFirst(
+                        value => Results.Created($"/api/articles/{value.Id}", true),
+                        error => error.ToIResult()
+                    );
+                })
+            .WithName("SetArticleRedirect")
+            .WithTags("Article")
+            .Produces<SetRedirectResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
             .WithOpenApi();
 
         app.MapGet("/api/articles/{id}/revisions",
