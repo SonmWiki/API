@@ -9,7 +9,6 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
 {
     public required DbSet<Article> Articles { get; set; }
     public required DbSet<Category> Categories { get; set; }
-    public required DbSet<ArticleCategory> ArticleCategories { get; set; }
     public required DbSet<Revision> Revisions { get; set; }
     public required DbSet<Review> Reviews { get; set; }
     public required DbSet<Author> Authors { get; set; }
@@ -20,9 +19,6 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
         {
             entity.Property(e => e.Id).HasMaxLength(ApplicationConstants.MaxSlugLength);
             entity.Property(e => e.Title).HasMaxLength(ApplicationConstants.MaxTitleLenght);
-            entity.HasMany(e => e.Categories)
-                .WithMany(e => e.Articles)
-                .UsingEntity<ArticleCategory>();
             entity.HasOne(e => e.RedirectArticle)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Cascade);
@@ -40,9 +36,6 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
             entity.HasOne(e => e.Parent)
                 .WithMany(e => e.SubCategories)
                 .OnDelete(DeleteBehavior.SetNull);
-            entity.HasMany(e => e.Articles)
-                .WithMany(e => e.Categories)
-                .UsingEntity<ArticleCategory>();
         });
         modelBuilder.Entity<Revision>(entity =>
         {
