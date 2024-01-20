@@ -12,6 +12,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     public required DbSet<Revision> Revisions { get; set; }
     public required DbSet<Review> Reviews { get; set; }
     public required DbSet<Author> Authors { get; set; }
+    public required DbSet<Navigation> Navigations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
