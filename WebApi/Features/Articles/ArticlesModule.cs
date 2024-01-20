@@ -91,6 +91,22 @@ public static class ArticlesModule
             .Produces<GetRevisionHistoryResponse>()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi();
+        
+        app.MapGet("/api/articles/revisions/{id}/reviews",
+                async Task<IResult> (Guid id, IMediator mediator) =>
+                {
+                    var command = new GetRevisionReviewHistoryQuery(id);
+                    var result = await mediator.Send(command);
+                    return result.MatchFirst(
+                        value => Results.Ok(value),
+                        error => error.ToIResult()
+                    );
+                })
+            .WithName("RevisionReviewHistory")
+            .WithTags("Article")
+            .Produces<GetRevisionReviewHistoryResponse>()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .WithOpenApi();
 
         app.MapPost("/api/articles/revisions/{id}/reviews",
                 async Task<IResult> (Guid id, IMediator mediator, ReviewArticleRevisionRequest request) =>
