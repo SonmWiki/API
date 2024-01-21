@@ -37,7 +37,7 @@ public class GetArticleQueryHandler
         
         if (revision != null)
         {
-            await dbContext.Revisions.Entry(revision).Reference(e => e.Categories).LoadAsync(token);
+            await dbContext.Revisions.Entry(revision).Collection(e => e.Categories).LoadAsync(token);
             categories = revision.Categories.Select(e => new GetArticleResponse.Category(e.Id, e.Name)).ToList();
         }
 
