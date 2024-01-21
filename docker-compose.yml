@@ -1,0 +1,81 @@
+﻿networks:
+  wiki-test:
+    driver: bridge
+services:
+  sonmwikirest:
+    image: sonmwikirest:latest
+    build:
+      context: .
+      dockerfile: WebApi/Dockerfile
+    environment:
+      ConnectionStrings__DefaultConnection: Host=postgres_wiki_db;Database=wiki;Username=postgres;Password=67asdt790fguqp4wg7rasd08-fyher89yghys80h8at0sghertuqwo
+      Keycloak__realm: wiki-realm
+      Keycloak__auth-server-url: http://host.docker.internal:8091
+      Keycloak__ssl-required: none
+      Keycloak__resource: wiki-api
+      Keycloak__verify-token-audience: false
+      Keycloak__credentials__secret: "**********"
+      Keycloak__confidential-port: 0
+      Keycloak__RolesSource: ResourceAccess
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "1337:8080"
+    networks: 
+      - wiki-test
+    depends_on:
+      - postgres_wiki_db
+      - keycloak
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.1
+    command: 
+      - "start-dev"
+      - "--import-realm"
+    environment:
+      DB_SCHEMA: public
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres_keycloak_db
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: 67asdt790fguqp4wg7rasd08-fyher89yghys80h8at0sghertuqwo
+      KC_DB_SCHEMA: public
+      KC_HTTP_ENABLED: true
+    ports:
+      - "8091:8080"
+    networks:
+      - wiki-test
+    depends_on: 
+      - postgres_keycloak_db
+    volumes:
+      - ./keycloakImports:/opt/keycloak/data/import
+  postgres_wiki_db:
+    container_name: postgres_wiki_db
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 67asdt790fguqp4wg7rasd08-fyher89yghys80h8at0sghertuqwo
+      POSTGRES_DB: wiki
+    ports:
+      - "5433:5432"
+    networks:
+      - wiki-test
+    volumes:
+      - postgres-wiki-data:/var/lib/postgresql-wiki/data
+  postgres_keycloak_db:
+    container_name: postgres_keycloak_db
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: 67asdt790fguqp4wg7rasd08-fyher89yghys80h8at0sghertuqwo
+      POSTGRES_DB: keycloak
+    ports:
+      - "5434:5432"
+    networks:
+      - wiki-test
+    volumes:
+      - postgres-keycloak-data:/var/lib/postgresql-keycloak/data
+volumes:
+  postgres-wiki-data:
+  postgres-keycloak-data:  
