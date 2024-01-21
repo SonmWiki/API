@@ -16,7 +16,10 @@ builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.RegisterSwagger(builder.Configuration);
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.RegisterSwagger(builder.Configuration);
+}
 
 var app = builder.Build();
 
