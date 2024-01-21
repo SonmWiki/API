@@ -29,6 +29,10 @@ public class SetRedirectCommandHandler(
                     p.SetProperty(x => x.RedirectArticleId, redirectArticle.RedirectArticleId), token
             );
         
+        await dbContext.Revisions
+            .Where(e => e.ArticleId == article.Id)
+            .ExecuteUpdateAsync(p => p.SetProperty(x => x.ArticleId, redirectArticle.RedirectArticleId), token);
+        
         article.RedirectArticleId = redirectArticle.Id;
 
         await dbContext.SaveChangesAsync(token);
