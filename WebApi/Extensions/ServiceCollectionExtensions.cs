@@ -26,16 +26,17 @@ public static class ServiceCollectionExtensions
                 },
                 Flows = new OpenApiOAuthFlows
                 {
+                    //TODO awful hack .Replace("host.docker.internal", "localhost") for ease of testing
                     Implicit = new OpenApiOAuthFlow
                     {
-                        AuthorizationUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm}/protocol/openid-connect/auth"),
-                        TokenUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm}/protocol/openid-connect/token"),
+                        AuthorizationUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm.Replace("host.docker.internal", "localhost")}/protocol/openid-connect/auth"),
+                        TokenUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm.Replace("host.docker.internal", "localhost")}/protocol/openid-connect/token"),
                         Scopes = new Dictionary<string, string>()
                     },
                     AuthorizationCode = new OpenApiOAuthFlow
                     {
-                        AuthorizationUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm}/protocol/openid-connect/auth"),
-                        TokenUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm}/protocol/openid-connect/token"),
+                        AuthorizationUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm.Replace("host.docker.internal", "localhost")}/protocol/openid-connect/auth"),
+                        TokenUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm.Replace("host.docker.internal", "localhost")}/protocol/openid-connect/token"),
                         Scopes = new Dictionary<string, string>()
                     }
                 }
