@@ -8,6 +8,7 @@ public class Navigation : BaseEntity<int>
     public int Weight { get; set; }
     public string? Uri { get; set; }
     public int? ParentId { get; set; }
+    public virtual Navigation? Parent { get; set; }
     public string? Icon { get; set; }
     public virtual ICollection<Navigation> Children { get; set; } = new List<Navigation>();
 }

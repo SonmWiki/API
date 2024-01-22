@@ -47,5 +47,12 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
                 .WithOne()
                 .HasForeignKey<Revision>(e => e.LatestReviewId);
         });
+        modelBuilder.Entity<Navigation>(entity =>
+        {
+            entity.HasOne(e => e.Parent)
+                .WithMany(e => e.Children)
+                .HasForeignKey(e=>e.ParentId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
     }
 }
