@@ -20,6 +20,7 @@ public class GetNavigationsTreeQueryHandler
                 e.Weight,
                 e.Name,
                 e.Uri,
+                e.Icon,
                 new List<GetNavigationsTreeResponse.Element>()
             )
         );
