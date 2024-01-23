@@ -26,9 +26,9 @@ public class GetNavigationsTreeQueryHandler
         );
         
         foreach (var node in lookup.SelectMany(e => e))
-            node.Children.AddRange(lookup[node.Id]);
+            node.Children.AddRange(lookup[node.Id].OrderByDescending(e=>e.Weight));
         
-        var rootNodes = lookup[null].ToList();
+        var rootNodes = lookup[null].OrderByDescending(e=>e.Weight).ToList();
 
         return new GetNavigationsTreeResponse(rootNodes);
     }
