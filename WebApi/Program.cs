@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.ConfigureKeycloakConfigurationSource();
 
+builder.Services.AddCors();
 builder.Services.AddLogging();
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -22,6 +23,12 @@ if (builder.Environment.IsDevelopment())
 }
 
 var app = builder.Build();
+
+app.UseCors(policyBuilder => policyBuilder
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .WithOrigins(app.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>())
+);
 
 app.SetupDatabase();
 
