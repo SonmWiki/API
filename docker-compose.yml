@@ -7,17 +7,7 @@ services:
     build:
       context: .
       dockerfile: WebApi/Dockerfile
-    environment:
-      ConnectionStrings__DefaultConnection: Host=postgres_wiki_db;Database=wiki;Username=postgres;Password=67asdt790fguqp4wg7rasd08-fyher89yghys80h8at0sghertuqwo
-      Keycloak__realm: wiki-realm
-      Keycloak__auth-server-url: http://host.docker.internal:8091
-      Keycloak__ssl-required: none
-      Keycloak__resource: wiki-api
-      Keycloak__verify-token-audience: false
-      Keycloak__credentials__secret: "**********"
-      Keycloak__confidential-port: 0
-      Keycloak__RolesSource: ResourceAccess
-      ASPNETCORE_ENVIRONMENT: Development
+    env_file: app.example.env
     ports:
       - "1337:8080"
     networks: 
