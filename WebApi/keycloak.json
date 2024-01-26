@@ -1,12 +1,11 @@
 {
-  "realm": "testing-realm",
-  "auth-server-url": "http://localhost:8090/",
-  "ssl-required": "none",
-  "resource": "wiki-test",
-  "verify-token-audience": false,
-  "credentials": {
-    "secret": "DJKFWB3s4yDplFtrEh29NnXibguaLdGS"
+  "Realm": "testing-realm",
+  "AuthServerUrl": "http://localhost:8090/",
+  "SslRequired": "none",
+  "Resource": "wiki-test",
+  "VerifyTokenAudience": false,
+  "Credentials": {
+    "Secret": "DJKFWB3s4yDplFtrEh29NnXibguaLdGS"
   },
-  "confidential-port": 0,
   "RolesSource": "ResourceAccess"
 }
