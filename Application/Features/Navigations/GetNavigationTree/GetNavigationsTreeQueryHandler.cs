@@ -11,11 +11,12 @@ public class GetNavigationsTreeQueryHandler
     public async Task<ErrorOr<GetNavigationsTreeResponse>> Handle(GetNavigationsTreeQuery request,
         CancellationToken token)
     {
-        var list = await dbContext.Navigations
+        var navigations = await dbContext.Navigations
             .Include(e => e.Children)
+            .AsNoTracking()
             .ToListAsync(token);
 
-        var lookup = list.ToLookup(e => e.ParentId, e => new GetNavigationsTreeResponse.Element(
+        var lookup = navigations.ToLookup(e => e.ParentId, e => new GetNavigationsTreeResponse.Element(
                 e.Id,
                 e.Weight,
                 e.Name,
