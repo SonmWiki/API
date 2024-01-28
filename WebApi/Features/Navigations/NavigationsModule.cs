@@ -39,6 +39,7 @@ public static class NavigationsModule
             .WithName("UpdateNavigationsTree")
             .WithTags("Navigations")
             .Produces<GetNavigationsTreeResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
