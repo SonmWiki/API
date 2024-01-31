@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Authors.EditAuthor;
 
-public class EditAuthorCommandHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<EditAuthorCommand, ErrorOr<EditAuthorResponse>>
+public class EditAuthorCommandHandler(
+    IApplicationDbContext dbContext,
+    IPublisher publisher
+) : IRequestHandler<EditAuthorCommand, ErrorOr<EditAuthorResponse>>
 {
     public async Task<ErrorOr<EditAuthorResponse>> Handle(EditAuthorCommand command, CancellationToken token)
     {
@@ -17,6 +19,13 @@ public class EditAuthorCommandHandler
         author.Name = command.Name;
 
         await dbContext.SaveChangesAsync(token);
+
+        var authorEditedEvent = new AuthorEditedEvent
+        {
+            Id = author.Id,
+            Name = author.Name
+        };
+        await publisher.Publish(authorEditedEvent, token);
 
         return new EditAuthorResponse(author.Id);
     }

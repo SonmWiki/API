@@ -7,9 +7,11 @@ using Slugify;
 
 namespace Application.Features.Categories.CreateCategory;
 
-public class CreateCategoryCommandHandler
-    (IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<CreateCategoryCommand,
-        ErrorOr<CreateCategoryResponse>>
+public class CreateCategoryCommandHandler(
+    IApplicationDbContext dbContext,
+    ISlugHelper slugHelper,
+    IPublisher publisher
+) : IRequestHandler<CreateCategoryCommand, ErrorOr<CreateCategoryResponse>>
 {
     public async Task<ErrorOr<CreateCategoryResponse>> Handle(CreateCategoryCommand command, CancellationToken token)
     {
@@ -45,8 +47,15 @@ public class CreateCategoryCommandHandler
         };
 
         dbContext.Categories.Add(entity);
-
         await dbContext.SaveChangesAsync(token);
+
+        var categoryCreatedEvent = new CategoryCreatedEvent
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            ParentId = parent?.Id
+        };
+        await publisher.Publish(categoryCreatedEvent, token);
 
         return new CreateCategoryResponse(entity.Id);
     }

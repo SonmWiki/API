@@ -7,9 +7,11 @@ using Slugify;
 
 namespace Application.Features.Categories.EditCategory;
 
-public class EditCategoryCommandHandler
-    (IApplicationDbContext dbContext, ISlugHelper slugHelper) : IRequestHandler<EditCategoryCommand,
-        ErrorOr<EditCategoryResponse>>
+public class EditCategoryCommandHandler(
+    IApplicationDbContext dbContext,
+    ISlugHelper slugHelper,
+    IPublisher publisher
+) : IRequestHandler<EditCategoryCommand, ErrorOr<EditCategoryResponse>>
 {
     public async Task<ErrorOr<EditCategoryResponse>> Handle(EditCategoryCommand editCategoryCommand,
         CancellationToken token)
@@ -45,6 +47,14 @@ public class EditCategoryCommandHandler
         entity.Parent = parent;
 
         await dbContext.SaveChangesAsync(token);
+
+        var categoryEditedEvent = new CategoryEditedEvent
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            ParentId = entity.Parent?.Id
+        };
+        await publisher.Publish(categoryEditedEvent, token);
 
         return new EditCategoryResponse(entity.Id);
     }

@@ -5,9 +5,10 @@ using MediatR;
 
 namespace Application.Features.Navigations.UpdateNavigationsTree;
 
-public class UpdateNavigationsTreeCommandHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<UpdateNavigationsTreeCommand,
-        ErrorOr<UpdateNavigationsTreeResponse>>
+public class UpdateNavigationsTreeCommandHandler(
+    IApplicationDbContext dbContext,
+    IPublisher publisher
+) : IRequestHandler<UpdateNavigationsTreeCommand, ErrorOr<UpdateNavigationsTreeResponse>>
 {
     public async Task<ErrorOr<UpdateNavigationsTreeResponse>> Handle(UpdateNavigationsTreeCommand request,
         CancellationToken token)
@@ -19,7 +20,8 @@ public class UpdateNavigationsTreeCommandHandler
 
         var stack = new Stack<Tuple<Navigation?, int, UpdateNavigationsTreeCommand.Element>>();
         for (var i = 0; i < request.Data.Count; i++)
-            stack.Push(new Tuple<Navigation?, int, UpdateNavigationsTreeCommand.Element>(null, request.Data.Count - i, request.Data[i]));
+            stack.Push(new Tuple<Navigation?, int, UpdateNavigationsTreeCommand.Element>(null, request.Data.Count - i,
+                request.Data[i]));
 
         while (stack.Count > 0)
         {
@@ -34,7 +36,7 @@ public class UpdateNavigationsTreeCommandHandler
                 Parent = parent,
                 Icon = requestElement.Icon
             };
-            
+
             navigationsToAdd.Add(navigation);
 
             for (var i = 0; i < requestElement.Children.Count; i++)
@@ -44,6 +46,10 @@ public class UpdateNavigationsTreeCommandHandler
 
         await dbContext.Navigations.AddRangeAsync(navigationsToAdd, token);
         await dbContext.SaveChangesAsync(token);
+
+        var navigationsTreeUpdatedEvent = new NavigationsTreeUpdatedEvent();
+        await publisher.Publish(navigationsTreeUpdatedEvent, token);
+
         return new UpdateNavigationsTreeResponse();
     }
 }

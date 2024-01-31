@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Features.Articles.ReviewRevision;
 
 public class ReviewRevisionCommandHandler(
-        IApplicationDbContext dbContext,
-        ICurrentUserService identityService
-    )
-    : IRequestHandler<ReviewRevisionCommand, ErrorOr<ReviewRevisionResponse>>
+    IApplicationDbContext dbContext,
+    ICurrentUserService identityService,
+    IPublisher publisher
+) : IRequestHandler<ReviewRevisionCommand, ErrorOr<ReviewRevisionResponse>>
 {
     public async Task<ErrorOr<ReviewRevisionResponse>> Handle(ReviewRevisionCommand command,
         CancellationToken token)
@@ -39,7 +39,7 @@ public class ReviewRevisionCommandHandler(
         };
 
         revision.LatestReview = review;
-        
+
         if (command.Status is ReviewStatus.Removed)
             revision.Content = "[REDACTED]";
 
@@ -59,6 +59,16 @@ public class ReviewRevisionCommandHandler(
             article.CurrentRevision = revision;
 
         await dbContext.SaveChangesAsync(token);
+
+
+        var revisionReviewedEvent = new RevisionReviewedEvent
+        {
+            RevisionId = revision.Id,
+            Status = command.Status,
+            Review = command.Review
+        };
+        await publisher.Publish(revisionReviewedEvent, token);
+
         return new ReviewRevisionResponse(review.Id);
     }
 }

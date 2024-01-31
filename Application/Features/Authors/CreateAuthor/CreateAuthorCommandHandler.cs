@@ -5,8 +5,10 @@ using MediatR;
 
 namespace Application.Features.Authors.CreateAuthor;
 
-public class CreateAuthorCommandHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<CreateAuthorCommand, ErrorOr<CreateAuthorResponse>>
+public class CreateAuthorCommandHandler(
+    IApplicationDbContext dbContext,
+    IPublisher publisher
+) : IRequestHandler<CreateAuthorCommand, ErrorOr<CreateAuthorResponse>>
 {
     public async Task<ErrorOr<CreateAuthorResponse>> Handle(CreateAuthorCommand command, CancellationToken token)
     {
@@ -17,6 +19,13 @@ public class CreateAuthorCommandHandler
 
         dbContext.Authors.Add(author);
         await dbContext.SaveChangesAsync(token);
+
+        var authorCreatedEvent = new AuthorCreatedEvent
+        {
+            Id = author.Id,
+            Name = author.Name
+        };
+        await publisher.Publish(authorCreatedEvent, token);
 
         return new CreateAuthorResponse(author.Id);
     }

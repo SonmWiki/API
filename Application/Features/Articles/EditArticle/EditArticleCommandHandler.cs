@@ -7,17 +7,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.EditArticle;
 
-public class EditArticleCommandHandler
-    (IApplicationDbContext dbContext, ICurrentUserService identityService) : IRequestHandler<EditArticleCommand,
-        ErrorOr<EditArticleResponse>>
+public class EditArticleCommandHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService identityService,
+    IPublisher publisher
+) : IRequestHandler<EditArticleCommand, ErrorOr<EditArticleResponse>>
 {
     public async Task<ErrorOr<EditArticleResponse>> Handle(EditArticleCommand request, CancellationToken token)
     {
-        var article = await dbContext.Articles.Include(e=>e.RedirectArticle).FirstOrDefaultAsync(e => e.Id == request.Id, token);
+        var article = await dbContext.Articles.Include(e => e.RedirectArticle)
+            .FirstOrDefaultAsync(e => e.Id == request.Id, token);
         if (article == null) return Errors.Article.NotFound;
 
         if (article.RedirectArticle != null) article = article.RedirectArticle;
-        
+
         var requestCategories = await dbContext.Categories
             .Where(e => request.CategoryIds.Contains(e.Id))
             .ToListAsync(token);
@@ -36,6 +39,14 @@ public class EditArticleCommandHandler
 
         await dbContext.Revisions.AddAsync(revision, token);
         await dbContext.SaveChangesAsync(token);
+
+        var articleEditedEvent = new ArticleEditedEvent()
+        {
+            Id = article.Id,
+            Content = revision.Content,
+            CategoryIds = requestCategories.Select(e => e.Id).ToList()
+        };
+        await publisher.Publish(articleEditedEvent, token);
 
         return new EditArticleResponse(article.Id);
     }

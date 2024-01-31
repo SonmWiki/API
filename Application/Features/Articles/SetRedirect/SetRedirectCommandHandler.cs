@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Features.Articles.SetRedirect;
 
 public class SetRedirectCommandHandler(
-        IApplicationDbContext dbContext
-    )
-    : IRequestHandler<SetRedirectCommand, ErrorOr<SetRedirectResponse>>
+    IApplicationDbContext dbContext,
+    IPublisher publisher
+) : IRequestHandler<SetRedirectCommand, ErrorOr<SetRedirectResponse>>
 {
     public async Task<ErrorOr<SetRedirectResponse>> Handle(SetRedirectCommand command,
         CancellationToken token)
@@ -28,14 +28,22 @@ public class SetRedirectCommandHandler(
             .ExecuteUpdateAsync(p =>
                     p.SetProperty(x => x.RedirectArticleId, redirectArticle.RedirectArticleId), token
             );
-        
+
         await dbContext.Revisions
             .Where(e => e.ArticleId == article.Id)
             .ExecuteUpdateAsync(p => p.SetProperty(x => x.ArticleId, redirectArticle.RedirectArticleId), token);
-        
+
         article.RedirectArticleId = redirectArticle.Id;
 
         await dbContext.SaveChangesAsync(token);
+
+        var revisionReviewedEvent = new RedirectSetEvent
+        {
+            ArticleId = article.Id,
+            RedirectId = redirectArticle.Id,
+        };
+        await publisher.Publish(revisionReviewedEvent, token);
+
         return new SetRedirectResponse(redirectArticle.Id);
     }
 }

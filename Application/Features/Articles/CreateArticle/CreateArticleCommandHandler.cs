@@ -9,18 +9,18 @@ using Slugify;
 namespace Application.Features.Articles.CreateArticle;
 
 public class CreateArticleCommandHandler(
-        IApplicationDbContext dbContext,
-        ISlugHelper slugHelper,
-        ICurrentUserService identityService
-    )
-    : IRequestHandler<CreateArticleCommand, ErrorOr<CreateArticleResponse>>
+    IApplicationDbContext dbContext,
+    ISlugHelper slugHelper,
+    ICurrentUserService identityService,
+    IPublisher publisher
+) : IRequestHandler<CreateArticleCommand, ErrorOr<CreateArticleResponse>>
 {
     public async Task<ErrorOr<CreateArticleResponse>> Handle(CreateArticleCommand command, CancellationToken token)
     {
         var id = slugHelper.GenerateSlug(command.Title);
 
         if (string.IsNullOrEmpty(id)) return Errors.Article.EmptyId;
-        
+
         var existingArticle = await dbContext.Articles.FirstOrDefaultAsync(e => e.Id == id, token);
         if (existingArticle != null) return Errors.Article.DuplicateId;
 
@@ -50,6 +50,15 @@ public class CreateArticleCommandHandler(
         await dbContext.Revisions.AddAsync(revision, token);
 
         await dbContext.SaveChangesAsync(token);
+
+        var articleCreatedEvent = new ArticleCreatedEvent
+        {
+            Id = article.Id,
+            Title = article.Title,
+            Content = revision.Content,
+            CategoryIds = categories.Select(e => e.Id).ToList()
+        };
+        await publisher.Publish(articleCreatedEvent, token);
 
         return new CreateArticleResponse(article.Id);
     }
