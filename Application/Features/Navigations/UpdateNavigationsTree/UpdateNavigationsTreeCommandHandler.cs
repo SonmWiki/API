@@ -1,13 +1,11 @@
 using Application.Data;
-using Application.Features.Navigations.GetNavigationTree;
 using Domain.Entities;
 using ErrorOr;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Navigations.UpdateNavigationsTree;
 
-public class UpdateNavigationsTreeQueryHandler
+public class UpdateNavigationsTreeCommandHandler
     (IApplicationDbContext dbContext) : IRequestHandler<UpdateNavigationsTreeCommand,
         ErrorOr<UpdateNavigationsTreeResponse>>
 {
