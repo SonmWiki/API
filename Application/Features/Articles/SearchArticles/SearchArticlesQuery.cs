@@ -1,9 +1,8 @@
-using ErrorOr;
-using MediatR;
+using Application.Common.Messaging;
 
 namespace Application.Features.Articles.SearchArticles;
 
-public record SearchArticlesQuery : IRequest<ErrorOr<SearchArticlesResponse>>
+public record SearchArticlesQuery : IQuery<SearchArticlesResponse>
 {
     public string SearchTerm { get; }
     public int Page { get; }

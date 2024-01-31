@@ -1,6 +1,5 @@
-﻿using ErrorOr;
-using MediatR;
+﻿using Application.Common.Messaging;
 
 namespace Application.Features.Articles.GetPendingRevisions;
 
-public record GetPendingRevisionsQuery : IRequest<ErrorOr<GetPendingRevisionsResponse>>;
+public record GetPendingRevisionsQuery : IQuery<GetPendingRevisionsResponse>;

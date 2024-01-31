@@ -1,6 +1,5 @@
-using ErrorOr;
-using MediatR;
+using Application.Common.Messaging;
 
 namespace Application.Features.Categories.GetCategories;
 
-public record GetCategoriesQuery : IRequest<ErrorOr<GetCategoriesResponse>>;
+public record GetCategoriesQuery : IQuery<GetCategoriesResponse>;

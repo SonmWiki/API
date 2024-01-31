@@ -1,6 +1,5 @@
-﻿using ErrorOr;
-using MediatR;
+﻿using Application.Common.Messaging;
 
 namespace Application.Features.Articles.GetArticle;
 
-public record GetArticleQuery(string Id, Guid? RevisionId = null) : IRequest<ErrorOr<GetArticleResponse>>;
+public record GetArticleQuery(string Id, Guid? RevisionId = null) : IQuery<GetArticleResponse>;

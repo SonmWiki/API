@@ -1,6 +1,5 @@
-using ErrorOr;
-using MediatR;
+using Application.Common.Messaging;
 
 namespace Application.Features.Categories.GetCategoriesTree;
 
-public record GetCategoriesTreeQuery : IRequest<ErrorOr<GetCategoriesTreeResponse>>;
+public record GetCategoriesTreeQuery : IQuery<GetCategoriesTreeResponse>;

@@ -1,6 +1,5 @@
-using ErrorOr;
-using MediatR;
+using Application.Common.Messaging;
 
 namespace Application.Features.Navigations.GetNavigationTree;
 
-public record GetNavigationsTreeQuery : IRequest<ErrorOr<GetNavigationsTreeResponse>>;
+public record GetNavigationsTreeQuery : IQuery<GetNavigationsTreeResponse>;
