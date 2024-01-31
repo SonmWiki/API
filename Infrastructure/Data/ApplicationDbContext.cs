@@ -16,6 +16,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("pg_trgm");
         modelBuilder.Entity<Article>(entity =>
         {
             entity.Property(e => e.Id).HasMaxLength(ApplicationConstants.MaxSlugLength);
@@ -29,6 +30,9 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
             entity.HasOne(e => e.CurrentRevision)
                 .WithOne()
                 .HasForeignKey<Article>(e => e.CurrentRevisionId);
+            entity.HasIndex(e => e.Title)
+                .HasMethod("GIST")
+                .HasOperators("gist_trgm_ops");
         });
         modelBuilder.Entity<Category>(entity =>
         {
