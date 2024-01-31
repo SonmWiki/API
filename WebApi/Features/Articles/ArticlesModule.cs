@@ -6,6 +6,7 @@ using Application.Features.Articles.GetPendingRevisions;
 using Application.Features.Articles.GetRevisionHistory;
 using Application.Features.Articles.GetRevisionReviewHistory;
 using Application.Features.Articles.ReviewRevision;
+using Application.Features.Articles.SearchArticles;
 using Application.Features.Articles.SetRedirect;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +38,21 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
+            .WithOpenApi();
+
+        app.MapGet("/api/articles",
+                async Task<IResult> (IMediator mediator, string searchTerm, int page = 1, int pageSize = 50) =>
+                {
+                    var query = new SearchArticlesQuery(searchTerm, page, pageSize);
+                    var result = await mediator.Send(query);
+                    return result.MatchFirst(
+                        value => Results.Ok(value),
+                        error => error.ToIResult()
+                    );
+                })
+            .WithName("SearchArticles")
+            .WithTags("Article")
+            .Produces<SearchArticlesResponse>()
             .WithOpenApi();
 
         app.MapGet("/api/articles/{id}",
@@ -74,7 +90,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status409Conflict)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
             .WithOpenApi();
-        
+
         app.MapPut("/api/articles/{id}/redirect",
                 async Task<IResult> (string id, IMediator mediator, SerArticleRedirectRequest request) =>
                 {
@@ -95,7 +111,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status409Conflict)
             .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
             .WithOpenApi();
-        
+
         app.MapGet("/api/articles/revisions/pending",
                 async Task<IResult> (IMediator mediator) =>
                 {
