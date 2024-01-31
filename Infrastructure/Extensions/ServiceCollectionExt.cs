@@ -1,9 +1,11 @@
 ﻿using System.Security.Claims;
 using Application.Authorization.Abstractions;
+using Application.Common.Caching;
 using Application.Data;
 using Application.Features.Authors.CreateAuthor;
 using Application.Features.Authors.EditAuthor;
 using Infrastructure.Authorization;
+using Infrastructure.Caching;
 using Infrastructure.Data;
 using Keycloak.AuthServices.Authentication;
 using Keycloak.AuthServices.Authorization;
@@ -53,6 +55,9 @@ public static class ServiceCollectionExt
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IIdentityService, IdentityService>();
+
+        services.AddMemoryCache();
+        services.AddSingleton<ICacheService, CacheService>();
 
         return services;
     }
