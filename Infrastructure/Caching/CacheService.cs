@@ -19,4 +19,10 @@ public class CacheService(IMemoryCache memoryCache) : ICacheService
 
         return result;
     }
+
+    public Task RemoveAsync(string key, CancellationToken token = default)
+    {
+        memoryCache.Remove(key);
+        return Task.CompletedTask;
+    }
 }

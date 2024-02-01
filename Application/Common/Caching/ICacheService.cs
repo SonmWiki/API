@@ -8,4 +8,6 @@ public interface ICacheService
         TimeSpan? expiration = null,
         CancellationToken token = default
     );
+
+    Task RemoveAsync(string key, CancellationToken token = default);
 }
