@@ -18,6 +18,8 @@ public class ReviewRevisionCommandHandler(
     {
         var revision = await dbContext.Revisions
             .Include(e => e.Article)
+            .ThenInclude(e => e.CurrentRevision)
+            .ThenInclude(e => e.Categories)
             .Include(e => e.Categories)
             .Include(e => e.LatestReview)
             .FirstOrDefaultAsync(e => e.Id == command.RevisionId, token);
@@ -38,37 +40,59 @@ public class ReviewRevisionCommandHandler(
             Revision = revision
         };
 
+        ArticleChangedRevisionEvent? articleChangedRevisionEvent = null;
+
         revision.LatestReview = review;
 
         if (command.Status is ReviewStatus.Removed)
             revision.Content = "[REDACTED]";
-
+        
         if (article.CurrentRevision == revision && command is {Status: ReviewStatus.Removed or ReviewStatus.Rejected})
         {
             var rollbackRevision = await dbContext.Revisions
                 .Include(e => e.LatestReview)
+                .Include(e => e.Categories)
                 .Where(e => e.Id != revision.Id && e.ArticleId == article.Id && e.LatestReview != null &&
                             e.LatestReview.Status == ReviewStatus.Accepted)
                 .OrderByDescending(e => e.Timestamp)
                 .FirstOrDefaultAsync(token);
 
-            article.CurrentRevision = rollbackRevision == null ? null : revision;
+            ChangeArticleRevision(article, rollbackRevision, out articleChangedRevisionEvent);
         }
 
         if (command is {Status: ReviewStatus.Accepted})
-            article.CurrentRevision = revision;
+        {
+            ChangeArticleRevision(article, revision, out articleChangedRevisionEvent);
+        }
 
         await dbContext.SaveChangesAsync(token);
-
-
+        
         var revisionReviewedEvent = new RevisionReviewedEvent
         {
+            ArticleId = article.Id,
             RevisionId = revision.Id,
             Status = command.Status,
-            Review = command.Review
+            Review = command.Review,
         };
         await publisher.Publish(revisionReviewedEvent, token);
+        
+        if (articleChangedRevisionEvent != null) await publisher.Publish(articleChangedRevisionEvent, token);
 
         return new ReviewRevisionResponse(review.Id);
+    }
+    
+    private static void ChangeArticleRevision(Article article, Revision? revision, out ArticleChangedRevisionEvent articleChangedRevisionEvent)
+    {
+        var previousRevisionId = article.CurrentRevision?.Id;
+        var previousRevisionCategoriesIds = article.CurrentRevision?.Categories.Select(e => e.Id).ToList() ?? new List<string>();
+        article.CurrentRevision = revision;
+        articleChangedRevisionEvent = new ArticleChangedRevisionEvent
+        {
+            ArticleId = article.Id,
+            PreviousRevisionId = previousRevisionId,
+            CurrentRevisionId = article.CurrentRevision?.Id,
+            PreviousRevisionCategoryIds = previousRevisionCategoriesIds,
+            CurrentRevisionCategoryIds = revision?.Categories.Select(e => e.Id).ToList() ?? new List<string>()
+        };
     }
 }
