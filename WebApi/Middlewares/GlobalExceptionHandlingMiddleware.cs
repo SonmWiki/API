@@ -15,21 +15,36 @@ public class GlobalExceptionHandlingMiddleware(ILogger<GlobalExceptionHandlingMi
         catch (Exception e)
         {
             logger.LogError(e, e.Message);
-
-            context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
-
-            var problem = new ProblemDetails
+            
+            ProblemDetails problem;
+            
+            if (e is BadHttpRequestException)
             {
-                Status = (int) HttpStatusCode.InternalServerError,
-                Type = "Server error",
-                Title = "Server error",
-                Detail = "An internal server error has occured"
-            };
-
-            var json = JsonSerializer.Serialize(problem);
-
+                context.Response.StatusCode = (int) HttpStatusCode.BadRequest;
+                
+                problem = new ProblemDetails
+                {
+                    Status = (int) HttpStatusCode.BadRequest,
+                    Type = "Bad request",
+                    Title = "Bad request",
+                    Detail = "Unexpected request content"
+                };
+            }
+            else
+            {
+                context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                
+                problem = new ProblemDetails
+                {
+                    Status = (int) HttpStatusCode.InternalServerError,
+                    Type = "Server error",
+                    Title = "Server error",
+                    Detail = "An internal server error has occured"
+                };
+            }
+            
             context.Response.ContentType = "application/json";
-
+            var json = JsonSerializer.Serialize(problem);
             await context.Response.WriteAsync(json);
         }
     }
