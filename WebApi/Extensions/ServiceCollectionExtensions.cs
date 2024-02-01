@@ -1,6 +1,7 @@
 using Keycloak.AuthServices.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using WebApi.SchemaFilters;
 
 namespace WebApi.Extensions;
 
@@ -12,6 +13,7 @@ public static class ServiceCollectionExtensions
         {
             options.CustomSchemaIds(x => x.FullName?.Replace("+", ".").Replace(x.Namespace + ".", ""));
             options.SupportNonNullableReferenceTypes();
+            options.SchemaFilter<SwaggerRequiredSchemaFilter>();
             var keycloakOptions = new KeycloakAuthenticationOptions();
 
             configuration.GetSection(KeycloakAuthenticationOptions.Section).Bind(keycloakOptions, opt => opt.BindNonPublicProperties = true);
