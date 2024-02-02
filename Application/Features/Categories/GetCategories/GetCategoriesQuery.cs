@@ -7,4 +7,5 @@ public record GetCategoriesQuery : ICachedQuery<GetCategoriesResponse>
 {
     public string Key => CachingKeys.Categories.CategoriesAll;
     public TimeSpan? Expiration => null;
+    public bool IgnoreCaching => false;
 }

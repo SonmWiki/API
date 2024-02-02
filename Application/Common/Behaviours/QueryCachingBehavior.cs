@@ -10,6 +10,7 @@ public class QueryCachingBehavior<TRequest, TResponse>(ICacheService cacheServic
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
         CancellationToken token)
     {
+        if (request.IgnoreCaching) return await next();
         return await cacheService.GetOrCreateAsync(request.Key, _ => next(), request.Expiration, token);
     }
 }

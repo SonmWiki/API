@@ -7,4 +7,6 @@ public interface ICachedQuery
     string Key { get; }
     
     TimeSpan? Expiration { get; }
+    
+    bool IgnoreCaching { get; }
 }

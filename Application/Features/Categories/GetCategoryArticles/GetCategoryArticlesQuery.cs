@@ -7,4 +7,5 @@ public record GetCategoryArticlesQuery(string Id) : ICachedQuery<GetCategoryArti
 {
     public string Key => CachingKeys.Categories.CategoryArticlesById(Id);
     public TimeSpan? Expiration => TimeSpan.FromHours(12);
+    public bool IgnoreCaching => false;
 };
