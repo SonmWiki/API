@@ -1,3 +1,5 @@
+using Application.Authorization.Abstractions;
+using Application.Common.Constants;
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
@@ -6,8 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.GetArticle;
 
-public class GetArticleQueryHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<GetArticleQuery, ErrorOr<GetArticleResponse>>
+public class GetArticleQueryHandler(
+    IApplicationDbContext dbContext,
+    IIdentityService identityService
+) : IRequestHandler<GetArticleQuery, ErrorOr<GetArticleResponse>>
 {
     public async Task<ErrorOr<GetArticleResponse>> Handle(GetArticleQuery query, CancellationToken token)
     {
@@ -27,14 +31,16 @@ public class GetArticleQueryHandler
 
         if (query.RevisionId != null)
         {
+            var isInRole = await identityService.IsInRoleAsync(AuthorizationConstants.Roles.Editor) ||
+                           await identityService.IsInRoleAsync(AuthorizationConstants.Roles.Admin);
             revision = await dbContext.Revisions
                 .Include(e => e.LatestReview)
-                .FirstOrDefaultAsync(e => e.Id == query.RevisionId && e.LatestReview != null, token);
+                .FirstOrDefaultAsync(e => e.Id == query.RevisionId && (isInRole || e.LatestReview != null), token);
             if (revision == null) return Errors.Revision.NotFound;
         }
 
         var categories = new List<GetArticleResponse.Category>();
-        
+
         if (revision != null)
         {
             await dbContext.Revisions.Entry(revision).Collection(e => e.Categories).LoadAsync(token);
