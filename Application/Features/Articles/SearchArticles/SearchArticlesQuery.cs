@@ -4,11 +4,11 @@ namespace Application.Features.Articles.SearchArticles;
 
 public record SearchArticlesQuery : IQuery<SearchArticlesResponse>
 {
-    public string SearchTerm { get; }
+    public string? SearchTerm { get; }
     public int Page { get; }
     public int PageSize { get; }
 
-    public SearchArticlesQuery(string SearchTerm, int Page, int PageSize)
+    public SearchArticlesQuery(string? SearchTerm, int Page, int PageSize)
     {
         this.SearchTerm = SearchTerm;
         this.Page = Page < 1 ? 1 : Page;

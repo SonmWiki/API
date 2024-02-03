@@ -41,7 +41,7 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapGet("/api/articles",
-                async Task<IResult> (IMediator mediator, string searchTerm, int page = 1, int pageSize = 50) =>
+                async Task<IResult> (IMediator mediator, string? searchTerm, int page = 1, int pageSize = 50) =>
                 {
                     var query = new SearchArticlesQuery(searchTerm, page, pageSize);
                     var result = await mediator.Send(query);
