@@ -11,11 +11,6 @@ public class SwaggerRequiredSchemaFilter: ISchemaFilter
             return;
 
         foreach (var schemaPropertyProp in schema.Properties)
-        {
-            if (schemaPropertyProp.Value.Nullable)
-                continue;
-
             schema.Required.Add(schemaPropertyProp.Key);
-        }
     }
 }
