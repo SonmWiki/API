@@ -53,6 +53,9 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
         });
         modelBuilder.Entity<Navigation>(entity =>
         {
+            entity.Property(e => e.Name).HasMaxLength(ApplicationConstants.MaxTitleLenght);
+            entity.Property(e => e.Icon).HasMaxLength(ApplicationConstants.MaxTitleLenght);
+            entity.Property(e => e.Uri).HasMaxLength(ApplicationConstants.MaxUriLength);
             entity.HasOne(e => e.Parent)
                 .WithMany(e => e.Children)
                 .HasForeignKey(e=>e.ParentId)
