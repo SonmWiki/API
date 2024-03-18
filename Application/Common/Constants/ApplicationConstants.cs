@@ -4,4 +4,5 @@ public static class ApplicationConstants
 {
     public const int MaxTitleLenght = 128;
     public const int MaxSlugLength = 512;
+    public const int MaxUriLength = 2048;
 }
