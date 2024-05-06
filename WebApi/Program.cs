@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Application.Extensions;
 using Infrastructure.Extensions;
 using Keycloak.AuthServices.Authentication;
@@ -17,6 +18,13 @@ builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter())
+);
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.RegisterSwagger(builder.Configuration);
