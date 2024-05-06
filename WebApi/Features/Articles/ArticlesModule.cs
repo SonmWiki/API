@@ -123,7 +123,7 @@ public static class ArticlesModule
                         error => error.ToIResult()
                     );
                 })
-            .WithName("PendingRevisions")
+            .WithName("GetPendingRevisions")
             .WithTags("Article")
             .Produces<GetPendingRevisionsResponse>()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
