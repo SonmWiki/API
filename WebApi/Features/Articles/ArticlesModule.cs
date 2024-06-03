@@ -57,9 +57,9 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapGet("/api/articles/{id}",
-                async Task<IResult> (string id, Guid? revisionId, IMediator mediator) =>
+                async Task<IResult> (string id, IMediator mediator) =>
                 {
-                    var result = await mediator.Send(new GetArticleQuery(id, revisionId));
+                    var result = await mediator.Send(new GetArticleQuery(id));
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -68,6 +68,23 @@ public static class ArticlesModule
             .WithName("GetArticle")
             .WithTags("Article")
             .Produces<GetArticleResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .WithOpenApi();
+        
+        app.MapGet("/api/articles/revision:{id:guid}",
+                async Task<IResult> (Guid id, IMediator mediator) =>
+                {
+                    var result = await mediator.Send(new GetArticleQuery(null, id));
+                    return result.MatchFirst(
+                        value => Results.Ok(value),
+                        error => error.ToIResult()
+                    );
+                })
+            .WithName("GetArticleByRevision")
+            .WithTags("Article")
+            .Produces<GetArticleResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
