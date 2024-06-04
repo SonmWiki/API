@@ -1,6 +1,8 @@
+using MediatR;
+
 namespace Application.Features.Articles.EditArticle;
 
-public class ArticleEditedEvent
+public class ArticleEditedEvent : INotification
 {
     public required string Id { get; init; }
     public required string Content { get; init; }
