@@ -1,6 +1,5 @@
 ﻿using Application.Features.Categories.CreateCategory;
 using Application.Features.Categories.DeleteCategory;
-using Application.Features.Categories.EditCategory;
 using Application.Features.Categories.GetCategories;
 using Application.Features.Categories.GetCategoriesTree;
 using Application.Features.Categories.GetCategoryArticles;
@@ -78,26 +77,6 @@ public static class CategoriesModule
             .WithTags("Category", "Article")
             .Produces<GetCategoryArticlesResponse>()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithOpenApi();
-
-        app.MapPut("/api/categories/{id}",
-                async (string id, IMediator mediator, UpdateCategoryRequest request) =>
-                {
-                    var command = new EditCategoryCommand(id, request.Name, request.ParentId);
-                    var response = await mediator.Send(command);
-                    return response.MatchFirst(
-                        value => Results.Ok(value),
-                        error => error.ToIResult()
-                    );
-                })
-            .WithName("UpdateCategory")
-            .WithTags("Category")
-            .Produces<EditCategoryResponse>()
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .ProducesProblem(StatusCodes.Status403Forbidden)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
             .WithOpenApi();
 
         app.MapDelete("/api/categories/{id}",
