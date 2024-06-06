@@ -32,6 +32,7 @@ public class EditArticleCommandHandler(
             Article = default!,
             AuthorId = identityService.UserId!,
             Author = default!,
+            AuthorsNote = request.AuthorsNote,
             Content = request.Content,
             Categories = requestCategories,
             Timestamp = DateTime.UtcNow
@@ -40,10 +41,11 @@ public class EditArticleCommandHandler(
         await dbContext.Revisions.AddAsync(revision, token);
         await dbContext.SaveChangesAsync(token);
 
-        var articleEditedEvent = new ArticleEditedEvent()
+        var articleEditedEvent = new ArticleEditedEvent
         {
             Id = article.Id,
             Content = revision.Content,
+            AuthorsNote = request.AuthorsNote,
             CategoryIds = requestCategories.Select(e => e.Id).ToList()
         };
         await publisher.Publish(articleEditedEvent, token);

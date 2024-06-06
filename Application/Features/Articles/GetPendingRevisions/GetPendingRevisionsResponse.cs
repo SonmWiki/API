@@ -7,6 +7,7 @@ public record GetPendingRevisionsResponse(List<GetPendingRevisionsResponse.Eleme
         string ArticleIdTitle,
         Guid RevisionId,
         Author Author,
+        string AuthorsNote,
         DateTime Timestamp
     );
 

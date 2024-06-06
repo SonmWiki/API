@@ -7,6 +7,7 @@ public record GetRevisionHistoryResponse(List<GetRevisionHistoryResponse.Element
     public record Element(
         Guid Id,
         Author Contributor,
+        string AuthorsNote,
         DateTime Timestamp,
         Review? LatestReview
     );

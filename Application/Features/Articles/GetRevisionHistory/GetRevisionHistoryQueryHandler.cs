@@ -27,6 +27,7 @@ public class GetRevisionHistoryQueryHandler
             .Select(e => new GetRevisionHistoryResponse.Element(
                     e.Id,
                     new GetRevisionHistoryResponse.Author(e.Author.Id, e.Author.Name),
+                    e.AuthorsNote,
                     e.Timestamp,
                     e.LatestReview == null
                         ? null

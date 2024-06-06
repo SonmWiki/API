@@ -45,7 +45,10 @@ public class ReviewRevisionCommandHandler(
         revision.LatestReview = review;
 
         if (command.Status is ReviewStatus.Removed)
+        {
             revision.Content = "[REDACTED]";
+            revision.AuthorsNote = "[REDACTED]";
+        }
         
         if (article.CurrentRevision == revision && command is {Status: ReviewStatus.Removed or ReviewStatus.Rejected})
         {

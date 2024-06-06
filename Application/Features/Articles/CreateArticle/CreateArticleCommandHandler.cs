@@ -41,6 +41,7 @@ public class CreateArticleCommandHandler(
             Article = default!,
             AuthorId = identityService.UserId!,
             Author = default!,
+            AuthorsNote = command.AuthorsNote,
             Content = command.Content,
             Categories = categories,
             Timestamp = DateTime.UtcNow

@@ -24,7 +24,7 @@ public static class ArticlesModule
         app.MapPost("/api/articles",
                 async Task<IResult> (IMediator mediator, CreateArticleRequest request) =>
                 {
-                    var command = new CreateArticleCommand(request.Title, request.Content, request.CategoryIds);
+                    var command = new CreateArticleCommand(request.Title, request.Content, request.AuthorsNote, request.CategoryIds);
                     var result = await mediator.Send(command);
                     return result.MatchFirst(
                         value => Results.Created($"/api/articles/{value.Id}", value),
@@ -91,7 +91,7 @@ public static class ArticlesModule
         app.MapPut("/api/articles/{id}",
                 async Task<IResult> (string id, IMediator mediator, EditArticleRequest request) =>
                 {
-                    var command = new EditArticleCommand(id, request.Content, request.CategoryIds);
+                    var command = new EditArticleCommand(id, request.Content, request.AuthorsNote, request.CategoryIds);
                     var result = await mediator.Send(command);
                     return result.MatchFirst(
                         value => Results.Created($"/api/articles/{value.Id}", value),

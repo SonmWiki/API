@@ -23,6 +23,7 @@ public class GetPendingRevisionsQueryHandler
                         e.AuthorId,
                         e.Author.Name
                     ),
+                    e.AuthorsNote,
                     e.Timestamp
                 )
             )
