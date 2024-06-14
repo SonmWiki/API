@@ -12,9 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.ConfigureKeycloakConfigurationSource();
 
-builder.Services.AddCors();
 builder.Services.AddLogging();
-builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddCors();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddEndpointsApiExplorer();
@@ -31,6 +32,8 @@ if (builder.Environment.IsDevelopment())
 }
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 app.UseCors(policyBuilder => policyBuilder
     .AllowAnyHeader()
@@ -56,7 +59,5 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options => options.OAuthClientId(keycloakOptions.Resource));
 }
-
-app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.Run();
