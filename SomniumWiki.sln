@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.Tests.Unit", "Application.Tests.Unit\Application.Tests.Unit.csproj", "{BA08AE51-A064-44F7-9086-7D87E28ECA45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,11 +41,16 @@ Global
 		{769A68D2-2F99-4290-B48C-F1926124D06F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{769A68D2-2F99-4290-B48C-F1926124D06F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{769A68D2-2F99-4290-B48C-F1926124D06F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA08AE51-A064-44F7-9086-7D87E28ECA45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA08AE51-A064-44F7-9086-7D87E28ECA45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA08AE51-A064-44F7-9086-7D87E28ECA45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA08AE51-A064-44F7-9086-7D87E28ECA45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8C03094C-6723-43B8-A358-A7C9D8CD1B18} = {EAC7321B-AB87-4288-82A4-4927954E807E}
 		{50973DE2-DBC5-48D0-805F-4D346B8060A5} = {EAC7321B-AB87-4288-82A4-4927954E807E}
 		{2203A251-0FDF-41EF-A956-FC012271B4C3} = {EAC7321B-AB87-4288-82A4-4927954E807E}
 		{769A68D2-2F99-4290-B48C-F1926124D06F} = {EAC7321B-AB87-4288-82A4-4927954E807E}
+		{BA08AE51-A064-44F7-9086-7D87E28ECA45} = {F5900949-F644-4FE2-A67C-4CEA127868AE}
 	EndGlobalSection
 EndGlobal
