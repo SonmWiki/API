@@ -7,22 +7,22 @@ using WebApi.Features.Articles;
 using WebApi.Features.Categories;
 using WebApi.Features.Navigations;
 using WebApi.Middlewares;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Host.ConfigureKeycloakConfigurationSource();
 
 builder.Services.AddLogging();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddCors();
-builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddApplicationServices();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter())
 );
-builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+builder.Services.Configure<JsonOptions>(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
