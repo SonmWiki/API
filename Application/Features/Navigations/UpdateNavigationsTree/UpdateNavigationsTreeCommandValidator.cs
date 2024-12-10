@@ -17,9 +17,9 @@ public class UpdateNavigationsTreeCommandElementValidator : AbstractValidator<Up
     {
         RuleFor(v => v.Name)
             .NotEmpty()
-            .MaximumLength(ApplicationConstants.MaxTitleLenght);
+            .MaximumLength(ApplicationConstants.MaxTitleLength);
         RuleFor(v => v.Icon)
-            .MaximumLength(ApplicationConstants.MaxTitleLenght);
+            .MaximumLength(ApplicationConstants.MaxTitleLength);
         RuleFor(v => v.Uri)
             .MaximumLength(ApplicationConstants.MaxUriLength);
         RuleFor(v => v.Children)

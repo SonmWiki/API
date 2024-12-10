@@ -20,7 +20,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Entity<Article>(entity =>
         {
             entity.Property(e => e.Id).HasMaxLength(ApplicationConstants.MaxSlugLength);
-            entity.Property(e => e.Title).HasMaxLength(ApplicationConstants.MaxTitleLenght);
+            entity.Property(e => e.Title).HasMaxLength(ApplicationConstants.MaxTitleLength);
             entity.HasOne(e => e.RedirectArticle)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Cascade);
@@ -37,7 +37,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Entity<Category>(entity =>
         {
             entity.Property(e => e.Id).HasMaxLength(ApplicationConstants.MaxSlugLength);
-            entity.Property(e => e.Name).HasMaxLength(ApplicationConstants.MaxTitleLenght);
+            entity.Property(e => e.Name).HasMaxLength(ApplicationConstants.MaxTitleLength);
             entity.HasOne(e => e.Parent)
                 .WithMany(e => e.SubCategories)
                 .OnDelete(DeleteBehavior.SetNull);
@@ -53,8 +53,8 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
         });
         modelBuilder.Entity<Navigation>(entity =>
         {
-            entity.Property(e => e.Name).HasMaxLength(ApplicationConstants.MaxTitleLenght);
-            entity.Property(e => e.Icon).HasMaxLength(ApplicationConstants.MaxTitleLenght);
+            entity.Property(e => e.Name).HasMaxLength(ApplicationConstants.MaxTitleLength);
+            entity.Property(e => e.Icon).HasMaxLength(ApplicationConstants.MaxTitleLength);
             entity.Property(e => e.Uri).HasMaxLength(ApplicationConstants.MaxUriLength);
             entity.HasOne(e => e.Parent)
                 .WithMany(e => e.Children)
