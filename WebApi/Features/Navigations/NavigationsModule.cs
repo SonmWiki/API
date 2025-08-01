@@ -1,6 +1,5 @@
 ﻿using Application.Features.Navigations.GetNavigationTree;
 using Application.Features.Navigations.UpdateNavigationsTree;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Extensions;
 using WebApi.Features.Navigations.Requests;
@@ -13,9 +12,9 @@ public static class NavigationsModule
     public static void AddNavigationsEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/navigations/tree",
-                async Task<IResult> (IMediator mediator) =>
+                async Task<IResult> (IGetNavigationsTreeQueryHandler getNavigationsTreeQueryHandler, CancellationToken cancellationToken) =>
                 {
-                    var response = await mediator.Send(new GetNavigationsTreeQuery());
+                    var response = await getNavigationsTreeQueryHandler.Handle(new GetNavigationsTreeQuery(), cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -27,10 +26,10 @@ public static class NavigationsModule
             .WithOpenApi();
 
         app.MapPut("/api/navigations/tree",
-                async Task<IResult> (IMediator mediator, UpdateNavigationsTreeRequest request) =>
+                async Task<IResult> (IUpdateNavigationsTreeCommandHandler updateNavigationsTreeCommandHandler, UpdateNavigationsTreeRequest request, CancellationToken cancellationToken) =>
                 {
                     var command = new UpdateNavigationsTreeCommand(request.Data);
-                    var response = await mediator.Send(command);
+                    var response = await updateNavigationsTreeCommandHandler.Handle(command, cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(),
                         error => error.ToIResult()

@@ -2,7 +2,6 @@
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Slugify;
 
@@ -11,9 +10,8 @@ namespace Application.Features.Articles.CreateArticle;
 public class CreateArticleCommandHandler(
     IApplicationDbContext dbContext,
     ISlugHelper slugHelper,
-    ICurrentUserService identityService,
-    IPublisher publisher
-) : IRequestHandler<CreateArticleCommand, ErrorOr<CreateArticleResponse>>
+    ICurrentUserService identityService
+) : ICreateArticleCommandHandler
 {
     public async Task<ErrorOr<CreateArticleResponse>> Handle(CreateArticleCommand command, CancellationToken token)
     {
@@ -52,14 +50,14 @@ public class CreateArticleCommandHandler(
 
         await dbContext.SaveChangesAsync(token);
 
-        var articleCreatedEvent = new ArticleCreatedEvent
-        {
-            Id = article.Id,
-            Title = article.Title,
-            Content = revision.Content,
-            CategoryIds = categories.Select(e => e.Id).ToList()
-        };
-        await publisher.Publish(articleCreatedEvent, token);
+        // var articleCreatedEvent = new ArticleCreatedEvent
+        // {
+        //     Id = article.Id,
+        //     Title = article.Title,
+        //     Content = revision.Content,
+        //     CategoryIds = categories.Select(e => e.Id).ToList()
+        // };
+        // await publisher.Publish(articleCreatedEvent, token);
 
         return new CreateArticleResponse(article.Id);
     }

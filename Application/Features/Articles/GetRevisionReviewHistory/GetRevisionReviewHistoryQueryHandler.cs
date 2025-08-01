@@ -1,13 +1,10 @@
 using Application.Data;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.GetRevisionReviewHistory;
 
-public class GetRevisionReviewHistoryQueryHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<GetRevisionReviewHistoryQuery,
-        ErrorOr<GetRevisionReviewHistoryResponse>>
+public class GetRevisionReviewHistoryQueryHandler(IApplicationDbContext dbContext) : IGetRevisionReviewHistoryQueryHandler
 {
     public async Task<ErrorOr<GetRevisionReviewHistoryResponse>> Handle(GetRevisionReviewHistoryQuery query,
         CancellationToken token)

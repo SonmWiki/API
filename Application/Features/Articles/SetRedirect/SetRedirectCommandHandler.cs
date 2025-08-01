@@ -1,16 +1,10 @@
-using Application.Authorization.Abstractions;
 using Application.Data;
-using Domain.Entities;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.SetRedirect;
 
-public class SetRedirectCommandHandler(
-    IApplicationDbContext dbContext,
-    IPublisher publisher
-) : IRequestHandler<SetRedirectCommand, ErrorOr<SetRedirectResponse>>
+public class SetRedirectCommandHandler(IApplicationDbContext dbContext) : ISetRedirectCommandHandler
 {
     public async Task<ErrorOr<SetRedirectResponse>> Handle(SetRedirectCommand command,
         CancellationToken token)
@@ -37,12 +31,12 @@ public class SetRedirectCommandHandler(
 
         await dbContext.SaveChangesAsync(token);
 
-        var revisionReviewedEvent = new RedirectSetEvent
-        {
-            ArticleId = article.Id,
-            RedirectId = redirectArticle.Id,
-        };
-        await publisher.Publish(revisionReviewedEvent, token);
+        // var revisionReviewedEvent = new RedirectSetEvent
+        // {
+        //     ArticleId = article.Id,
+        //     RedirectId = redirectArticle.Id,
+        // };
+        // await publisher.Publish(revisionReviewedEvent, token);
 
         return new SetRedirectResponse(redirectArticle.Id);
     }

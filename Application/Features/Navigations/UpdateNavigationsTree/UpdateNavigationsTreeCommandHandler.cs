@@ -1,14 +1,12 @@
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
-using MediatR;
 
 namespace Application.Features.Navigations.UpdateNavigationsTree;
 
 public class UpdateNavigationsTreeCommandHandler(
-    IApplicationDbContext dbContext,
-    IPublisher publisher
-) : IRequestHandler<UpdateNavigationsTreeCommand, ErrorOr<UpdateNavigationsTreeResponse>>
+    IApplicationDbContext dbContext
+) : IUpdateNavigationsTreeCommandHandler
 {
     public async Task<ErrorOr<UpdateNavigationsTreeResponse>> Handle(UpdateNavigationsTreeCommand request,
         CancellationToken token)
@@ -47,8 +45,8 @@ public class UpdateNavigationsTreeCommandHandler(
         await dbContext.Navigations.AddRangeAsync(navigationsToAdd, token);
         await dbContext.SaveChangesAsync(token);
 
-        var navigationsTreeUpdatedEvent = new NavigationsTreeUpdatedEvent();
-        await publisher.Publish(navigationsTreeUpdatedEvent, token);
+        // var navigationsTreeUpdatedEvent = new NavigationsTreeUpdatedEvent();
+        // await publisher.Publish(navigationsTreeUpdatedEvent, token);
 
         return new UpdateNavigationsTreeResponse();
     }

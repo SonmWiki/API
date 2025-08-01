@@ -1,14 +1,10 @@
 using Application.Data;
-using Application.Features.Articles.GetPendingRevisions;
-using Domain.Entities;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Categories.GetCategoriesTree;
 
-public class GetCategoriesTreeQueryHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<GetCategoriesTreeQuery, ErrorOr<GetCategoriesTreeResponse>>
+public class GetCategoriesTreeQueryHandler(IApplicationDbContext dbContext) : IGetCategoriesTreeQueryHandler
 {
     public async Task<ErrorOr<GetCategoriesTreeResponse>> Handle(GetCategoriesTreeQuery request,
         CancellationToken token)

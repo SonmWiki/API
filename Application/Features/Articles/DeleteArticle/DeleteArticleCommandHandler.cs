@@ -1,13 +1,9 @@
 ﻿using Application.Data;
 using ErrorOr;
-using MediatR;
 
 namespace Application.Features.Articles.DeleteArticle;
 
-public class DeleteArticleCommandHandler(
-    IApplicationDbContext dbContext,
-    IPublisher publisher
-) : IRequestHandler<DeleteArticleCommand, ErrorOr<DeleteArticleResponse>>
+public class DeleteArticleCommandHandler(IApplicationDbContext dbContext) : IDeleteArticleCommandHandler
 {
     public async Task<ErrorOr<DeleteArticleResponse>> Handle(DeleteArticleCommand request, CancellationToken token)
     {
@@ -16,8 +12,8 @@ public class DeleteArticleCommandHandler(
         dbContext.Articles.Remove(article);
         await dbContext.SaveChangesAsync(token);
 
-        var articleDeletedEvent = new ArticleDeletedEvent {Id = article.Id};
-        await publisher.Publish(articleDeletedEvent, token);
+        // var articleDeletedEvent = new ArticleDeletedEvent {Id = article.Id};
+        // await publisher.Publish(articleDeletedEvent, token);
 
         return new DeleteArticleResponse(article.Id);
     }

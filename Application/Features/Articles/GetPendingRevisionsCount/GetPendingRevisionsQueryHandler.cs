@@ -1,12 +1,10 @@
 using Application.Data;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.GetPendingRevisionsCount;
 
-public class GetPendingRevisionsCountQueryHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<GetPendingRevisionsCountQuery, ErrorOr<GetPendingRevisionsCountResponse>>
+public class GetPendingRevisionsCountQueryHandler(IApplicationDbContext dbContext) : IGetPendingRevisionsCountQueryHandler
 {
     public async Task<ErrorOr<GetPendingRevisionsCountResponse>> Handle(GetPendingRevisionsCountQuery query,
         CancellationToken token)

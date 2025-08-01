@@ -1,12 +1,10 @@
 using Application.Data;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Categories.GetCategories;
 
-public class GetCategoriesQueryHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<GetCategoriesQuery, ErrorOr<GetCategoriesResponse>>
+public class GetCategoriesQueryHandler(IApplicationDbContext dbContext) : IGetCategoriesQueryHandler
 {
     public async Task<ErrorOr<GetCategoriesResponse>> Handle(GetCategoriesQuery request,
         CancellationToken token)

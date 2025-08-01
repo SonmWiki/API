@@ -2,16 +2,14 @@
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.EditArticle;
 
 public class EditArticleCommandHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService identityService,
-    IPublisher publisher
-) : IRequestHandler<EditArticleCommand, ErrorOr<EditArticleResponse>>
+    ICurrentUserService identityService
+) : IEditArticleCommandHandler
 {
     public async Task<ErrorOr<EditArticleResponse>> Handle(EditArticleCommand request, CancellationToken token)
     {
@@ -41,14 +39,14 @@ public class EditArticleCommandHandler(
         await dbContext.Revisions.AddAsync(revision, token);
         await dbContext.SaveChangesAsync(token);
 
-        var articleEditedEvent = new ArticleEditedEvent
-        {
-            Id = article.Id,
-            Content = revision.Content,
-            AuthorsNote = request.AuthorsNote,
-            CategoryIds = requestCategories.Select(e => e.Id).ToList()
-        };
-        await publisher.Publish(articleEditedEvent, token);
+        // var articleEditedEvent = new ArticleEditedEvent
+        // {
+        //     Id = article.Id,
+        //     Content = revision.Content,
+        //     AuthorsNote = request.AuthorsNote,
+        //     CategoryIds = requestCategories.Select(e => e.Id).ToList()
+        // };
+        // await publisher.Publish(articleEditedEvent, token);
 
         return new EditArticleResponse(article.Id);
     }

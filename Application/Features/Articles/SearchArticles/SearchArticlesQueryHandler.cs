@@ -1,12 +1,10 @@
 using Application.Data;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.SearchArticles;
 
-public class SearchArticlesQueryHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<SearchArticlesQuery, ErrorOr<SearchArticlesResponse>>
+public class SearchArticlesQueryHandler(IApplicationDbContext dbContext) : ISearchArticlesQueryHandler
 {
     public async Task<ErrorOr<SearchArticlesResponse>> Handle(SearchArticlesQuery query,  CancellationToken token)
     {

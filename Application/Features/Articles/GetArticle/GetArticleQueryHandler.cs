@@ -3,7 +3,6 @@ using Application.Common.Constants;
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.GetArticle;
@@ -11,7 +10,7 @@ namespace Application.Features.Articles.GetArticle;
 public class GetArticleQueryHandler(
     IApplicationDbContext dbContext,
     IIdentityService identityService
-) : IRequestHandler<GetArticleQuery, ErrorOr<GetArticleResponse>>
+) : IGetArticleQueryHandler
 {
     public async Task<ErrorOr<GetArticleResponse>> Handle(GetArticleQuery query, CancellationToken token)
     {

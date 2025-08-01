@@ -1,7 +1,6 @@
 ﻿using Application.Data;
 using Domain.Entities;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Slugify;
 
@@ -9,9 +8,8 @@ namespace Application.Features.Categories.CreateCategory;
 
 public class CreateCategoryCommandHandler(
     IApplicationDbContext dbContext,
-    ISlugHelper slugHelper,
-    IPublisher publisher
-) : IRequestHandler<CreateCategoryCommand, ErrorOr<CreateCategoryResponse>>
+    ISlugHelper slugHelper
+) : ICreateCategoryCommandHandler
 {
     public async Task<ErrorOr<CreateCategoryResponse>> Handle(CreateCategoryCommand command, CancellationToken token)
     {
@@ -49,13 +47,13 @@ public class CreateCategoryCommandHandler(
         dbContext.Categories.Add(entity);
         await dbContext.SaveChangesAsync(token);
 
-        var categoryCreatedEvent = new CategoryCreatedEvent
-        {
-            Id = entity.Id,
-            Name = entity.Name,
-            ParentId = parent?.Id
-        };
-        await publisher.Publish(categoryCreatedEvent, token);
+        // var categoryCreatedEvent = new CategoryCreatedEvent
+        // {
+        //     Id = entity.Id,
+        //     Name = entity.Name,
+        //     ParentId = parent?.Id
+        // };
+        // await publisher.Publish(categoryCreatedEvent, token);
 
         return new CreateCategoryResponse(entity.Id);
     }

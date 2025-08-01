@@ -2,7 +2,6 @@ using Application.Authorization.Abstractions;
 using Application.Data;
 using Application.Features.Articles.CreateArticle;
 using Domain.Entities;
-using MediatR;
 using MockQueryable.Moq;
 using Slugify;
 
@@ -13,7 +12,6 @@ public class CreateArticleCommandHandlerTests
     private readonly Mock<IApplicationDbContext> _mockDbContext = new();
     private readonly Mock<ISlugHelper> _mockSlugHelper = new();
     private readonly Mock<ICurrentUserService> _mockCurrentUserService = new();
-    private readonly Mock<IPublisher> _mockPublisher = new();
     private readonly CreateArticleCommandHandler _handler;
 
     public CreateArticleCommandHandlerTests()
@@ -21,8 +19,7 @@ public class CreateArticleCommandHandlerTests
         _handler = new CreateArticleCommandHandler(
             _mockDbContext.Object,
             _mockSlugHelper.Object,
-            _mockCurrentUserService.Object,
-            _mockPublisher.Object
+            _mockCurrentUserService.Object
         );
     }
 
@@ -242,12 +239,14 @@ public class CreateArticleCommandHandlerTests
         var result = await _handler.Handle(command, default);
 
         //Assert
-        _mockPublisher.Verify(
-            x => x.Publish(
-                It.Is<ArticleCreatedEvent>(e => e.Id == result.Value.Id),
-                It.IsAny<CancellationToken>()
-            ),
-            Times.Once
-        );
+        //TODO: Reimplement without MediatR
+        // _mockPublisher.Verify(
+        //     x => x.Publish(
+        //         It.Is<ArticleCreatedEvent>(e => e.Id == result.Value.Id),
+        //         It.IsAny<CancellationToken>()
+        //     ),
+        //     Times.Once
+        // );
+        throw new Exception("TODO");
     }
 }

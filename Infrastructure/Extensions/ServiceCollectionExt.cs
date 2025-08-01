@@ -9,7 +9,6 @@ using Infrastructure.Caching;
 using Infrastructure.Data;
 using Keycloak.AuthServices.Authentication;
 using Keycloak.AuthServices.Authorization;
-using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -57,16 +56,18 @@ public static class ServiceCollectionExt
         if (principal?.Identity?.Name == null) return;
         if (principal.Identity.IsAuthenticated == false) return;
 
-        var mediator = context.HttpContext.RequestServices.GetService<IMediator>();
-        if (mediator == null) return;
+        //TODO: Reimplement without MediatR
 
-        var createAuthorCommand = new CreateAuthorCommand(idClaim.Value, principal.Identity.Name);
-
-        var createAuthorResult = await mediator.Send(createAuthorCommand);
-        if (createAuthorResult.IsError && createAuthorResult.FirstError == DuplicateId)
-        {
-            var editAuthorCommand = new EditAuthorCommand(idClaim.Value, principal.Identity.Name);
-            await mediator.Send(editAuthorCommand);
-        }
+        // var mediator = context.HttpContext.RequestServices.GetService<IMediator>();
+        // if (mediator == null) return;
+        //
+        // var createAuthorCommand = new CreateAuthorCommand(idClaim.Value, principal.Identity.Name);
+        //
+        // var createAuthorResult = await mediator.Send(createAuthorCommand);
+        // if (createAuthorResult.IsError && createAuthorResult.FirstError == DuplicateId)
+        // {
+        //     var editAuthorCommand = new EditAuthorCommand(idClaim.Value, principal.Identity.Name);
+        //     await mediator.Send(editAuthorCommand);
+        // }
     }
 }

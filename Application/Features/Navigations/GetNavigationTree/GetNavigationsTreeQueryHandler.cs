@@ -1,12 +1,10 @@
 using Application.Data;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Navigations.GetNavigationTree;
 
-public class GetNavigationsTreeQueryHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<GetNavigationsTreeQuery, ErrorOr<GetNavigationsTreeResponse>>
+public class GetNavigationsTreeQueryHandler(IApplicationDbContext dbContext) : IGetNavigationsTreeQueryHandler
 {
     public async Task<ErrorOr<GetNavigationsTreeResponse>> Handle(GetNavigationsTreeQuery request,
         CancellationToken token)

@@ -1,14 +1,12 @@
 ﻿using Application.Data;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Authors.EditAuthor;
 
 public class EditAuthorCommandHandler(
-    IApplicationDbContext dbContext,
-    IPublisher publisher
-) : IRequestHandler<EditAuthorCommand, ErrorOr<EditAuthorResponse>>
+    IApplicationDbContext dbContext
+) : IEditAuthorCommandHandler
 {
     public async Task<ErrorOr<EditAuthorResponse>> Handle(EditAuthorCommand command, CancellationToken token)
     {
@@ -20,12 +18,12 @@ public class EditAuthorCommandHandler(
 
         await dbContext.SaveChangesAsync(token);
 
-        var authorEditedEvent = new AuthorEditedEvent
-        {
-            Id = author.Id,
-            Name = author.Name
-        };
-        await publisher.Publish(authorEditedEvent, token);
+        // var authorEditedEvent = new AuthorEditedEvent
+        // {
+        //     Id = author.Id,
+        //     Name = author.Name
+        // };
+        // await publisher.Publish(authorEditedEvent, token);
 
         return new EditAuthorResponse(author.Id);
     }
