@@ -2,6 +2,7 @@ using Application.Authorization.Abstractions;
 using Application.Data;
 using Application.Features.Articles.CreateArticle;
 using Domain.Entities;
+using FluentValidation;
 using MockQueryable.Moq;
 using Slugify;
 
@@ -12,6 +13,7 @@ public class CreateArticleCommandHandlerTests
     private readonly Mock<IApplicationDbContext> _mockDbContext = new();
     private readonly Mock<ISlugHelper> _mockSlugHelper = new();
     private readonly Mock<ICurrentUserService> _mockCurrentUserService = new();
+    private readonly Mock<IValidator<CreateArticleCommand>> _mockValidator = new();
     private readonly CreateArticleCommandHandler _handler;
 
     public CreateArticleCommandHandlerTests()
@@ -19,7 +21,8 @@ public class CreateArticleCommandHandlerTests
         _handler = new CreateArticleCommandHandler(
             _mockDbContext.Object,
             _mockSlugHelper.Object,
-            _mockCurrentUserService.Object
+            _mockCurrentUserService.Object,
+            _mockValidator.Object
         );
     }
 
@@ -211,42 +214,5 @@ public class CreateArticleCommandHandlerTests
             ),
             Times.Once
         );
-    }
-
-    [Fact]
-    public async void Handle_Should_PublishArticleCreatedEvent_WhenGeneratedIdIsUnique()
-    {
-        //Arrange
-        var mockArticlesDbSet = new List<Article> {new() {Id = "something-cool", Title = "something-cool"}}
-            .AsQueryable()
-            .BuildMockDbSet();
-        var mockCategoriesDbSet = new List<Category>()
-            .AsQueryable()
-            .BuildMockDbSet();
-        var mockRevisionsDbSet = new List<Revision>()
-            .AsQueryable()
-            .BuildMockDbSet();
-
-        _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
-        _mockDbContext.Setup(x => x.Categories).Returns(mockCategoriesDbSet.Object);
-        _mockDbContext.Setup(x => x.Revisions).Returns(mockRevisionsDbSet.Object);
-        _mockSlugHelper.Setup(x => x.GenerateSlug("something extra cool")).Returns("something-extra-cool");
-        _mockCurrentUserService.Setup(x => x.UserId).Returns("test-user-id");
-        var command = new CreateArticleCommand("something extra cool", "Lorem ipsum", "", []);
-        var expectedCategoryIds = new List<string> {"category1", "category2"};
-
-        //Act
-        var result = await _handler.Handle(command, default);
-
-        //Assert
-        //TODO: Reimplement without MediatR
-        // _mockPublisher.Verify(
-        //     x => x.Publish(
-        //         It.Is<ArticleCreatedEvent>(e => e.Id == result.Value.Id),
-        //         It.IsAny<CancellationToken>()
-        //     ),
-        //     Times.Once
-        // );
-        throw new Exception("TODO");
     }
 }

@@ -18,13 +18,6 @@ public class EditAuthorCommandHandler(
 
         await dbContext.SaveChangesAsync(token);
 
-        // var authorEditedEvent = new AuthorEditedEvent
-        // {
-        //     Id = author.Id,
-        //     Name = author.Name
-        // };
-        // await publisher.Publish(authorEditedEvent, token);
-
         return new EditAuthorResponse(author.Id);
     }
 }

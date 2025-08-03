@@ -1,7 +1,9 @@
 ﻿using Application.Authorization.Abstractions;
+using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Slugify;
 
@@ -10,11 +12,18 @@ namespace Application.Features.Articles.CreateArticle;
 public class CreateArticleCommandHandler(
     IApplicationDbContext dbContext,
     ISlugHelper slugHelper,
-    ICurrentUserService identityService
+    ICurrentUserService identityService,
+    IValidator<CreateArticleCommand> validator
 ) : ICreateArticleCommandHandler
 {
     public async Task<ErrorOr<CreateArticleResponse>> Handle(CreateArticleCommand command, CancellationToken token)
     {
+        var validationResult = ValidatorHelper.Validate(validator, command);
+        if (validationResult.IsError)
+        {
+            return validationResult.Errors;
+        }
+
         var id = slugHelper.GenerateSlug(command.Title);
 
         if (string.IsNullOrEmpty(id)) return Errors.Article.EmptyId;
@@ -49,15 +58,6 @@ public class CreateArticleCommandHandler(
         await dbContext.Revisions.AddAsync(revision, token);
 
         await dbContext.SaveChangesAsync(token);
-
-        // var articleCreatedEvent = new ArticleCreatedEvent
-        // {
-        //     Id = article.Id,
-        //     Title = article.Title,
-        //     Content = revision.Content,
-        //     CategoryIds = categories.Select(e => e.Id).ToList()
-        // };
-        // await publisher.Publish(articleCreatedEvent, token);
 
         return new CreateArticleResponse(article.Id);
     }

@@ -1,18 +1,27 @@
 ﻿using Application.Authorization.Abstractions;
+using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.EditArticle;
 
 public class EditArticleCommandHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService identityService
+    ICurrentUserService identityService,
+    IValidator<EditArticleCommand> validator
 ) : IEditArticleCommandHandler
 {
     public async Task<ErrorOr<EditArticleResponse>> Handle(EditArticleCommand request, CancellationToken token)
     {
+        var validationResult = ValidatorHelper.Validate(validator, request);
+        if (validationResult.IsError)
+        {
+            return validationResult.Errors;
+        }
+
         var article = await dbContext.Articles.Include(e => e.RedirectArticle)
             .FirstOrDefaultAsync(e => e.Id == request.Id, token);
         if (article == null) return Errors.Article.NotFound;
@@ -38,15 +47,6 @@ public class EditArticleCommandHandler(
 
         await dbContext.Revisions.AddAsync(revision, token);
         await dbContext.SaveChangesAsync(token);
-
-        // var articleEditedEvent = new ArticleEditedEvent
-        // {
-        //     Id = article.Id,
-        //     Content = revision.Content,
-        //     AuthorsNote = request.AuthorsNote,
-        //     CategoryIds = requestCategories.Select(e => e.Id).ToList()
-        // };
-        // await publisher.Publish(articleEditedEvent, token);
 
         return new EditArticleResponse(article.Id);
     }

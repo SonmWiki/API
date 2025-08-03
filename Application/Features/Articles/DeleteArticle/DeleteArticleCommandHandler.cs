@@ -1,9 +1,11 @@
-﻿using Application.Data;
+﻿using Application.Common.Caching;
+using Application.Common.Constants;
+using Application.Data;
 using ErrorOr;
 
 namespace Application.Features.Articles.DeleteArticle;
 
-public class DeleteArticleCommandHandler(IApplicationDbContext dbContext) : IDeleteArticleCommandHandler
+public class DeleteArticleCommandHandler(IApplicationDbContext dbContext, ICacheService cacheService) : IDeleteArticleCommandHandler
 {
     public async Task<ErrorOr<DeleteArticleResponse>> Handle(DeleteArticleCommand request, CancellationToken token)
     {
@@ -12,8 +14,7 @@ public class DeleteArticleCommandHandler(IApplicationDbContext dbContext) : IDel
         dbContext.Articles.Remove(article);
         await dbContext.SaveChangesAsync(token);
 
-        // var articleDeletedEvent = new ArticleDeletedEvent {Id = article.Id};
-        // await publisher.Publish(articleDeletedEvent, token);
+        await cacheService.RemoveAsync(CachingKeys.Articles.ArticleById(article.Id), token);
 
         return new DeleteArticleResponse(article.Id);
     }

@@ -1,10 +1,13 @@
+using Application.Common.Caching;
+using Application.Common.Constants;
 using Application.Data;
 using ErrorOr;
 
 namespace Application.Features.Categories.DeleteCategory;
 
 public class DeleteCategoryCommandHandler(
-    IApplicationDbContext dbContext
+    IApplicationDbContext dbContext,
+    ICacheService cacheService
 ) : IDeleteCategoryCommandHandler
 {
     public async Task<ErrorOr<DeleteCategoryResponse>> Handle(DeleteCategoryCommand deleteCategoryCommand,
@@ -15,8 +18,9 @@ public class DeleteCategoryCommandHandler(
         dbContext.Categories.Remove(category);
         await dbContext.SaveChangesAsync(token);
 
-        // var categoryDeletedEvent = new CategoryDeletedEvent {Id = category.Id};
-        // await publisher.Publish(categoryDeletedEvent, token);
+        await cacheService.RemoveAsync(CachingKeys.Categories.CategoriesAll, token);
+        await cacheService.RemoveAsync(CachingKeys.Categories.CategoriesTree, token);
+        await cacheService.RemoveAsync(CachingKeys.Categories.CategoryArticlesById(category.Id), token);
 
         return new DeleteCategoryResponse(category.Id);
     }

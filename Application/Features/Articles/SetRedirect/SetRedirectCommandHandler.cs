@@ -1,14 +1,27 @@
+using Application.Common.Caching;
+using Application.Common.Constants;
+using Application.Common.Utils;
 using Application.Data;
 using ErrorOr;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.SetRedirect;
 
-public class SetRedirectCommandHandler(IApplicationDbContext dbContext) : ISetRedirectCommandHandler
+public class SetRedirectCommandHandler(
+    IApplicationDbContext dbContext,
+    ICacheService cacheService,
+    IValidator<SetRedirectCommand> validator
+    ) : ISetRedirectCommandHandler
 {
-    public async Task<ErrorOr<SetRedirectResponse>> Handle(SetRedirectCommand command,
-        CancellationToken token)
+    public async Task<ErrorOr<SetRedirectResponse>> Handle(SetRedirectCommand command, CancellationToken token)
     {
+        var validationResult = ValidatorHelper.Validate(validator, command);
+        if (validationResult.IsError)
+        {
+            return validationResult.Errors;
+        }
+
         var article = await dbContext.Articles.FirstOrDefaultAsync(e => e.Id == command.ArticleId, token);
         if (article == null) return Errors.Article.NotFound;
         if (article.RedirectArticleId != null) return Errors.Article.RedirectExists;
@@ -31,12 +44,8 @@ public class SetRedirectCommandHandler(IApplicationDbContext dbContext) : ISetRe
 
         await dbContext.SaveChangesAsync(token);
 
-        // var revisionReviewedEvent = new RedirectSetEvent
-        // {
-        //     ArticleId = article.Id,
-        //     RedirectId = redirectArticle.Id,
-        // };
-        // await publisher.Publish(revisionReviewedEvent, token);
+        await cacheService.RemoveAsync(CachingKeys.Articles.ArticleById(article.Id), token);
+        await cacheService.RemoveAsync(CachingKeys.Articles.ArticleById(redirectArticle.Id), token);
 
         return new SetRedirectResponse(redirectArticle.Id);
     }

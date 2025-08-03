@@ -1,16 +1,28 @@
+using Application.Common.Caching;
+using Application.Common.Constants;
+using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
+using FluentValidation;
 
 namespace Application.Features.Navigations.UpdateNavigationsTree;
 
 public class UpdateNavigationsTreeCommandHandler(
-    IApplicationDbContext dbContext
+    IApplicationDbContext dbContext,
+    ICacheService cacheService,
+    IValidator<UpdateNavigationsTreeCommand> validator
 ) : IUpdateNavigationsTreeCommandHandler
 {
     public async Task<ErrorOr<UpdateNavigationsTreeResponse>> Handle(UpdateNavigationsTreeCommand request,
         CancellationToken token)
     {
+        var validationResult = ValidatorHelper.Validate(validator, request);
+        if (validationResult.IsError)
+        {
+            return validationResult.Errors;
+        }
+
         foreach (var item in dbContext.Navigations)
             dbContext.Navigations.Remove(item);
 
@@ -45,8 +57,7 @@ public class UpdateNavigationsTreeCommandHandler(
         await dbContext.Navigations.AddRangeAsync(navigationsToAdd, token);
         await dbContext.SaveChangesAsync(token);
 
-        // var navigationsTreeUpdatedEvent = new NavigationsTreeUpdatedEvent();
-        // await publisher.Publish(navigationsTreeUpdatedEvent, token);
+        await cacheService.RemoveAsync(CachingKeys.Navigation.NavigationsTree, token);
 
         return new UpdateNavigationsTreeResponse();
     }
