@@ -5,6 +5,7 @@ using Domain.Entities;
 using FluentValidation;
 using MockQueryable.Moq;
 using Slugify;
+using FluentValidation.Results;
 
 namespace Application.Tests.Unit.Articles;
 
@@ -36,6 +37,8 @@ public class CreateArticleCommandHandlerTests
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
         _mockSlugHelper.Setup(x => x.GenerateSlug(" ")).Returns("");
+        _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
+            .Returns(new ValidationResult());
 
         var command = new CreateArticleCommand(" ", "Lorem ipsum", "", []);
 
@@ -57,6 +60,8 @@ public class CreateArticleCommandHandlerTests
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
         _mockSlugHelper.Setup(x => x.GenerateSlug(" ")).Returns("");
+        _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
+            .Returns(new ValidationResult());
 
         var command = new CreateArticleCommand(" ", "Lorem ipsum", "", []);
 
@@ -77,6 +82,8 @@ public class CreateArticleCommandHandlerTests
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
         _mockSlugHelper.Setup(x => x.GenerateSlug("something cool")).Returns("something-cool");
+        _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
+            .Returns(new ValidationResult());
 
         var command = new CreateArticleCommand("something cool", "Lorem ipsum", "", []);
 
@@ -98,6 +105,8 @@ public class CreateArticleCommandHandlerTests
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
         _mockSlugHelper.Setup(x => x.GenerateSlug("something cool")).Returns("something-cool");
+        _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
+            .Returns(new ValidationResult());
 
         var command = new CreateArticleCommand("something cool", "Lorem ipsum", "", []);
 
@@ -126,6 +135,8 @@ public class CreateArticleCommandHandlerTests
         _mockDbContext.Setup(x => x.Categories).Returns(mockCategoriesDbSet.Object);
         _mockDbContext.Setup(x => x.Revisions).Returns(mockRevisionsDbSet.Object);
         _mockSlugHelper.Setup(x => x.GenerateSlug("something extra cool")).Returns("something-extra-cool");
+        _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
+            .Returns(new ValidationResult());
         var command = new CreateArticleCommand("something extra cool", "Lorem ipsum", "", []);
 
         //Act
@@ -153,6 +164,8 @@ public class CreateArticleCommandHandlerTests
         _mockDbContext.Setup(x => x.Categories).Returns(mockCategoriesDbSet.Object);
         _mockDbContext.Setup(x => x.Revisions).Returns(mockRevisionsDbSet.Object);
         _mockSlugHelper.Setup(x => x.GenerateSlug("something extra cool")).Returns("something-extra-cool");
+        _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
+            .Returns(new ValidationResult());
 
         var command = new CreateArticleCommand("something extra cool", "Lorem ipsum", "", []);
 
@@ -194,6 +207,8 @@ public class CreateArticleCommandHandlerTests
         _mockDbContext.Setup(x => x.Revisions).Returns(mockRevisionsDbSet.Object);
         _mockSlugHelper.Setup(x => x.GenerateSlug("something extra cool")).Returns("something-extra-cool");
         _mockCurrentUserService.Setup(x => x.UserId).Returns("test-user-id");
+        _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
+            .Returns(new ValidationResult());
         var expectedCategoryIds = new List<string> {"category1", "category2"};
         var command = new CreateArticleCommand("something extra cool", "Lorem ipsum", "",
             ["category1", "category2", "category3"]);
