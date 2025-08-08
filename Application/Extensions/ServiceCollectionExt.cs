@@ -30,9 +30,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        //TODO: Reimplement without MediatR
-        // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-        // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(QueryCachingBehavior<,>));
         services.AddTransient<ISlugHelper, SlugHelperForNonAsciiLanguages>();
 
         services.AddScoped<ICreateArticleCommandHandler, CreateArticleCommandHandler>();
