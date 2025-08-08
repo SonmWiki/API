@@ -1,23 +1,22 @@
-﻿using Application.Data;
+﻿using Application.Common.Caching;
+using Application.Common.Constants;
+using Application.Common.Messaging;
+using Application.Data;
 using ErrorOr;
-using MediatR;
 
 namespace Application.Features.Articles.DeleteArticle;
 
-public class DeleteArticleCommandHandler(
-    IApplicationDbContext dbContext,
-    IPublisher publisher
-) : IRequestHandler<DeleteArticleCommand, ErrorOr<DeleteArticleResponse>>
+public class DeleteArticleCommandHandler(IApplicationDbContext dbContext, ICacheService cacheService)
+    : ICommandHandler<DeleteArticleCommand, DeleteArticleResponse>
 {
-    public async Task<ErrorOr<DeleteArticleResponse>> Handle(DeleteArticleCommand request, CancellationToken token)
+    public async Task<ErrorOr<DeleteArticleResponse>> HandleAsync(DeleteArticleCommand request, CancellationToken token)
     {
         var article = await dbContext.Articles.FindAsync(new object[] {request.Id}, token);
         if (article == null) return Errors.Article.NotFound;
         dbContext.Articles.Remove(article);
         await dbContext.SaveChangesAsync(token);
 
-        var articleDeletedEvent = new ArticleDeletedEvent {Id = article.Id};
-        await publisher.Publish(articleDeletedEvent, token);
+        await cacheService.RemoveAsync(CachingKeys.Articles.ArticleById(article.Id), token);
 
         return new DeleteArticleResponse(article.Id);
     }

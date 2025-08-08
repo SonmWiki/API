@@ -1,4 +1,5 @@
-﻿using Application.Features.Articles.CreateArticle;
+﻿using Application.Common.Messaging;
+using Application.Features.Articles.CreateArticle;
 using Application.Features.Articles.DeleteArticle;
 using Application.Features.Articles.EditArticle;
 using Application.Features.Articles.GetArticle;
@@ -9,7 +10,6 @@ using Application.Features.Articles.GetRevisionReviewHistory;
 using Application.Features.Articles.ReviewRevision;
 using Application.Features.Articles.SearchArticles;
 using Application.Features.Articles.SetRedirect;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Extensions;
 using WebApi.Features.Articles.Requests;
@@ -22,10 +22,13 @@ public static class ArticlesModule
     public static void AddArticlesEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/articles",
-                async Task<IResult> (IMediator mediator, CreateArticleRequest request) =>
+                async Task<IResult> (
+                    ICommandHandler<CreateArticleCommand, CreateArticleResponse> createArticleCommandHandler,
+                    CreateArticleRequest request,
+                    CancellationToken cancellationToken) =>
                 {
                     var command = new CreateArticleCommand(request.Title, request.Content, request.AuthorsNote, request.CategoryIds);
-                    var result = await mediator.Send(command);
+                    var result = await createArticleCommandHandler.HandleAsync(command, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Created($"/api/articles/{value.Id}", value),
                         error => error.ToIResult()
@@ -42,10 +45,15 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapGet("/api/articles",
-                async Task<IResult> (IMediator mediator, string? searchTerm, int page = 1, int pageSize = 50) =>
+                async Task<IResult> (
+                    IQueryHandler<SearchArticlesQuery, SearchArticlesResponse> searchArticlesQueryHandler,
+                    CancellationToken cancellationToken,
+                    string? searchTerm,
+                    int page = 1,
+                    int pageSize = 50) =>
                 {
                     var query = new SearchArticlesQuery(searchTerm, page, pageSize);
-                    var result = await mediator.Send(query);
+                    var result = await searchArticlesQueryHandler.HandleAsync(query, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -57,9 +65,12 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapGet("/api/articles/{id}",
-                async Task<IResult> (string id, IMediator mediator) =>
+                async Task<IResult> (
+                    string id,
+                    IQueryHandler<GetArticleQuery, GetArticleResponse> getArticleQueryHandler,
+                    CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.Send(new GetArticleQuery(id));
+                    var result = await getArticleQueryHandler.HandleAsync(new GetArticleQuery(id), cancellationToken);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -71,11 +82,14 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi();
-        
+
         app.MapGet("/api/articles/revision:{id:guid}",
-                async Task<IResult> (Guid id, IMediator mediator) =>
+                async Task<IResult> (
+                    Guid id,
+                    IQueryHandler<GetArticleQuery, GetArticleResponse> getArticleQueryHandler,
+                    CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.Send(new GetArticleQuery(null, id));
+                    var result = await getArticleQueryHandler.HandleAsync(new GetArticleQuery(null, id), cancellationToken);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -89,10 +103,14 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapPut("/api/articles/{id}",
-                async Task<IResult> (string id, IMediator mediator, EditArticleRequest request) =>
+                async Task<IResult> (
+                    string id,
+                    ICommandHandler<EditArticleCommand, EditArticleResponse> editArticleCommandHandler,
+                    EditArticleRequest request,
+                    CancellationToken cancellationToken) =>
                 {
                     var command = new EditArticleCommand(id, request.Content, request.AuthorsNote, request.CategoryIds);
-                    var result = await mediator.Send(command);
+                    var result = await editArticleCommandHandler.HandleAsync(command, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Created($"/api/articles/{value.Id}", value),
                         error => error.ToIResult()
@@ -110,10 +128,14 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapPut("/api/articles/{id}/redirect",
-                async Task<IResult> (string id, IMediator mediator, SerArticleRedirectRequest request) =>
+                async Task<IResult> (
+                    string id,
+                    ICommandHandler<SetRedirectCommand, SetRedirectResponse> setRedirectCommandHandler,
+                    SerArticleRedirectRequest request,
+                    CancellationToken cancellationToken) =>
                 {
                     var command = new SetRedirectCommand(id, request.RedirectArticleId);
-                    var result = await mediator.Send(command);
+                    var result = await setRedirectCommandHandler.HandleAsync(command, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Created($"/api/articles/{value.Id}", true),
                         error => error.ToIResult()
@@ -131,10 +153,12 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapGet("/api/articles/revisions/pending",
-                async Task<IResult> (IMediator mediator) =>
+                async Task<IResult> (
+                    IQueryHandler<GetPendingRevisionsQuery, GetPendingRevisionsResponse> getPendingRevisionsQueryHandler,
+                    CancellationToken cancellationToken) =>
                 {
-                    var command = new GetPendingRevisionsQuery();
-                    var result = await mediator.Send(command);
+                    var query = new GetPendingRevisionsQuery();
+                    var result = await getPendingRevisionsQueryHandler.HandleAsync(query, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -149,10 +173,12 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapGet("/api/articles/revisions/pending/count",
-                async Task<IResult> (IMediator mediator) =>
+                async Task<IResult> (
+                    IQueryHandler<GetPendingRevisionsCountQuery, GetPendingRevisionsCountResponse> getPendingRevisionsCountQueryHandler,
+                    CancellationToken cancellationToken) =>
                 {
-                    var command = new GetPendingRevisionsCountQuery();
-                    var result = await mediator.Send(command);
+                    var query = new GetPendingRevisionsCountQuery();
+                    var result = await getPendingRevisionsCountQueryHandler.HandleAsync(query, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -168,10 +194,13 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapGet("/api/articles/{id}/revisions",
-                async Task<IResult> (string id, IMediator mediator) =>
+                async Task<IResult> (
+                    string id,
+                    IQueryHandler<GetRevisionHistoryQuery, GetRevisionHistoryResponse> getRevisionHistoryQueryHandler,
+                    CancellationToken cancellationToken) =>
                 {
-                    var command = new GetRevisionHistoryQuery(id);
-                    var result = await mediator.Send(command);
+                    var query = new GetRevisionHistoryQuery(id);
+                    var result = await getRevisionHistoryQueryHandler.HandleAsync(query, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -184,10 +213,13 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapGet("/api/articles/revisions/{id}/reviews",
-                async Task<IResult> (Guid id, IMediator mediator) =>
+                async Task<IResult> (
+                    Guid id,
+                    IQueryHandler<GetRevisionReviewHistoryQuery, GetRevisionReviewHistoryResponse> getRevisionHistoryQueryHandler,
+                    CancellationToken cancellationToken) =>
                 {
-                    var command = new GetRevisionReviewHistoryQuery(id);
-                    var result = await mediator.Send(command);
+                    var query = new GetRevisionReviewHistoryQuery(id);
+                    var result = await getRevisionHistoryQueryHandler.HandleAsync(query, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -200,10 +232,14 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapPost("/api/articles/revisions/{id}/reviews",
-                async Task<IResult> (Guid id, IMediator mediator, ReviewArticleRevisionRequest request) =>
+                async Task<IResult> (
+                    Guid id,
+                    ICommandHandler<ReviewRevisionCommand, ReviewRevisionResponse> reviewRevisionCommandHandler,
+                    ReviewArticleRevisionRequest request,
+                    CancellationToken cancellationToken) =>
                 {
                     var command = new ReviewRevisionCommand(id, request.Status, request.Review);
-                    var result = await mediator.Send(command);
+                    var result = await reviewRevisionCommandHandler.HandleAsync(command, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Created($"/api/articles/revisions/{id}/reviews/{value.Id}", value),
                         error => error.ToIResult()
@@ -220,10 +256,13 @@ public static class ArticlesModule
             .WithOpenApi();
 
         app.MapDelete("/api/articles/{id}",
-                async (string id, IMediator mediator) =>
+                async (
+                    string id,
+                    ICommandHandler<DeleteArticleCommand, DeleteArticleResponse> deleteArticleCommandHandler,
+                    CancellationToken cancellationToken) =>
                 {
                     var command = new DeleteArticleCommand(id);
-                    var result = await mediator.Send(command);
+                    var result = await deleteArticleCommandHandler.HandleAsync(command, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()

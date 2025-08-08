@@ -1,6 +1,5 @@
-using ErrorOr;
-using MediatR;
+using Application.Common.Messaging;
 
 namespace Application.Features.Categories.DeleteCategory;
 
-public record DeleteCategoryCommand(string Id) : IRequest<ErrorOr<DeleteCategoryResponse>>;
+public record DeleteCategoryCommand(string Id) : ICommand<DeleteCategoryResponse>;

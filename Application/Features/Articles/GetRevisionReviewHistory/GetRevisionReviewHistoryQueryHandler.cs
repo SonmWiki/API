@@ -1,15 +1,14 @@
+using Application.Common.Messaging;
 using Application.Data;
 using ErrorOr;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.GetRevisionReviewHistory;
 
-public class GetRevisionReviewHistoryQueryHandler
-    (IApplicationDbContext dbContext) : IRequestHandler<GetRevisionReviewHistoryQuery,
-        ErrorOr<GetRevisionReviewHistoryResponse>>
+public class GetRevisionReviewHistoryQueryHandler(IApplicationDbContext dbContext)
+    : IQueryHandler<GetRevisionReviewHistoryQuery, GetRevisionReviewHistoryResponse>
 {
-    public async Task<ErrorOr<GetRevisionReviewHistoryResponse>> Handle(GetRevisionReviewHistoryQuery query,
+    public async Task<ErrorOr<GetRevisionReviewHistoryResponse>> HandleAsync(GetRevisionReviewHistoryQuery query,
         CancellationToken token)
     {
         if (!await dbContext.Revisions.AnyAsync(e => e.Id == query.Id, token)) return Errors.Revision.NotFound;

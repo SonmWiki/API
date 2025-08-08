@@ -1,5 +1,4 @@
-﻿using ErrorOr;
-using MediatR;
+﻿using Application.Common.Messaging;
 
 namespace Application.Features.Articles.CreateArticle;
 
@@ -8,4 +7,4 @@ public record CreateArticleCommand(
     string Content,
     string AuthorsNote,
     List<string> CategoryIds
-) : IRequest<ErrorOr<CreateArticleResponse>>;
+) : ICommand<CreateArticleResponse>;

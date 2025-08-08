@@ -1,16 +1,15 @@
-﻿using Application.Data;
+﻿using Application.Common.Messaging;
+using Application.Data;
 using Domain.Entities;
 using ErrorOr;
-using MediatR;
 
 namespace Application.Features.Authors.CreateAuthor;
 
 public class CreateAuthorCommandHandler(
-    IApplicationDbContext dbContext,
-    IPublisher publisher
-) : IRequestHandler<CreateAuthorCommand, ErrorOr<CreateAuthorResponse>>
+    IApplicationDbContext dbContext
+) : ICommandHandler<CreateAuthorCommand, CreateAuthorResponse>
 {
-    public async Task<ErrorOr<CreateAuthorResponse>> Handle(CreateAuthorCommand command, CancellationToken token)
+    public async Task<ErrorOr<CreateAuthorResponse>> HandleAsync(CreateAuthorCommand command, CancellationToken token)
     {
         var author = new Author {Id = command.Id, Name = command.Name};
 
@@ -19,13 +18,6 @@ public class CreateAuthorCommandHandler(
 
         dbContext.Authors.Add(author);
         await dbContext.SaveChangesAsync(token);
-
-        var authorCreatedEvent = new AuthorCreatedEvent
-        {
-            Id = author.Id,
-            Name = author.Name
-        };
-        await publisher.Publish(authorCreatedEvent, token);
 
         return new CreateAuthorResponse(author.Id);
     }

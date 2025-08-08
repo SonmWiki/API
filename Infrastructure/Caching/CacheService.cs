@@ -17,7 +17,7 @@ public class CacheService(IMemoryCache memoryCache) : ICacheService
                 return factory(token);
             });
 
-        return result;
+        return result!;
     }
 
     public Task RemoveAsync(string key, CancellationToken token = default)

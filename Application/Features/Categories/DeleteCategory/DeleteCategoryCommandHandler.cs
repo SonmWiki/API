@@ -1,15 +1,18 @@
+using Application.Common.Caching;
+using Application.Common.Constants;
+using Application.Common.Messaging;
 using Application.Data;
+using Application.Features.Articles.DeleteArticle;
 using ErrorOr;
-using MediatR;
 
 namespace Application.Features.Categories.DeleteCategory;
 
 public class DeleteCategoryCommandHandler(
     IApplicationDbContext dbContext,
-    IPublisher publisher
-) : IRequestHandler<DeleteCategoryCommand, ErrorOr<DeleteCategoryResponse>>
+    ICacheService cacheService
+) : ICommandHandler<DeleteCategoryCommand, DeleteCategoryResponse>
 {
-    public async Task<ErrorOr<DeleteCategoryResponse>> Handle(DeleteCategoryCommand deleteCategoryCommand,
+    public async Task<ErrorOr<DeleteCategoryResponse>> HandleAsync(DeleteCategoryCommand deleteCategoryCommand,
         CancellationToken token)
     {
         var category = await dbContext.Categories.FindAsync(new object[] {deleteCategoryCommand.Id}, token);
@@ -17,8 +20,9 @@ public class DeleteCategoryCommandHandler(
         dbContext.Categories.Remove(category);
         await dbContext.SaveChangesAsync(token);
 
-        var categoryDeletedEvent = new CategoryDeletedEvent {Id = category.Id};
-        await publisher.Publish(categoryDeletedEvent, token);
+        await cacheService.RemoveAsync(CachingKeys.Categories.CategoriesAll, token);
+        await cacheService.RemoveAsync(CachingKeys.Categories.CategoriesTree, token);
+        await cacheService.RemoveAsync(CachingKeys.Categories.CategoryArticlesById(category.Id), token);
 
         return new DeleteCategoryResponse(category.Id);
     }

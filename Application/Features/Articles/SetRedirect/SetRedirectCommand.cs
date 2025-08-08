@@ -1,7 +1,5 @@
-using Domain.Entities;
-using ErrorOr;
-using MediatR;
+using Application.Common.Messaging;
 
 namespace Application.Features.Articles.SetRedirect;
 
-public record SetRedirectCommand(string ArticleId, string RedirectId) : IRequest<ErrorOr<SetRedirectResponse>>;
+public record SetRedirectCommand(string ArticleId, string RedirectId) : ICommand<SetRedirectResponse>;

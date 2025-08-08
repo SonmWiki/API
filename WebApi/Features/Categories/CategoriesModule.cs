@@ -1,9 +1,9 @@
-﻿using Application.Features.Categories.CreateCategory;
+﻿using Application.Common.Messaging;
+using Application.Features.Categories.CreateCategory;
 using Application.Features.Categories.DeleteCategory;
 using Application.Features.Categories.GetCategories;
 using Application.Features.Categories.GetCategoriesTree;
 using Application.Features.Categories.GetCategoryArticles;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Extensions;
 using WebApi.Features.Categories.Requests;
@@ -15,10 +15,14 @@ public static class CategoriesModule
 {
     public static void AddCategoriesEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/categories", async (IMediator mediator, CreateCategoryRequest request) =>
+        app.MapPost("/api/categories",
+                async (
+                    ICommandHandler<CreateCategoryCommand, CreateCategoryResponse> createCategoryCommandHandler,
+                    CreateCategoryRequest request,
+                    CancellationToken cancellationToken) =>
             {
                 var command = new CreateCategoryCommand(request.Name, request.ParentId);
-                var result = await mediator.Send(command);
+                var result = await createCategoryCommandHandler.HandleAsync(command, cancellationToken);
                 return result.MatchFirst(
                     value => Results.Created($"/api/categories/{value.Id}", value),
                     error => error.ToIResult()
@@ -36,9 +40,11 @@ public static class CategoriesModule
             .WithOpenApi();
 
         app.MapGet("/api/categories",
-                async Task<IResult> (IMediator mediator) =>
+                async Task<IResult> (
+                    IQueryHandler<GetCategoriesQuery, GetCategoriesResponse> getCategoriesQueryHandler,
+                    CancellationToken cancellationToken) =>
                 {
-                    var response = await mediator.Send(new GetCategoriesQuery());
+                    var response = await getCategoriesQueryHandler.HandleAsync(new GetCategoriesQuery(), cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -50,9 +56,11 @@ public static class CategoriesModule
             .WithOpenApi();
         
         app.MapGet("/api/categories/tree",
-                async Task<IResult> (IMediator mediator) =>
+                async Task<IResult> (
+                    IQueryHandler<GetCategoriesTreeQuery, GetCategoriesTreeResponse> getCategoriesTreeQueryHandler,
+                    CancellationToken cancellationToken) =>
                 {
-                    var response = await mediator.Send(new GetCategoriesTreeQuery());
+                    var response = await getCategoriesTreeQueryHandler.HandleAsync(new GetCategoriesTreeQuery(), cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -64,10 +72,13 @@ public static class CategoriesModule
             .WithOpenApi();
 
         app.MapGet("/api/categories/{id}/articles",
-                async Task<IResult> (string id, IMediator mediator) =>
+                async Task<IResult> (
+                    string id,
+                    IQueryHandler<GetCategoryArticlesQuery, GetCategoryArticlesResponse> getCategoryArticlesQuery,
+                    CancellationToken cancellationToken) =>
                 {
                     var query = new GetCategoryArticlesQuery(id);
-                    var response = await mediator.Send(query);
+                    var response = await getCategoryArticlesQuery.HandleAsync(query, cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -80,10 +91,13 @@ public static class CategoriesModule
             .WithOpenApi();
 
         app.MapDelete("/api/categories/{id}",
-                async (string id, IMediator mediator) =>
+                async (
+                    string id,
+                    ICommandHandler<DeleteCategoryCommand, DeleteCategoryResponse> deleteCategoryCommandHandler,
+                    CancellationToken cancellationToken) =>
                 {
                     var command = new DeleteCategoryCommand(id);
-                    var result = await mediator.Send(command);
+                    var result = await deleteCategoryCommandHandler.HandleAsync(command, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()

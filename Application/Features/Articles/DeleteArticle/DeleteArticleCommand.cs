@@ -1,6 +1,5 @@
-﻿using ErrorOr;
-using MediatR;
+﻿using Application.Common.Messaging;
 
 namespace Application.Features.Articles.DeleteArticle;
 
-public record DeleteArticleCommand(string Id) : IRequest<ErrorOr<DeleteArticleResponse>>;
+public record DeleteArticleCommand(string Id) : ICommand<DeleteArticleResponse>;

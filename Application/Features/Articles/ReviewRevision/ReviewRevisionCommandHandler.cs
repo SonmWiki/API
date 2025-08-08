@@ -1,8 +1,12 @@
 using Application.Authorization.Abstractions;
+using Application.Common.Caching;
+using Application.Common.Constants;
+using Application.Common.Messaging;
+using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
-using MediatR;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.ReviewRevision;
@@ -10,16 +14,23 @@ namespace Application.Features.Articles.ReviewRevision;
 public class ReviewRevisionCommandHandler(
     IApplicationDbContext dbContext,
     ICurrentUserService identityService,
-    IPublisher publisher
-) : IRequestHandler<ReviewRevisionCommand, ErrorOr<ReviewRevisionResponse>>
+    ICacheService cacheService,
+    IValidator<ReviewRevisionCommand> validator
+) : ICommandHandler<ReviewRevisionCommand, ReviewRevisionResponse>
 {
-    public async Task<ErrorOr<ReviewRevisionResponse>> Handle(ReviewRevisionCommand command,
+    public async Task<ErrorOr<ReviewRevisionResponse>> HandleAsync(ReviewRevisionCommand command,
         CancellationToken token)
     {
+        var validationResult = ValidatorHelper.Validate(validator, command);
+        if (validationResult.IsError)
+        {
+            return validationResult.Errors;
+        }
+
         var revision = await dbContext.Revisions
             .Include(e => e.Article)
             .ThenInclude(e => e.CurrentRevision)
-            .ThenInclude(e => e.Categories)
+            .ThenInclude(e => e!.Categories)
             .Include(e => e.Categories)
             .Include(e => e.LatestReview)
             .FirstOrDefaultAsync(e => e.Id == command.RevisionId, token);
@@ -40,7 +51,7 @@ public class ReviewRevisionCommandHandler(
             Revision = revision
         };
 
-        ArticleChangedRevisionEvent? articleChangedRevisionEvent = null;
+        HashSet<string> affectedCategories = [];
 
         revision.LatestReview = review;
 
@@ -49,7 +60,7 @@ public class ReviewRevisionCommandHandler(
             revision.Content = "[REDACTED]";
             revision.AuthorsNote = "[REDACTED]";
         }
-        
+
         if (article.CurrentRevision == revision && command is {Status: ReviewStatus.Removed or ReviewStatus.Rejected})
         {
             var rollbackRevision = await dbContext.Revisions
@@ -60,42 +71,34 @@ public class ReviewRevisionCommandHandler(
                 .OrderByDescending(e => e.Timestamp)
                 .FirstOrDefaultAsync(token);
 
-            ChangeArticleRevision(article, rollbackRevision, out articleChangedRevisionEvent);
+            ChangeArticleRevision(article, rollbackRevision, out affectedCategories);
         }
 
         if (command is {Status: ReviewStatus.Accepted})
         {
-            ChangeArticleRevision(article, revision, out articleChangedRevisionEvent);
+            ChangeArticleRevision(article, revision, out affectedCategories);
         }
 
         await dbContext.SaveChangesAsync(token);
-        
-        var revisionReviewedEvent = new RevisionReviewedEvent
+
+        await cacheService.RemoveAsync(CachingKeys.Articles.ArticleById(article.Id), token);
+        foreach (var id in affectedCategories)
         {
-            ArticleId = article.Id,
-            RevisionId = revision.Id,
-            Status = command.Status,
-            Review = command.Review,
-        };
-        await publisher.Publish(revisionReviewedEvent, token);
-        
-        if (articleChangedRevisionEvent != null) await publisher.Publish(articleChangedRevisionEvent, token);
+            await cacheService.RemoveAsync(CachingKeys.Categories.CategoryArticlesById(id), token);
+        }
 
         return new ReviewRevisionResponse(review.Id);
     }
     
-    private static void ChangeArticleRevision(Article article, Revision? revision, out ArticleChangedRevisionEvent articleChangedRevisionEvent)
+    private static void ChangeArticleRevision(Article article, Revision? revision, out HashSet<string> affectedCategories)
     {
-        var previousRevisionId = article.CurrentRevision?.Id;
-        var previousRevisionCategoriesIds = article.CurrentRevision?.Categories.Select(e => e.Id).ToList() ?? new List<string>();
+        var previousRevisionCategoriesIds = article.CurrentRevision?.Categories.Select(e => e.Id).ToHashSet() ?? [];
+
         article.CurrentRevision = revision;
-        articleChangedRevisionEvent = new ArticleChangedRevisionEvent
-        {
-            ArticleId = article.Id,
-            PreviousRevisionId = previousRevisionId,
-            CurrentRevisionId = article.CurrentRevision?.Id,
-            PreviousRevisionCategoryIds = previousRevisionCategoriesIds,
-            CurrentRevisionCategoryIds = revision?.Categories.Select(e => e.Id).ToList() ?? new List<string>()
-        };
+
+        var currentRevisionCategoryIds = revision?.Categories.Select(e => e.Id).ToHashSet() ?? [];
+
+        previousRevisionCategoriesIds.SymmetricExceptWith(currentRevisionCategoryIds);
+        affectedCategories = previousRevisionCategoriesIds;
     }
 }

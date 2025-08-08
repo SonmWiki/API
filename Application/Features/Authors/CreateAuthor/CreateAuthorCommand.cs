@@ -1,6 +1,5 @@
-﻿using ErrorOr;
-using MediatR;
+﻿using Application.Common.Messaging;
 
 namespace Application.Features.Authors.CreateAuthor;
 
-public record CreateAuthorCommand(string Id, string Name) : IRequest<ErrorOr<CreateAuthorResponse>>;
+public record CreateAuthorCommand(string Id, string Name) : ICommand<CreateAuthorResponse>;

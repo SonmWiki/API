@@ -1,8 +1,10 @@
 ﻿using Application.Authorization.Abstractions;
+using Application.Common.Messaging;
+using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
-using MediatR;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Slugify;
 
@@ -12,11 +14,17 @@ public class CreateArticleCommandHandler(
     IApplicationDbContext dbContext,
     ISlugHelper slugHelper,
     ICurrentUserService identityService,
-    IPublisher publisher
-) : IRequestHandler<CreateArticleCommand, ErrorOr<CreateArticleResponse>>
+    IValidator<CreateArticleCommand> validator
+) : ICommandHandler<CreateArticleCommand, CreateArticleResponse>
 {
-    public async Task<ErrorOr<CreateArticleResponse>> Handle(CreateArticleCommand command, CancellationToken token)
+    public async Task<ErrorOr<CreateArticleResponse>> HandleAsync(CreateArticleCommand command, CancellationToken token)
     {
+        var validationResult = ValidatorHelper.Validate(validator, command);
+        if (validationResult.IsError)
+        {
+            return validationResult.Errors;
+        }
+
         var id = slugHelper.GenerateSlug(command.Title);
 
         if (string.IsNullOrEmpty(id)) return Errors.Article.EmptyId;
@@ -51,15 +59,6 @@ public class CreateArticleCommandHandler(
         await dbContext.Revisions.AddAsync(revision, token);
 
         await dbContext.SaveChangesAsync(token);
-
-        var articleCreatedEvent = new ArticleCreatedEvent
-        {
-            Id = article.Id,
-            Title = article.Title,
-            Content = revision.Content,
-            CategoryIds = categories.Select(e => e.Id).ToList()
-        };
-        await publisher.Publish(articleCreatedEvent, token);
 
         return new CreateArticleResponse(article.Id);
     }

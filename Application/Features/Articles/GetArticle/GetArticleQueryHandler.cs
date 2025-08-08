@@ -1,24 +1,38 @@
 using Application.Authorization.Abstractions;
+using Application.Common.Caching;
 using Application.Common.Constants;
+using Application.Common.Messaging;
+using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
 using ErrorOr;
-using MediatR;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.GetArticle;
 
 public class GetArticleQueryHandler(
     IApplicationDbContext dbContext,
-    IIdentityService identityService
-) : IRequestHandler<GetArticleQuery, ErrorOr<GetArticleResponse>>
+    IIdentityService identityService,
+    IValidator<GetArticleQuery> validator,
+    ICacheService cacheService
+) : IQueryHandler<GetArticleQuery, GetArticleResponse>
 {
-    public async Task<ErrorOr<GetArticleResponse>> Handle(GetArticleQuery query, CancellationToken token)
+    public async Task<ErrorOr<GetArticleResponse>> HandleAsync(GetArticleQuery query, CancellationToken token)
     {
-        if (!string.IsNullOrWhiteSpace(query.Id))
-            return await GetByArticleId(query.Id, token);
-        
-        return await GetByRevisionId(query.RevisionId.GetValueOrDefault(), token);
+        var validationResult = ValidatorHelper.Validate(validator, query);
+        if (validationResult.IsError)
+        {
+            return validationResult.Errors;
+        }
+
+        return await CachingHelper.GetOrCacheAsync(cacheService, query, async () =>
+        {
+            if (!string.IsNullOrWhiteSpace(query.Id))
+                return await GetByArticleId(query.Id, token);
+
+            return await GetByRevisionId(query.RevisionId.GetValueOrDefault(), token);
+        }, token);
     }
 
     private async Task<ErrorOr<GetArticleResponse>> GetByArticleId(string id, CancellationToken token)
@@ -26,7 +40,7 @@ public class GetArticleQueryHandler(
         var article = await dbContext.Articles
             .Include(e => e.CurrentRevision)
             .Include(e => e.RedirectArticle)
-            .ThenInclude(e => e.CurrentRevision)
+            .ThenInclude(e => e!.CurrentRevision)
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == id, token);
 

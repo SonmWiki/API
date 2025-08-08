@@ -1,5 +1,4 @@
-﻿using ErrorOr;
-using MediatR;
+﻿using Application.Common.Messaging;
 
 namespace Application.Features.Articles.EditArticle;
 
@@ -8,4 +7,4 @@ public record EditArticleCommand(
     string Content,
     string AuthorsNote,
     List<string> CategoryIds
-) : IRequest<ErrorOr<EditArticleResponse>>;
+): ICommand<EditArticleResponse>;
