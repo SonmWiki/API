@@ -49,8 +49,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryHandler<SearchArticlesQuery, SearchArticlesResponse>, SearchArticlesQueryHandler>();
         services.AddScoped<ICommandHandler<SetRedirectCommand, SetRedirectResponse>, SetRedirectCommandHandler>();
 
-        services.AddScoped<IRenameUserCommandHandler, RenameUserCommandHandler>();
-        services.AddScoped<IGetUserCommandHandler, GetUserCommandHandler>();
+        services.AddScoped<ICommandHandler<RenameUserCommand, RenameUserResponse>, RenameUserCommandHandler>();
+        services.AddScoped<IQueryHandler<GetUserQuery, GetUserResponse>, GetUserQueryHandler>();
 
         services.AddScoped<ICommandHandler<CreateCategoryCommand, CreateCategoryResponse>, CreateCategoryCommandHandler>();
         services.AddScoped<ICommandHandler<DeleteCategoryCommand, DeleteCategoryResponse>, DeleteCategoryCommandHandler>();

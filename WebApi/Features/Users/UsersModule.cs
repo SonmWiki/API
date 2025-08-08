@@ -1,4 +1,5 @@
 using Application.Authorization.Abstractions;
+using Application.Common.Messaging;
 using Application.Features.Users.GetUser;
 using WebApi.Extensions;
 
@@ -9,10 +10,10 @@ public static class UsersModule
     public static void AddUsersEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/users/me",
-                async Task<IResult> (IGetUserCommandHandler getUserCommandHandler, IUserContext userContext, CancellationToken cancellationToken) =>
+                async Task<IResult> (IQueryHandler<GetUserQuery, GetUserResponse> getUserCommandHandler, IUserContext userContext, CancellationToken cancellationToken) =>
                 {
                     var userId = userContext.UserId;
-                    var response = await getUserCommandHandler.Handle(new GetUserCommand(userId!.Value), cancellationToken);
+                    var response = await getUserCommandHandler.HandleAsync(new GetUserQuery(userId!.Value), cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()

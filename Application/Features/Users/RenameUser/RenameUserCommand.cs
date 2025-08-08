@@ -1,3 +1,5 @@
-﻿namespace Application.Features.Users.RenameUser;
+﻿using Application.Common.Messaging;
 
-public record RenameUserCommand(Guid Id, string Name);
+namespace Application.Features.Users.RenameUser;
+
+public record RenameUserCommand(Guid Id, string Name) : ICommand<RenameUserResponse>;

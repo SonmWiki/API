@@ -1,3 +1,4 @@
+using Application.Common.Messaging;
 using Application.Data;
 using Application.Features.Users.Errors;
 using ErrorOr;
@@ -5,15 +6,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Users.GetUser;
 
-public class GetUserCommandHandler(IApplicationDbContext dbContext) : IGetUserCommandHandler
+public class GetUserQueryHandler(IApplicationDbContext dbContext) : IQueryHandler<GetUserQuery, GetUserResponse>
 {
-    public async Task<ErrorOr<GetUserResponse>> Handle(GetUserCommand command, CancellationToken token)
+    public async Task<ErrorOr<GetUserResponse>> HandleAsync(GetUserQuery query, CancellationToken token)
     {
         var user = await dbContext.Users
             .Include(u => u.Roles)
             .ThenInclude(u => u.Permissions)
             .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == command.Id, token);
+            .FirstOrDefaultAsync(e => e.Id == query.Id, token);
 
         if (user == null) return User.NotFound;
 

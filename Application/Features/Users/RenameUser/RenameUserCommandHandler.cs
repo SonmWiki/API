@@ -1,4 +1,5 @@
-﻿using Application.Data;
+﻿using Application.Common.Messaging;
+using Application.Data;
 using Application.Features.Users.Errors;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +8,9 @@ namespace Application.Features.Users.RenameUser;
 
 public class RenameUserCommandHandler(
     IApplicationDbContext dbContext
-) : IRenameUserCommandHandler
+) : ICommandHandler<RenameUserCommand, RenameUserResponse>
 {
-    public async Task<ErrorOr<RenameUserResponse>> Handle(RenameUserCommand command, CancellationToken token)
+    public async Task<ErrorOr<RenameUserResponse>> HandleAsync(RenameUserCommand command, CancellationToken token)
     {
         var author = await dbContext.Users.FirstOrDefaultAsync(e => e.Id == command.Id, token);
 
