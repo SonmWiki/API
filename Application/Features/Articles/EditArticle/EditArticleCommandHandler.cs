@@ -1,4 +1,5 @@
 ﻿using Application.Authorization.Abstractions;
+using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
@@ -12,9 +13,9 @@ public class EditArticleCommandHandler(
     IApplicationDbContext dbContext,
     ICurrentUserService identityService,
     IValidator<EditArticleCommand> validator
-) : IEditArticleCommandHandler
+) : ICommandHandler<EditArticleCommand, EditArticleResponse>
 {
-    public async Task<ErrorOr<EditArticleResponse>> Handle(EditArticleCommand request, CancellationToken token)
+    public async Task<ErrorOr<EditArticleResponse>> HandleAsync(EditArticleCommand request, CancellationToken token)
     {
         var validationResult = ValidatorHelper.Validate(validator, request);
         if (validationResult.IsError)

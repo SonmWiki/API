@@ -1,4 +1,5 @@
-﻿using Application.Data;
+﻿using Application.Common.Messaging;
+using Application.Data;
 using Domain.Entities;
 using ErrorOr;
 
@@ -6,9 +7,9 @@ namespace Application.Features.Authors.CreateAuthor;
 
 public class CreateAuthorCommandHandler(
     IApplicationDbContext dbContext
-) : ICreateAuthorCommandHandler
+) : ICommandHandler<CreateAuthorCommand, CreateAuthorResponse>
 {
-    public async Task<ErrorOr<CreateAuthorResponse>> Handle(CreateAuthorCommand command, CancellationToken token)
+    public async Task<ErrorOr<CreateAuthorResponse>> HandleAsync(CreateAuthorCommand command, CancellationToken token)
     {
         var author = new Author {Id = command.Id, Name = command.Name};
 

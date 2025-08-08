@@ -1,5 +1,6 @@
 using Application.Common.Caching;
 using Application.Common.Constants;
+using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
@@ -12,9 +13,9 @@ public class UpdateNavigationsTreeCommandHandler(
     IApplicationDbContext dbContext,
     ICacheService cacheService,
     IValidator<UpdateNavigationsTreeCommand> validator
-) : IUpdateNavigationsTreeCommandHandler
+) : ICommandHandler<UpdateNavigationsTreeCommand, UpdateNavigationsTreeResponse>
 {
-    public async Task<ErrorOr<UpdateNavigationsTreeResponse>> Handle(UpdateNavigationsTreeCommand request,
+    public async Task<ErrorOr<UpdateNavigationsTreeResponse>> HandleAsync(UpdateNavigationsTreeCommand request,
         CancellationToken token)
     {
         var validationResult = ValidatorHelper.Validate(validator, request);

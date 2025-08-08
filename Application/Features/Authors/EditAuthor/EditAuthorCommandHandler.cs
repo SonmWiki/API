@@ -1,4 +1,5 @@
-﻿using Application.Data;
+﻿using Application.Common.Messaging;
+using Application.Data;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,9 +7,9 @@ namespace Application.Features.Authors.EditAuthor;
 
 public class EditAuthorCommandHandler(
     IApplicationDbContext dbContext
-) : IEditAuthorCommandHandler
+) : ICommandHandler<EditAuthorCommand, EditAuthorResponse>
 {
-    public async Task<ErrorOr<EditAuthorResponse>> Handle(EditAuthorCommand command, CancellationToken token)
+    public async Task<ErrorOr<EditAuthorResponse>> HandleAsync(EditAuthorCommand command, CancellationToken token)
     {
         var author = await dbContext.Authors.FirstOrDefaultAsync(e => e.Id == command.Id, token);
 

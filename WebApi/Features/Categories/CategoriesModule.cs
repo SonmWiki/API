@@ -1,4 +1,5 @@
-﻿using Application.Features.Categories.CreateCategory;
+﻿using Application.Common.Messaging;
+using Application.Features.Categories.CreateCategory;
 using Application.Features.Categories.DeleteCategory;
 using Application.Features.Categories.GetCategories;
 using Application.Features.Categories.GetCategoriesTree;
@@ -16,12 +17,12 @@ public static class CategoriesModule
     {
         app.MapPost("/api/categories",
                 async (
-                    ICreateCategoryCommandHandler createCategoryCommandHandler,
+                    ICommandHandler<CreateCategoryCommand, CreateCategoryResponse> createCategoryCommandHandler,
                     CreateCategoryRequest request,
                     CancellationToken cancellationToken) =>
             {
                 var command = new CreateCategoryCommand(request.Name, request.ParentId);
-                var result = await createCategoryCommandHandler.Handle(command, cancellationToken);
+                var result = await createCategoryCommandHandler.HandleAsync(command, cancellationToken);
                 return result.MatchFirst(
                     value => Results.Created($"/api/categories/{value.Id}", value),
                     error => error.ToIResult()
@@ -40,10 +41,10 @@ public static class CategoriesModule
 
         app.MapGet("/api/categories",
                 async Task<IResult> (
-                    IGetCategoriesQueryHandler getCategoriesQueryHandler,
+                    IQueryHandler<GetCategoriesQuery, GetCategoriesResponse> getCategoriesQueryHandler,
                     CancellationToken cancellationToken) =>
                 {
-                    var response = await getCategoriesQueryHandler.Handle(new GetCategoriesQuery(), cancellationToken);
+                    var response = await getCategoriesQueryHandler.HandleAsync(new GetCategoriesQuery(), cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -56,10 +57,10 @@ public static class CategoriesModule
         
         app.MapGet("/api/categories/tree",
                 async Task<IResult> (
-                    IGetCategoriesTreeQueryHandler getCategoriesTreeQueryHandler,
+                    IQueryHandler<GetCategoriesTreeQuery, GetCategoriesTreeResponse> getCategoriesTreeQueryHandler,
                     CancellationToken cancellationToken) =>
                 {
-                    var response = await getCategoriesTreeQueryHandler.Handle(new GetCategoriesTreeQuery(), cancellationToken);
+                    var response = await getCategoriesTreeQueryHandler.HandleAsync(new GetCategoriesTreeQuery(), cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -73,11 +74,11 @@ public static class CategoriesModule
         app.MapGet("/api/categories/{id}/articles",
                 async Task<IResult> (
                     string id,
-                    IGetCategoryArticlesQueryHandler getCategoryArticlesQuery,
+                    IQueryHandler<GetCategoryArticlesQuery, GetCategoryArticlesResponse> getCategoryArticlesQuery,
                     CancellationToken cancellationToken) =>
                 {
                     var query = new GetCategoryArticlesQuery(id);
-                    var response = await getCategoryArticlesQuery.Handle(query, cancellationToken);
+                    var response = await getCategoryArticlesQuery.HandleAsync(query, cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -92,11 +93,11 @@ public static class CategoriesModule
         app.MapDelete("/api/categories/{id}",
                 async (
                     string id,
-                    IDeleteCategoryCommandHandler deleteCategoryCommandHandler,
+                    ICommandHandler<DeleteCategoryCommand, DeleteCategoryResponse> deleteCategoryCommandHandler,
                     CancellationToken cancellationToken) =>
                 {
                     var command = new DeleteCategoryCommand(id);
-                    var result = await deleteCategoryCommandHandler.Handle(command, cancellationToken);
+                    var result = await deleteCategoryCommandHandler.HandleAsync(command, cancellationToken);
                     return result.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()

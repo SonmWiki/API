@@ -1,12 +1,14 @@
+using Application.Common.Messaging;
 using Application.Data;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.GetPendingRevisions;
 
-public class GetPendingRevisionsQueryHandler(IApplicationDbContext dbContext) : IGetPendingRevisionsQueryHandler
+public class GetPendingRevisionsQueryHandler(IApplicationDbContext dbContext)
+    : IQueryHandler<GetPendingRevisionsQuery, GetPendingRevisionsResponse>
 {
-    public async Task<ErrorOr<GetPendingRevisionsResponse>> Handle(GetPendingRevisionsQuery query, CancellationToken token)
+    public async Task<ErrorOr<GetPendingRevisionsResponse>> HandleAsync(GetPendingRevisionsQuery query, CancellationToken token)
     {
         var pendingRevisions = await dbContext.Revisions
             .Where(e => e.LatestReviewId == null)

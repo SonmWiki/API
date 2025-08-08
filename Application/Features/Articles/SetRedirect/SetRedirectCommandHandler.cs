@@ -1,5 +1,6 @@
 using Application.Common.Caching;
 using Application.Common.Constants;
+using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using ErrorOr;
@@ -12,9 +13,9 @@ public class SetRedirectCommandHandler(
     IApplicationDbContext dbContext,
     ICacheService cacheService,
     IValidator<SetRedirectCommand> validator
-    ) : ISetRedirectCommandHandler
+) : ICommandHandler<SetRedirectCommand, SetRedirectResponse>
 {
-    public async Task<ErrorOr<SetRedirectResponse>> Handle(SetRedirectCommand command, CancellationToken token)
+    public async Task<ErrorOr<SetRedirectResponse>> HandleAsync(SetRedirectCommand command, CancellationToken token)
     {
         var validationResult = ValidatorHelper.Validate(validator, command);
         if (validationResult.IsError)

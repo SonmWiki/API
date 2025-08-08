@@ -1,7 +1,6 @@
 namespace Application.Common.Messaging;
 
-//TODO: Redo without MediatR
-public interface ICachedQuery<TResponse> : IQuery, ICachedQuery;
+public interface ICachedQuery<TResponse> : IQuery<TResponse>, ICachedQuery;
 
 public interface ICachedQuery
 {

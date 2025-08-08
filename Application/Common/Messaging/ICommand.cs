@@ -1,3 +1,3 @@
 namespace Application.Common.Messaging;
 
-public interface IQuery<TResult>;
+public interface ICommand<TResult>;

@@ -1,4 +1,5 @@
 ﻿using Application.Authorization.Abstractions;
+using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
@@ -14,9 +15,9 @@ public class CreateArticleCommandHandler(
     ISlugHelper slugHelper,
     ICurrentUserService identityService,
     IValidator<CreateArticleCommand> validator
-) : ICreateArticleCommandHandler
+) : ICommandHandler<CreateArticleCommand, CreateArticleResponse>
 {
-    public async Task<ErrorOr<CreateArticleResponse>> Handle(CreateArticleCommand command, CancellationToken token)
+    public async Task<ErrorOr<CreateArticleResponse>> HandleAsync(CreateArticleCommand command, CancellationToken token)
     {
         var validationResult = ValidatorHelper.Validate(validator, command);
         if (validationResult.IsError)

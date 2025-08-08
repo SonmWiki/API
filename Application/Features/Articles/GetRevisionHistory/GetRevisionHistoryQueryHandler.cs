@@ -1,12 +1,14 @@
+using Application.Common.Messaging;
 using Application.Data;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Articles.GetRevisionHistory;
 
-public class GetRevisionHistoryQueryHandler(IApplicationDbContext dbContext) : IGetRevisionHistoryQueryHandler
+public class GetRevisionHistoryQueryHandler(IApplicationDbContext dbContext)
+    : IQueryHandler<GetRevisionHistoryQuery, GetRevisionHistoryResponse>
 {
-    public async Task<ErrorOr<GetRevisionHistoryResponse>> Handle(GetRevisionHistoryQuery query,
+    public async Task<ErrorOr<GetRevisionHistoryResponse>> HandleAsync(GetRevisionHistoryQuery query,
         CancellationToken token)
     {
         var article = await dbContext.Articles

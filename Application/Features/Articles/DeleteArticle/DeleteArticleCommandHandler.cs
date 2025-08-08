@@ -1,13 +1,15 @@
 ﻿using Application.Common.Caching;
 using Application.Common.Constants;
+using Application.Common.Messaging;
 using Application.Data;
 using ErrorOr;
 
 namespace Application.Features.Articles.DeleteArticle;
 
-public class DeleteArticleCommandHandler(IApplicationDbContext dbContext, ICacheService cacheService) : IDeleteArticleCommandHandler
+public class DeleteArticleCommandHandler(IApplicationDbContext dbContext, ICacheService cacheService)
+    : ICommandHandler<DeleteArticleCommand, DeleteArticleResponse>
 {
-    public async Task<ErrorOr<DeleteArticleResponse>> Handle(DeleteArticleCommand request, CancellationToken token)
+    public async Task<ErrorOr<DeleteArticleResponse>> HandleAsync(DeleteArticleCommand request, CancellationToken token)
     {
         var article = await dbContext.Articles.FindAsync(new object[] {request.Id}, token);
         if (article == null) return Errors.Article.NotFound;

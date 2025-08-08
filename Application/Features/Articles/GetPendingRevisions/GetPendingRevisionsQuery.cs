@@ -2,4 +2,4 @@
 
 namespace Application.Features.Articles.GetPendingRevisions;
 
-public record GetPendingRevisionsQuery : IQuery;
+public record GetPendingRevisionsQuery : IQuery<GetPendingRevisionsResponse>;

@@ -2,7 +2,7 @@ using Application.Common.Messaging;
 
 namespace Application.Features.Articles.SearchArticles;
 
-public record SearchArticlesQuery : IQuery
+public record SearchArticlesQuery : IQuery<SearchArticlesResponse>
 {
     public string? SearchTerm { get; }
     public int Page { get; }

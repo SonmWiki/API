@@ -1,4 +1,5 @@
 using Application.Common.Caching;
+using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using ErrorOr;
@@ -6,9 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Categories.GetCategoriesTree;
 
-public class GetCategoriesTreeQueryHandler(IApplicationDbContext dbContext, ICacheService cacheService) : IGetCategoriesTreeQueryHandler
+public class GetCategoriesTreeQueryHandler(IApplicationDbContext dbContext, ICacheService cacheService)
+    : IQueryHandler<GetCategoriesTreeQuery, GetCategoriesTreeResponse>
 {
-    public async Task<ErrorOr<GetCategoriesTreeResponse>> Handle(GetCategoriesTreeQuery request, CancellationToken token)
+    public async Task<ErrorOr<GetCategoriesTreeResponse>> HandleAsync(GetCategoriesTreeQuery request, CancellationToken token)
     {
         return await CachingHelper.GetOrCacheAsync(cacheService, request, async () =>
         {

@@ -1,6 +1,7 @@
 using Application.Authorization.Abstractions;
 using Application.Common.Caching;
 using Application.Common.Constants;
+using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
@@ -15,9 +16,9 @@ public class GetArticleQueryHandler(
     IIdentityService identityService,
     IValidator<GetArticleQuery> validator,
     ICacheService cacheService
-) : IGetArticleQueryHandler
+) : IQueryHandler<GetArticleQuery, GetArticleResponse>
 {
-    public async Task<ErrorOr<GetArticleResponse>> Handle(GetArticleQuery query, CancellationToken token)
+    public async Task<ErrorOr<GetArticleResponse>> HandleAsync(GetArticleQuery query, CancellationToken token)
     {
         var validationResult = ValidatorHelper.Validate(validator, query);
         if (validationResult.IsError)

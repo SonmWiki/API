@@ -1,4 +1,5 @@
 using Application.Common.Caching;
+using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using ErrorOr;
@@ -6,9 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Navigations.GetNavigationTree;
 
-public class GetNavigationsTreeQueryHandler(IApplicationDbContext dbContext, ICacheService cacheService) : IGetNavigationsTreeQueryHandler
+public class GetNavigationsTreeQueryHandler(IApplicationDbContext dbContext, ICacheService cacheService)
+    : IQueryHandler<GetNavigationsTreeQuery, GetNavigationsTreeResponse>
 {
-    public async Task<ErrorOr<GetNavigationsTreeResponse>> Handle(GetNavigationsTreeQuery request,
+    public async Task<ErrorOr<GetNavigationsTreeResponse>> HandleAsync(GetNavigationsTreeQuery request,
         CancellationToken token)
     {
         return await CachingHelper.GetOrCacheAsync(cacheService, request, async () =>

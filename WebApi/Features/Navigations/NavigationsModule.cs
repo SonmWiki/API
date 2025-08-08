@@ -1,4 +1,5 @@
-﻿using Application.Features.Navigations.GetNavigationTree;
+﻿using Application.Common.Messaging;
+using Application.Features.Navigations.GetNavigationTree;
 using Application.Features.Navigations.UpdateNavigationsTree;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Extensions;
@@ -12,9 +13,9 @@ public static class NavigationsModule
     public static void AddNavigationsEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/navigations/tree",
-                async Task<IResult> (IGetNavigationsTreeQueryHandler getNavigationsTreeQueryHandler, CancellationToken cancellationToken) =>
+                async Task<IResult> (IQueryHandler<GetNavigationsTreeQuery, GetNavigationsTreeResponse> getNavigationsTreeQueryHandler, CancellationToken cancellationToken) =>
                 {
-                    var response = await getNavigationsTreeQueryHandler.Handle(new GetNavigationsTreeQuery(), cancellationToken);
+                    var response = await getNavigationsTreeQueryHandler.HandleAsync(new GetNavigationsTreeQuery(), cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(value),
                         error => error.ToIResult()
@@ -26,10 +27,10 @@ public static class NavigationsModule
             .WithOpenApi();
 
         app.MapPut("/api/navigations/tree",
-                async Task<IResult> (IUpdateNavigationsTreeCommandHandler updateNavigationsTreeCommandHandler, UpdateNavigationsTreeRequest request, CancellationToken cancellationToken) =>
+                async Task<IResult> (ICommandHandler<UpdateNavigationsTreeCommand, UpdateNavigationsTreeResponse> updateNavigationsTreeCommandHandler, UpdateNavigationsTreeRequest request, CancellationToken cancellationToken) =>
                 {
                     var command = new UpdateNavigationsTreeCommand(request.Data);
-                    var response = await updateNavigationsTreeCommandHandler.Handle(command, cancellationToken);
+                    var response = await updateNavigationsTreeCommandHandler.HandleAsync(command, cancellationToken);
                     return response.MatchFirst(
                         value => Results.Ok(),
                         error => error.ToIResult()
@@ -37,7 +38,7 @@ public static class NavigationsModule
                 })
             .WithName("UpdateNavigationsTree")
             .WithTags("Navigations")
-            .Produces<GetNavigationsTreeResponse>()
+            .Produces<UpdateNavigationsTreeResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)

@@ -43,7 +43,7 @@ public class CreateArticleCommandHandlerTests
         var command = new CreateArticleCommand(" ", "Lorem ipsum", "", []);
 
         //Act
-        var result = await _handler.Handle(command, default);
+        var result = await _handler.HandleAsync(command, default);
 
         //Assert
         result.IsError.Should().BeTrue();
@@ -66,7 +66,7 @@ public class CreateArticleCommandHandlerTests
         var command = new CreateArticleCommand(" ", "Lorem ipsum", "", []);
 
         //Act
-        await _handler.Handle(command, default);
+        await _handler.HandleAsync(command, default);
 
         //Assert
         _mockDbContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -88,7 +88,7 @@ public class CreateArticleCommandHandlerTests
         var command = new CreateArticleCommand("something cool", "Lorem ipsum", "", []);
 
         //Act
-        var result = await _handler.Handle(command, default);
+        var result = await _handler.HandleAsync(command, default);
 
         //Assert
         result.IsError.Should().BeTrue();
@@ -111,7 +111,7 @@ public class CreateArticleCommandHandlerTests
         var command = new CreateArticleCommand("something cool", "Lorem ipsum", "", []);
 
         //Act
-        var result = await _handler.Handle(command, default);
+        var result = await _handler.HandleAsync(command, default);
 
         //Assert
         _mockDbContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -140,7 +140,7 @@ public class CreateArticleCommandHandlerTests
         var command = new CreateArticleCommand("something extra cool", "Lorem ipsum", "", []);
 
         //Act
-        await _handler.Handle(command, default);
+        await _handler.HandleAsync(command, default);
 
         //Assert
         _mockDbContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -170,7 +170,7 @@ public class CreateArticleCommandHandlerTests
         var command = new CreateArticleCommand("something extra cool", "Lorem ipsum", "", []);
 
         //Act
-        var result = await _handler.Handle(command, default);
+        var result = await _handler.HandleAsync(command, default);
 
         //Assert
         _mockDbContext.Verify(x => x.Articles.AddAsync(
@@ -214,7 +214,7 @@ public class CreateArticleCommandHandlerTests
             ["category1", "category2", "category3"]);
 
         //Act
-        var result = await _handler.Handle(command, default);
+        var result = await _handler.HandleAsync(command, default);
 
         //Assert
         _mockDbContext.Verify(x => x.Revisions.AddAsync(

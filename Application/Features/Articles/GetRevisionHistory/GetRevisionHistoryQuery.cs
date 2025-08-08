@@ -2,4 +2,4 @@
 
 namespace Application.Features.Articles.GetRevisionHistory;
 
-public record GetRevisionHistoryQuery(string Id) : IQuery;
+public record GetRevisionHistoryQuery(string Id) : IQuery<GetRevisionHistoryResponse>;

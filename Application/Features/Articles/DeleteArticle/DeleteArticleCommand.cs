@@ -1,3 +1,5 @@
-﻿namespace Application.Features.Articles.DeleteArticle;
+﻿using Application.Common.Messaging;
 
-public record DeleteArticleCommand(string Id);
+namespace Application.Features.Articles.DeleteArticle;
+
+public record DeleteArticleCommand(string Id) : ICommand<DeleteArticleResponse>;

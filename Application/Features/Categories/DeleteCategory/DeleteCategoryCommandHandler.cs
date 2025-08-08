@@ -1,6 +1,8 @@
 using Application.Common.Caching;
 using Application.Common.Constants;
+using Application.Common.Messaging;
 using Application.Data;
+using Application.Features.Articles.DeleteArticle;
 using ErrorOr;
 
 namespace Application.Features.Categories.DeleteCategory;
@@ -8,9 +10,9 @@ namespace Application.Features.Categories.DeleteCategory;
 public class DeleteCategoryCommandHandler(
     IApplicationDbContext dbContext,
     ICacheService cacheService
-) : IDeleteCategoryCommandHandler
+) : ICommandHandler<DeleteCategoryCommand, DeleteCategoryResponse>
 {
-    public async Task<ErrorOr<DeleteCategoryResponse>> Handle(DeleteCategoryCommand deleteCategoryCommand,
+    public async Task<ErrorOr<DeleteCategoryResponse>> HandleAsync(DeleteCategoryCommand deleteCategoryCommand,
         CancellationToken token)
     {
         var category = await dbContext.Categories.FindAsync(new object[] {deleteCategoryCommand.Id}, token);

@@ -1,4 +1,5 @@
 using Application.Common.Caching;
+using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using ErrorOr;
@@ -6,9 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Categories.GetCategoryArticles;
 
-public class GetCategoryArticlesQueryHandler(IApplicationDbContext dbContext, ICacheService cacheService) : IGetCategoryArticlesQueryHandler
+public class GetCategoryArticlesQueryHandler(IApplicationDbContext dbContext, ICacheService cacheService)
+    : IQueryHandler<GetCategoryArticlesQuery, GetCategoryArticlesResponse>
 {
-    public async Task<ErrorOr<GetCategoryArticlesResponse>> Handle(GetCategoryArticlesQuery request,
+    public async Task<ErrorOr<GetCategoryArticlesResponse>> HandleAsync(GetCategoryArticlesQuery request,
         CancellationToken token)
     {
         return await CachingHelper.GetOrCacheAsync<GetCategoryArticlesQuery, ErrorOr<GetCategoryArticlesResponse>>(cacheService, request, async () =>

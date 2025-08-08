@@ -1,3 +1,5 @@
-﻿namespace Application.Features.Authors.EditAuthor;
+﻿using Application.Common.Messaging;
 
-public record EditAuthorCommand(string Id, string Name);
+namespace Application.Features.Authors.EditAuthor;
+
+public record EditAuthorCommand(string Id, string Name) : ICommand<EditAuthorResponse>;

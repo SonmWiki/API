@@ -1,5 +1,6 @@
 ﻿using Application.Common.Caching;
 using Application.Common.Constants;
+using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
@@ -15,9 +16,9 @@ public class CreateCategoryCommandHandler(
     ISlugHelper slugHelper,
     ICacheService cacheService,
     IValidator<CreateCategoryCommand> validator
-) : ICreateCategoryCommandHandler
+) : ICommandHandler<CreateCategoryCommand, CreateCategoryResponse>
 {
-    public async Task<ErrorOr<CreateCategoryResponse>> Handle(CreateCategoryCommand command, CancellationToken token)
+    public async Task<ErrorOr<CreateCategoryResponse>> HandleAsync(CreateCategoryCommand command, CancellationToken token)
     {
         var validationResult = ValidatorHelper.Validate(validator, command);
         if (validationResult.IsError)

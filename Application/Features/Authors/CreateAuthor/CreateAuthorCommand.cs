@@ -1,3 +1,5 @@
-﻿namespace Application.Features.Authors.CreateAuthor;
+﻿using Application.Common.Messaging;
 
-public record CreateAuthorCommand(string Id, string Name);
+namespace Application.Features.Authors.CreateAuthor;
+
+public record CreateAuthorCommand(string Id, string Name) : ICommand<CreateAuthorResponse>;

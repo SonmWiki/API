@@ -1,6 +1,7 @@
 using Application.Authorization.Abstractions;
 using Application.Common.Caching;
 using Application.Common.Constants;
+using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
@@ -15,9 +16,9 @@ public class ReviewRevisionCommandHandler(
     ICurrentUserService identityService,
     ICacheService cacheService,
     IValidator<ReviewRevisionCommand> validator
-) : IReviewRevisionCommandHandler
+) : ICommandHandler<ReviewRevisionCommand, ReviewRevisionResponse>
 {
-    public async Task<ErrorOr<ReviewRevisionResponse>> Handle(ReviewRevisionCommand command,
+    public async Task<ErrorOr<ReviewRevisionResponse>> HandleAsync(ReviewRevisionCommand command,
         CancellationToken token)
     {
         var validationResult = ValidatorHelper.Validate(validator, command);
