@@ -58,6 +58,12 @@ public static class Permissions
         Name = nameof(NavigationsUpdateTree),
     };
 
+    public static Permission UserRename = new()
+    {
+        Id = new Guid("D7A48D11-2A3B-4896-8927-E37A6D1D7DD0"),
+        Name = nameof(UserRename),
+    };
+
     public static IReadOnlyCollection<Permission> All =>
     [
         ArticleCreate,
@@ -68,6 +74,7 @@ public static class Permissions
         ArticleDelete,
         CategoryCreate,
         CategoryDelete,
-        NavigationsUpdateTree
+        NavigationsUpdateTree,
+        UserRename
     ];
 }

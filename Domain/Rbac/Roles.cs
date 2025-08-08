@@ -50,6 +50,7 @@ public static class Roles
         Permissions.CategoryCreate,
         Permissions.CategoryDelete,
         Permissions.NavigationsUpdateTree,
+        Permissions.UserRename
     };
 
     private static readonly IReadOnlyCollection<Permission> EditorPermissions = new List<Permission>
