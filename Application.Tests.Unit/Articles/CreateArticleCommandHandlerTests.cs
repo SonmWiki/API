@@ -134,6 +134,7 @@ public class CreateArticleCommandHandlerTests
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
         _mockDbContext.Setup(x => x.Categories).Returns(mockCategoriesDbSet.Object);
         _mockDbContext.Setup(x => x.Revisions).Returns(mockRevisionsDbSet.Object);
+        _mockUserContext.Setup(x => x.UserId).Returns(Guid.Empty);
         _mockSlugHelper.Setup(x => x.GenerateSlug("something extra cool")).Returns("something-extra-cool");
         _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
             .Returns(new ValidationResult());
@@ -163,6 +164,7 @@ public class CreateArticleCommandHandlerTests
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
         _mockDbContext.Setup(x => x.Categories).Returns(mockCategoriesDbSet.Object);
         _mockDbContext.Setup(x => x.Revisions).Returns(mockRevisionsDbSet.Object);
+        _mockUserContext.Setup(x => x.UserId).Returns(Guid.Empty);
         _mockSlugHelper.Setup(x => x.GenerateSlug("something extra cool")).Returns("something-extra-cool");
         _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
             .Returns(new ValidationResult());
@@ -205,8 +207,8 @@ public class CreateArticleCommandHandlerTests
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
         _mockDbContext.Setup(x => x.Categories).Returns(mockCategoriesDbSet.Object);
         _mockDbContext.Setup(x => x.Revisions).Returns(mockRevisionsDbSet.Object);
-        _mockSlugHelper.Setup(x => x.GenerateSlug("something extra cool")).Returns("something-extra-cool");
         _mockUserContext.Setup(x => x.UserId).Returns(Guid.Empty);
+        _mockSlugHelper.Setup(x => x.GenerateSlug("something extra cool")).Returns("something-extra-cool");
         _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
             .Returns(new ValidationResult());
         var expectedCategoryIds = new List<string> {"category1", "category2"};
