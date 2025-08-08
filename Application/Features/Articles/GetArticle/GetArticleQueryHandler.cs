@@ -5,6 +5,7 @@ using Application.Common.Messaging;
 using Application.Common.Utils;
 using Application.Data;
 using Domain.Entities;
+using Domain.Rbac;
 using ErrorOr;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,8 @@ namespace Application.Features.Articles.GetArticle;
 
 public class GetArticleQueryHandler(
     IApplicationDbContext dbContext,
-    IIdentityService identityService,
+    IUserContext userContext,
+    IPermissionService permissionService,
     IValidator<GetArticleQuery> validator,
     ICacheService cacheService
 ) : IQueryHandler<GetArticleQuery, GetArticleResponse>
@@ -66,13 +68,14 @@ public class GetArticleQueryHandler(
 
     private async Task<ErrorOr<GetArticleResponse>> GetByRevisionId(Guid id, CancellationToken token)
     {
-        var isInRole = await identityService.IsInRoleAsync(AuthorizationConstants.Roles.Editor) ||
-                       await identityService.IsInRoleAsync(AuthorizationConstants.Roles.Admin);
+        var canSeePendingRevisions =
+            await permissionService.HasPermissionAsync(userContext.UserId!.Value, Permissions.ArticleSeePendingRevisions);
+
         var revision = await dbContext.Revisions
             .Include(e => e.LatestReview)
             .Include(e => e.Article)
             .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == id && (isInRole || e.LatestReview != null), token);
+            .FirstOrDefaultAsync(e => e.Id == id && (canSeePendingRevisions || e.LatestReview != null), token);
 
         if (revision == null) return Errors.Revision.NotFound;
 

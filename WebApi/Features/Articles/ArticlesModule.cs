@@ -10,10 +10,10 @@ using Application.Features.Articles.GetRevisionReviewHistory;
 using Application.Features.Articles.ReviewRevision;
 using Application.Features.Articles.SearchArticles;
 using Application.Features.Articles.SetRedirect;
-using Microsoft.AspNetCore.Authorization;
+using Domain.Rbac;
+using WebApi.Auth;
 using WebApi.Extensions;
 using WebApi.Features.Articles.Requests;
-using static Application.Common.Constants.AuthorizationConstants;
 
 namespace WebApi.Features.Articles;
 
@@ -41,7 +41,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
+            .RequirePermission(Permissions.ArticleCreate)
             .WithOpenApi();
 
         app.MapGet("/api/articles",
@@ -124,7 +124,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}, {Roles.User}"})
+            .RequirePermission(Permissions.ArticleEdit)
             .WithOpenApi();
 
         app.MapPut("/api/articles/{id}/redirect",
@@ -149,7 +149,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
+            .RequirePermission(Permissions.ArticleSetRedirect)
             .WithOpenApi();
 
         app.MapGet("/api/articles/revisions/pending",
@@ -169,7 +169,7 @@ public static class ArticlesModule
             .Produces<GetPendingRevisionsResponse>()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
+            .RequirePermission(Permissions.ArticleSeePendingRevisions)
             .WithOpenApi();
 
         app.MapGet("/api/articles/revisions/pending/count",
@@ -190,7 +190,7 @@ public static class ArticlesModule
             .Produces<GetPendingRevisionsCountResponse>()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
+            .RequirePermission(Permissions.ArticleSeePendingRevisions)
             .WithOpenApi();
 
         app.MapGet("/api/articles/{id}/revisions",
@@ -252,7 +252,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
+            .RequirePermission(Permissions.ArticleReviewRevision)
             .WithOpenApi();
 
         app.MapDelete("/api/articles/{id}",
@@ -274,7 +274,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
+            .RequirePermission(Permissions.ArticleDelete)
             .WithOpenApi();
     }
 }

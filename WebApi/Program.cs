@@ -1,13 +1,19 @@
 using System.Text.Json.Serialization;
+using Application.Authorization.Abstractions;
 using Application.Extensions;
+using Domain.Rbac;
 using Infrastructure.Extensions;
-using Keycloak.AuthServices.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using WebApi.Extensions;
 using WebApi.Features.Articles;
 using WebApi.Features.Categories;
 using WebApi.Features.Navigations;
 using WebApi.Middlewares;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using WebApi.Auth;
+using WebApi.Features.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +37,39 @@ if (builder.Environment.IsDevelopment())
     builder.Services.RegisterSwagger(builder.Configuration);
 }
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var jwtSettings = builder.Configuration.GetRequiredSection(JwtSettings.SectionName).Get<JwtSettings>()
+                        ?? throw new InvalidOperationException($"Missing {JwtSettings.SectionName} section");
+
+        options.Authority = jwtSettings.Authority;
+        options.Audience = jwtSettings.Audience;
+        options.RequireHttpsMetadata = jwtSettings.RequireHttpsMetadata;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = jwtSettings.ValidateIssuer,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidateAudience = jwtSettings.ValidateAudience,
+            ValidAudience = jwtSettings.Audience,
+            ValidateLifetime = jwtSettings.ValidateLifetime,
+            ValidateIssuerSigningKey = jwtSettings.ValidateIssuerSigningKey,
+            ClockSkew = jwtSettings.ClockSkew,
+        };
+
+        options.Events = options.ConfigureJwtBearerEvents();
+    });
+builder.Services.AddAuthorization(options =>
+{
+    foreach (var permission in Permissions.All)
+    {
+        options.AddPolicy($"Permission_{permission.Id:D}",
+            policy => policy.Requirements.Add(new PermissionRequirement(permission)));
+    }
+});
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddScoped<IUserContext, UserContext>();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
@@ -49,15 +88,12 @@ app.UseAuthorization();
 app.AddArticlesEndpoints();
 app.AddCategoriesEndpoints();
 app.AddNavigationsEndpoints();
+app.AddUsersEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
-    var keycloakOptions = new KeycloakAuthenticationOptions();
-    app.Configuration.GetSection(KeycloakAuthenticationOptions.Section)
-        .Bind(keycloakOptions, opt => opt.BindNonPublicProperties = true);
-
     app.UseSwagger();
-    app.UseSwaggerUI(options => options.OAuthClientId(keycloakOptions.Resource));
+    app.UseSwaggerUI();
 }
 
 app.Run();

@@ -13,7 +13,7 @@ namespace Application.Features.Articles.CreateArticle;
 public class CreateArticleCommandHandler(
     IApplicationDbContext dbContext,
     ISlugHelper slugHelper,
-    ICurrentUserService identityService,
+    IUserContext userContext,
     IValidator<CreateArticleCommand> validator
 ) : ICommandHandler<CreateArticleCommand, CreateArticleResponse>
 {
@@ -47,7 +47,7 @@ public class CreateArticleCommandHandler(
             Id = default!,
             ArticleId = id,
             Article = default!,
-            AuthorId = identityService.UserId!,
+            AuthorId = userContext.UserId!.Value,
             Author = default!,
             AuthorsNote = command.AuthorsNote,
             Content = command.Content,

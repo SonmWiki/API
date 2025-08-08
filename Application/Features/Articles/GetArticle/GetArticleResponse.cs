@@ -14,7 +14,7 @@ public record GetArticleResponse(
     List<GetArticleResponse.Category> Categories
 )
 {
-    public record Author(string Id, string Name);
+    public record Author(Guid Id, string Name);
 
     public record Category(string Id, string Name);
 }

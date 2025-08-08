@@ -4,10 +4,10 @@ using Application.Features.Categories.DeleteCategory;
 using Application.Features.Categories.GetCategories;
 using Application.Features.Categories.GetCategoriesTree;
 using Application.Features.Categories.GetCategoryArticles;
-using Microsoft.AspNetCore.Authorization;
+using Domain.Rbac;
+using WebApi.Auth;
 using WebApi.Extensions;
 using WebApi.Features.Categories.Requests;
-using static Application.Common.Constants.AuthorizationConstants;
 
 namespace WebApi.Features.Categories;
 
@@ -36,7 +36,7 @@ public static class CategoriesModule
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
+            .RequirePermission(Permissions.CategoryCreate)
             .WithOpenApi();
 
         app.MapGet("/api/categories",
@@ -109,7 +109,7 @@ public static class CategoriesModule
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
+            .RequirePermission(Permissions.CategoryDelete)
             .WithOpenApi();
     }
 }

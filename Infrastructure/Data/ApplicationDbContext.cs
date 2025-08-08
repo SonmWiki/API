@@ -11,8 +11,10 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     public required DbSet<Category> Categories { get; set; }
     public required DbSet<Revision> Revisions { get; set; }
     public required DbSet<Review> Reviews { get; set; }
-    public required DbSet<Author> Authors { get; set; }
+    public required DbSet<User> Users { get; set; }
     public required DbSet<Navigation> Navigations { get; set; }
+    public required DbSet<Role> Roles { get; set; }
+    public required DbSet<Permission> Permissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +62,36 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
                 .WithMany(e => e.Children)
                 .HasForeignKey(e=>e.ParentId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasMany(e => e.Users)
+                .WithMany(e => e.Roles);
+
+            entity.HasData(Domain.Rbac.Roles.All.Select(role => new Role
+            {
+                Id = role.Id,
+                Name = role.Name
+            }));
+
+            entity.HasMany(e => e.Permissions)
+                .WithMany(e => e.Roles)
+                .UsingEntity(j => j.ToTable("RolePermission")
+                    .HasData(
+                        Domain.Rbac.Roles.All.SelectMany(role =>
+                                Domain.Rbac.Roles.GetDefaultPermissions(role),
+                            (role, permission) => new { RolesId = role.Id, PermissionsId = permission.Id }
+                        )
+                    ));
+        });
+        modelBuilder.Entity<Permission>(entity =>
+        {
+            entity.HasData(Domain.Rbac.Permissions.All);
+        });
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasIndex(e => e.ExternalId);
+            entity.HasIndex(e => e.Name);
         });
     }
 }
