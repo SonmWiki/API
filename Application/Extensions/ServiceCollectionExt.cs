@@ -1,5 +1,7 @@
 using System.Reflection;
 using Application.Common.Messaging;
+using Application.Authorization;
+using Application.Authorization.Abstractions;
 using Application.Features.Articles.CreateArticle;
 using Application.Features.Articles.DeleteArticle;
 using Application.Features.Articles.EditArticle;
@@ -11,8 +13,6 @@ using Application.Features.Articles.GetRevisionReviewHistory;
 using Application.Features.Articles.ReviewRevision;
 using Application.Features.Articles.SearchArticles;
 using Application.Features.Articles.SetRedirect;
-using Application.Features.Authors.CreateAuthor;
-using Application.Features.Authors.EditAuthor;
 using Application.Features.Categories.CreateCategory;
 using Application.Features.Categories.DeleteCategory;
 using Application.Features.Categories.GetCategories;
@@ -20,6 +20,8 @@ using Application.Features.Categories.GetCategoriesTree;
 using Application.Features.Categories.GetCategoryArticles;
 using Application.Features.Navigations.GetNavigationTree;
 using Application.Features.Navigations.UpdateNavigationsTree;
+using Application.Features.Users.GetUser;
+using Application.Features.Users.RenameUser;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Slugify;
@@ -33,6 +35,8 @@ public static class ServiceCollectionExtensions
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddTransient<ISlugHelper, SlugHelperForNonAsciiLanguages>();
 
+        services.AddScoped<IPermissionService, PermissionService>();
+
         services.AddScoped<ICommandHandler<CreateArticleCommand, CreateArticleResponse>, CreateArticleCommandHandler>();
         services.AddScoped<ICommandHandler<DeleteArticleCommand, DeleteArticleResponse>, DeleteArticleCommandHandler>();
         services.AddScoped<ICommandHandler<EditArticleCommand, EditArticleResponse>, EditArticleCommandHandler>();
@@ -45,8 +49,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryHandler<SearchArticlesQuery, SearchArticlesResponse>, SearchArticlesQueryHandler>();
         services.AddScoped<ICommandHandler<SetRedirectCommand, SetRedirectResponse>, SetRedirectCommandHandler>();
 
-        services.AddScoped<ICommandHandler<CreateAuthorCommand, CreateAuthorResponse>, CreateAuthorCommandHandler>();
-        services.AddScoped<ICommandHandler<EditAuthorCommand, EditAuthorResponse>, EditAuthorCommandHandler>();
+        services.AddScoped<IRenameUserCommandHandler, RenameUserCommandHandler>();
+        services.AddScoped<IGetUserCommandHandler, GetUserCommandHandler>();
 
         services.AddScoped<ICommandHandler<CreateCategoryCommand, CreateCategoryResponse>, CreateCategoryCommandHandler>();
         services.AddScoped<ICommandHandler<DeleteCategoryCommand, DeleteCategoryResponse>, DeleteCategoryCommandHandler>();

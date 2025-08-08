@@ -12,7 +12,7 @@ public record GetRevisionHistoryResponse(List<GetRevisionHistoryResponse.Element
         Review? LatestReview
     );
 
-    public record Author(string Id, string Name);
+    public record Author(Guid Id, string Name);
 
     public record Review(
         Guid Id,

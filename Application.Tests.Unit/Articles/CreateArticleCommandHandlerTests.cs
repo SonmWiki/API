@@ -13,7 +13,7 @@ public class CreateArticleCommandHandlerTests
 {
     private readonly Mock<IApplicationDbContext> _mockDbContext = new();
     private readonly Mock<ISlugHelper> _mockSlugHelper = new();
-    private readonly Mock<ICurrentUserService> _mockCurrentUserService = new();
+    private readonly Mock<IUserContext> _mockUserContext = new();
     private readonly Mock<IValidator<CreateArticleCommand>> _mockValidator = new();
     private readonly CreateArticleCommandHandler _handler;
 
@@ -22,7 +22,7 @@ public class CreateArticleCommandHandlerTests
         _handler = new CreateArticleCommandHandler(
             _mockDbContext.Object,
             _mockSlugHelper.Object,
-            _mockCurrentUserService.Object,
+            _mockUserContext.Object,
             _mockValidator.Object
         );
     }
@@ -206,7 +206,7 @@ public class CreateArticleCommandHandlerTests
         _mockDbContext.Setup(x => x.Categories).Returns(mockCategoriesDbSet.Object);
         _mockDbContext.Setup(x => x.Revisions).Returns(mockRevisionsDbSet.Object);
         _mockSlugHelper.Setup(x => x.GenerateSlug("something extra cool")).Returns("something-extra-cool");
-        _mockCurrentUserService.Setup(x => x.UserId).Returns("test-user-id");
+        _mockUserContext.Setup(x => x.UserId).Returns(Guid.Empty);
         _mockValidator.Setup(v => v.Validate(It.IsAny<CreateArticleCommand>()))
             .Returns(new ValidationResult());
         var expectedCategoryIds = new List<string> {"category1", "category2"};
@@ -222,7 +222,7 @@ public class CreateArticleCommandHandlerTests
                     e.ArticleId == result.Value.Id
                     && e.Content == command.Content
                     && e.AuthorsNote == command.AuthorsNote
-                    && e.AuthorId == _mockCurrentUserService.Object.UserId
+                    && e.AuthorId == _mockUserContext.Object.UserId
                     && e.Categories.Select(i => i.Id).OrderBy(i => i).SequenceEqual(expectedCategoryIds)
                 ),
                 It.IsAny<CancellationToken>()

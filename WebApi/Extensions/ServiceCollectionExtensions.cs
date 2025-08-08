@@ -1,4 +1,3 @@
-using Keycloak.AuthServices.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using WebApi.SchemaFilters;
@@ -14,9 +13,7 @@ public static class ServiceCollectionExtensions
             options.CustomSchemaIds(x => x.FullName?.Replace("+", ".").Replace(x.Namespace + ".", ""));
             options.SupportNonNullableReferenceTypes();
             options.SchemaFilter<SwaggerRequiredSchemaFilter>();
-            var keycloakOptions = new KeycloakAuthenticationOptions();
 
-            configuration.GetSection(KeycloakAuthenticationOptions.Section).Bind(keycloakOptions, opt => opt.BindNonPublicProperties = true);
             var securityScheme = new OpenApiSecurityScheme
             {
                 Name = "Auth",
@@ -31,14 +28,16 @@ public static class ServiceCollectionExtensions
                     //TODO awful hack .Replace("host.docker.internal", "localhost") for ease of testing
                     Implicit = new OpenApiOAuthFlow
                     {
-                        AuthorizationUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm.Replace("host.docker.internal", "localhost")}/protocol/openid-connect/auth"),
-                        TokenUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm.Replace("host.docker.internal", "localhost")}/protocol/openid-connect/token"),
+                        //TODO: Hardcoded values should be extracted to config
+                        AuthorizationUrl = new Uri($"{"http://localhost:8091/realms/dumb realm".Replace("host.docker.internal", "localhost")}/protocol/openid-connect/auth"),
+                        TokenUrl = new Uri($"{"http://localhost:8091/realms/dumb realm".Replace("host.docker.internal", "localhost")}/protocol/openid-connect/token"),
                         Scopes = new Dictionary<string, string>()
                     },
                     AuthorizationCode = new OpenApiOAuthFlow
                     {
-                        AuthorizationUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm.Replace("host.docker.internal", "localhost")}/protocol/openid-connect/auth"),
-                        TokenUrl = new Uri($"{keycloakOptions.KeycloakUrlRealm.Replace("host.docker.internal", "localhost")}/protocol/openid-connect/token"),
+                        //TODO: Hardcoded values should be extracted to config
+                        AuthorizationUrl = new Uri($"{"http://localhost:8091/realms/dumb realm".Replace("host.docker.internal", "localhost")}/protocol/openid-connect/auth"),
+                        TokenUrl = new Uri($"{"http://localhost:8091/realms/dumb realm".Replace("host.docker.internal", "localhost")}/protocol/openid-connect/token"),
                         Scopes = new Dictionary<string, string>()
                     }
                 }
