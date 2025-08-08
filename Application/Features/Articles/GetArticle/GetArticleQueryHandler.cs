@@ -40,7 +40,7 @@ public class GetArticleQueryHandler(
         var article = await dbContext.Articles
             .Include(e => e.CurrentRevision)
             .Include(e => e.RedirectArticle)
-            .ThenInclude(e => e.CurrentRevision)
+            .ThenInclude(e => e!.CurrentRevision)
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == id, token);
 

@@ -30,7 +30,7 @@ public class ReviewRevisionCommandHandler(
         var revision = await dbContext.Revisions
             .Include(e => e.Article)
             .ThenInclude(e => e.CurrentRevision)
-            .ThenInclude(e => e.Categories)
+            .ThenInclude(e => e!.Categories)
             .Include(e => e.Categories)
             .Include(e => e.LatestReview)
             .FirstOrDefaultAsync(e => e.Id == command.RevisionId, token);

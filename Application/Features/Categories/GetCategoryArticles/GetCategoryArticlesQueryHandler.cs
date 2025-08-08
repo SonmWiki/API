@@ -21,7 +21,7 @@ public class GetCategoryArticlesQueryHandler(IApplicationDbContext dbContext, IC
             if (category == null) return Errors.Category.NotFound;
 
             var articlesList = await dbContext.Articles
-                .Where(e => e.RedirectArticleId == null && e.CurrentRevision.Categories.Any(x => x.Id == request.Id))
+                .Where(e => e.RedirectArticleId == null && e.CurrentRevision!.Categories.Any(x => x.Id == request.Id))
                 .Select(e=> new GetCategoryArticlesResponse.Element(e.Id, e.Title))
                 .AsNoTracking()
                 .ToListAsync(token);
