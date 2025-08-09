@@ -14,7 +14,7 @@ public class PermissionService : IPermissionService
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<Permission>> GetPermissionsASync(Guid userId)
+    public async Task<IEnumerable<Permission>> GetPermissionsAsync(Guid userId)
     {
         return await _dbContext.Users
             .Where(a => a.Id == userId)
