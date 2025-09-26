@@ -76,7 +76,7 @@ app.UseExceptionHandler();
 
 app.UseCors();
 
-app.SetupDatabase();
+await app.SetupDatabase();
 
 app.UseAuthentication();
 app.UseAuthorization();
