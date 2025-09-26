@@ -20,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddLogging();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddCors();
+builder.Services.ConfigureCors(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddApplicationServices();
@@ -74,11 +74,7 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
-app.UseCors(policyBuilder => policyBuilder
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    .WithOrigins(app.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>())
-);
+app.UseCors();
 
 app.SetupDatabase();
 

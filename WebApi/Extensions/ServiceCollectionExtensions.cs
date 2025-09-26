@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using WebApi.Auth;
 using WebApi.SchemaFilters;
+using WebApi.Settings;
 
 namespace WebApi.Extensions;
 
@@ -49,5 +50,38 @@ public static class ServiceCollectionExtensions
                 {securityScheme, Array.Empty<string>()}
             });
         });
+    }
+
+    internal static void ConfigureCors(this IServiceCollection services, IConfiguration configuration)
+    {
+        var corsSettings = configuration.GetRequiredSection(CorsSettings.SectionName).Get<CorsSettings>()
+                           ?? throw new InvalidOperationException($"Missing {CorsSettings.SectionName} section");
+
+        if (corsSettings.Enabled)
+        {
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy
+                        .WithOrigins(corsSettings.AllowedOrigins)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+        }
+        else
+        {
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+        }
     }
 }
