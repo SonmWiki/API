@@ -11,5 +11,5 @@ public record GetPendingRevisionsResponse(List<GetPendingRevisionsResponse.Eleme
         DateTime Timestamp
     );
 
-    public record Author(string Id, string Name);
+    public record Author(Guid Id, string Name);
 }

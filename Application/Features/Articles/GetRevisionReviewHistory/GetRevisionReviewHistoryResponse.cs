@@ -12,5 +12,5 @@ public record GetRevisionReviewHistoryResponse(List<GetRevisionReviewHistoryResp
         DateTime Timestamp
     );
 
-    public record Reviewer(string Id, string Name);
+    public record Reviewer(Guid Id, string Name);
 }

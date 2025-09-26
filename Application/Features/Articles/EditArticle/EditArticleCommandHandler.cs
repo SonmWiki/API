@@ -11,7 +11,7 @@ namespace Application.Features.Articles.EditArticle;
 
 public class EditArticleCommandHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService identityService,
+    IUserContext userContext,
     IValidator<EditArticleCommand> validator
 ) : ICommandHandler<EditArticleCommand, EditArticleResponse>
 {
@@ -38,7 +38,7 @@ public class EditArticleCommandHandler(
             Id = default!,
             ArticleId = article.Id,
             Article = default!,
-            AuthorId = identityService.UserId!,
+            AuthorId = userContext.UserId!.Value,
             Author = default!,
             AuthorsNote = request.AuthorsNote,
             Content = request.Content,

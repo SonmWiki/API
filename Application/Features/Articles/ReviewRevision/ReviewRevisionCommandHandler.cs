@@ -13,7 +13,7 @@ namespace Application.Features.Articles.ReviewRevision;
 
 public class ReviewRevisionCommandHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService identityService,
+    IUserContext userContext,
     ICacheService cacheService,
     IValidator<ReviewRevisionCommand> validator
 ) : ICommandHandler<ReviewRevisionCommand, ReviewRevisionResponse>
@@ -42,7 +42,7 @@ public class ReviewRevisionCommandHandler(
         var review = new Review
         {
             Id = default!,
-            ReviewerId = identityService.UserId!,
+            ReviewerId = userContext.UserId!.Value,
             Reviewer = default!,
             Status = command.Status,
             Message = command.Review,

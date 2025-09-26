@@ -1,10 +1,10 @@
 ﻿using Application.Common.Messaging;
 using Application.Features.Navigations.GetNavigationTree;
 using Application.Features.Navigations.UpdateNavigationsTree;
-using Microsoft.AspNetCore.Authorization;
+using Domain.Rbac;
+using WebApi.Auth;
 using WebApi.Extensions;
 using WebApi.Features.Navigations.Requests;
-using static Application.Common.Constants.AuthorizationConstants;
 
 namespace WebApi.Features.Navigations;
 
@@ -42,7 +42,7 @@ public static class NavigationsModule
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
-            .RequireAuthorization(new AuthorizeAttribute {Roles = $"{Roles.Admin}, {Roles.Editor}"})
+            .RequirePermission(Permissions.NavigationsUpdateTree)
             .WithOpenApi();
     }
 }

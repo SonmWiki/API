@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250808004657_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -184,11 +187,6 @@ namespace Infrastructure.Data.Migrations
                         {
                             Id = new Guid("eced433f-b27c-4c6e-af41-d2231fb40f03"),
                             Name = "NavigationsUpdateTree"
-                        },
-                        new
-                        {
-                            Id = new Guid("d7a48d11-2a3b-4896-8927-e37a6d1d7dd0"),
-                            Name = "UserRename"
                         });
                 });
 
@@ -380,11 +378,6 @@ namespace Infrastructure.Data.Migrations
                         new
                         {
                             PermissionsId = new Guid("eced433f-b27c-4c6e-af41-d2231fb40f03"),
-                            RolesId = new Guid("ca2cfe04-24ed-42d0-9237-6d5ed7885063")
-                        },
-                        new
-                        {
-                            PermissionsId = new Guid("d7a48d11-2a3b-4896-8927-e37a6d1d7dd0"),
                             RolesId = new Guid("ca2cfe04-24ed-42d0-9237-6d5ed7885063")
                         },
                         new
