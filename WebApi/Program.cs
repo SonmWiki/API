@@ -31,7 +31,10 @@ builder.Services.Configure<JsonOptions>(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(config =>
+{
+    config.CustomSchemaIds(x => x.FullName?.Replace("+", ".").Replace(x.Namespace + ".", ""));
+});
 
 builder.Services.ConfigureAuth(builder.Configuration);
 
