@@ -83,7 +83,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
-        app.MapGet("/api/articles/revision:{id:guid}",
+        app.MapGet("/api/articles/revision/{id:guid}",
                 async Task<IResult> (
                     Guid id,
                     IQueryHandler<GetArticleQuery, GetArticleResponse> getArticleQueryHandler,
