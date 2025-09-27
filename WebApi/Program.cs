@@ -7,6 +7,7 @@ using WebApi.Features.Categories;
 using WebApi.Features.Navigations;
 using WebApi.Middlewares;
 using Microsoft.AspNetCore.Mvc;
+using Scalar.AspNetCore;
 using WebApi.Features.Users;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,10 +31,7 @@ builder.Services.Configure<JsonOptions>(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.RegisterSwagger(builder.Configuration);
-}
+builder.Services.AddOpenApi();
 
 builder.Services.ConfigureAuth(builder.Configuration);
 
@@ -55,8 +53,9 @@ app.AddUsersEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
+
+    app.MapScalarApiReference();
 }
 
 app.Run();

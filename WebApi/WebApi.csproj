@@ -19,8 +19,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtran sitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI"  />
+        <PackageReference Include="Scalar.AspNetCore" />
     </ItemGroup>
 
     <ItemGroup>
