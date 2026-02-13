@@ -5,23 +5,26 @@ namespace WebApi.Extensions;
 
 public static class WebApplicationExt
 {
-    public static async Task<WebApplication> SetupDatabase(this WebApplication app)
+    extension(WebApplication app)
     {
-        using var scope = app.Services.CreateScope();
-
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        try
+        public async Task<WebApplication> SetupDatabase()
         {
-            await dbContext.Database.MigrateAsync();
-        }
-        catch (Exception e)
-        {
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-            logger.LogError(e, "There was an error while creating or migrating database");
-            throw;
-        }
+            using var scope = app.Services.CreateScope();
 
-        return app;
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            try
+            {
+                await dbContext.Database.MigrateAsync();
+            }
+            catch (Exception e)
+            {
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                logger.LogError(e, "There was an error while creating or migrating database");
+                throw;
+            }
+
+            return app;
+        }
     }
 }

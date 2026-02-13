@@ -23,8 +23,7 @@ public static class NavigationsModule
                 })
             .WithName("GetNavigationsTree")
             .WithTags("Navigations")
-            .Produces<GetNavigationsTreeResponse>()
-            .WithOpenApi();
+            .Produces<GetNavigationsTreeResponse>();
 
         app.MapPut("/api/navigations/tree",
                 async Task<IResult> (ICommandHandler<UpdateNavigationsTreeCommand, UpdateNavigationsTreeResponse> updateNavigationsTreeCommandHandler, UpdateNavigationsTreeRequest request, CancellationToken cancellationToken) =>
@@ -42,7 +41,6 @@ public static class NavigationsModule
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
-            .RequirePermission(Permissions.NavigationsUpdateTree)
-            .WithOpenApi();
+            .RequirePermission(Permissions.NavigationsUpdateTree);
     }
 }

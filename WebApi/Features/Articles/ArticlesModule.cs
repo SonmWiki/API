@@ -41,8 +41,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .RequirePermission(Permissions.ArticleCreate)
-            .WithOpenApi();
+            .RequirePermission(Permissions.ArticleCreate);
 
         app.MapGet("/api/articles",
                 async Task<IResult> (
@@ -61,8 +60,7 @@ public static class ArticlesModule
                 })
             .WithName("SearchArticles")
             .WithTags("Article")
-            .Produces<SearchArticlesResponse>()
-            .WithOpenApi();
+            .Produces<SearchArticlesResponse>();
 
         app.MapGet("/api/articles/{id}",
                 async Task<IResult> (
@@ -80,8 +78,7 @@ public static class ArticlesModule
             .WithTags("Article")
             .Produces<GetArticleResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         app.MapGet("/api/articles/revision/{id:guid}",
                 async Task<IResult> (
@@ -99,8 +96,7 @@ public static class ArticlesModule
             .WithTags("Article")
             .Produces<GetArticleResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         app.MapPut("/api/articles/{id}",
                 async Task<IResult> (
@@ -124,8 +120,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .RequirePermission(Permissions.ArticleEdit)
-            .WithOpenApi();
+            .RequirePermission(Permissions.ArticleEdit);
 
         app.MapPut("/api/articles/{id}/redirect",
                 async Task<IResult> (
@@ -149,8 +144,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .RequirePermission(Permissions.ArticleSetRedirect)
-            .WithOpenApi();
+            .RequirePermission(Permissions.ArticleSetRedirect);
 
         app.MapGet("/api/articles/revisions/pending",
                 async Task<IResult> (
@@ -169,8 +163,7 @@ public static class ArticlesModule
             .Produces<GetPendingRevisionsResponse>()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
-            .RequirePermission(Permissions.ArticleSeePendingRevisions)
-            .WithOpenApi();
+            .RequirePermission(Permissions.ArticleSeePendingRevisions);
 
         app.MapGet("/api/articles/revisions/pending/count",
                 async Task<IResult> (
@@ -190,8 +183,7 @@ public static class ArticlesModule
             .Produces<GetPendingRevisionsCountResponse>()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
-            .RequirePermission(Permissions.ArticleSeePendingRevisions)
-            .WithOpenApi();
+            .RequirePermission(Permissions.ArticleSeePendingRevisions);
 
         app.MapGet("/api/articles/{id}/revisions",
                 async Task<IResult> (
@@ -209,8 +201,7 @@ public static class ArticlesModule
             .WithName("RevisionHistory")
             .WithTags("Article")
             .Produces<GetRevisionHistoryResponse>()
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         app.MapGet("/api/articles/revisions/{id}/reviews",
                 async Task<IResult> (
@@ -228,8 +219,7 @@ public static class ArticlesModule
             .WithName("RevisionReviewHistory")
             .WithTags("Article")
             .Produces<GetRevisionReviewHistoryResponse>()
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         app.MapPost("/api/articles/revisions/{id}/reviews",
                 async Task<IResult> (
@@ -252,8 +242,7 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .RequirePermission(Permissions.ArticleReviewRevision)
-            .WithOpenApi();
+            .RequirePermission(Permissions.ArticleReviewRevision);
 
         app.MapDelete("/api/articles/{id}",
                 async (
@@ -274,7 +263,6 @@ public static class ArticlesModule
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .RequirePermission(Permissions.ArticleDelete)
-            .WithOpenApi();
+            .RequirePermission(Permissions.ArticleDelete);
     }
 }

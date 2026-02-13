@@ -10,20 +10,19 @@ namespace Infrastructure.Extensions;
 
 public static class ServiceCollectionExt
 {
-    public static IServiceCollection AddInfrastructureServices(
-        this IServiceCollection services,
-        IConfiguration configuration,
-        bool isDevelopment
-    )
+    extension(IServiceCollection services)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        public IServiceCollection AddInfrastructureServices( IConfiguration configuration, bool isDevelopment)
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString));
+            services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
+                options.UseNpgsql(connectionString));
 
-        services.AddMemoryCache();
-        services.AddSingleton<ICacheService, CacheService>();
+            services.AddMemoryCache();
+            services.AddSingleton<ICacheService, CacheService>();
 
-        return services;
+            return services;
+        }
     }
 }

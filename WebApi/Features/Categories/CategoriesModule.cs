@@ -20,14 +20,14 @@ public static class CategoriesModule
                     ICommandHandler<CreateCategoryCommand, CreateCategoryResponse> createCategoryCommandHandler,
                     CreateCategoryRequest request,
                     CancellationToken cancellationToken) =>
-            {
-                var command = new CreateCategoryCommand(request.Name, request.ParentId);
-                var result = await createCategoryCommandHandler.HandleAsync(command, cancellationToken);
-                return result.MatchFirst(
-                    value => Results.Created($"/api/categories/{value.Id}", value),
-                    error => error.ToIResult()
-                );
-            })
+                {
+                    var command = new CreateCategoryCommand(request.Name, request.ParentId);
+                    var result = await createCategoryCommandHandler.HandleAsync(command, cancellationToken);
+                    return result.MatchFirst(
+                        value => Results.Created($"/api/categories/{value.Id}", value),
+                        error => error.ToIResult()
+                    );
+                })
             .WithName("CreateCategory")
             .WithTags("Category")
             .Produces<CreateCategoryResponse>()
@@ -36,8 +36,7 @@ public static class CategoriesModule
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .RequirePermission(Permissions.CategoryCreate)
-            .WithOpenApi();
+            .RequirePermission(Permissions.CategoryCreate);
 
         app.MapGet("/api/categories",
                 async Task<IResult> (
@@ -52,9 +51,8 @@ public static class CategoriesModule
                 })
             .WithName("GetCategories")
             .WithTags("Category")
-            .Produces<GetCategoriesResponse>()
-            .WithOpenApi();
-        
+            .Produces<GetCategoriesResponse>();
+
         app.MapGet("/api/categories/tree",
                 async Task<IResult> (
                     IQueryHandler<GetCategoriesTreeQuery, GetCategoriesTreeResponse> getCategoriesTreeQueryHandler,
@@ -68,8 +66,7 @@ public static class CategoriesModule
                 })
             .WithName("GetCategoriesTree")
             .WithTags("Category")
-            .Produces<GetCategoriesTreeResponse>()
-            .WithOpenApi();
+            .Produces<GetCategoriesTreeResponse>();
 
         app.MapGet("/api/categories/{id}/articles",
                 async Task<IResult> (
@@ -87,8 +84,7 @@ public static class CategoriesModule
             .WithName("GetCategoryArticles")
             .WithTags("Category", "Article")
             .Produces<GetCategoryArticlesResponse>()
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         app.MapDelete("/api/categories/{id}",
                 async (
@@ -109,7 +105,6 @@ public static class CategoriesModule
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .RequirePermission(Permissions.CategoryDelete)
-            .WithOpenApi();
+            .RequirePermission(Permissions.CategoryDelete);
     }
 }

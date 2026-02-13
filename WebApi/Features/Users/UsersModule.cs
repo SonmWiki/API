@@ -27,8 +27,7 @@ public static class UsersModule
             .WithTags("Users")
             .RequireAuthorization()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .Produces<GetUserResponse>()
-            .WithOpenApi();
+            .Produces<GetUserResponse>();
 
         app.MapPut("/api/users/{id}",
                 async Task<IResult> (
@@ -50,7 +49,6 @@ public static class UsersModule
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .RequirePermission(Permissions.UserRename)
-            .WithOpenApi();
+            .RequirePermission(Permissions.UserRename);
     }
 }

@@ -9,15 +9,18 @@ namespace WebApi.Auth;
 
 public static class JwtBearerExtensions
 {
-    public static JwtBearerEvents ConfigureJwtBearerEvents(this JwtBearerOptions options)
+    extension(JwtBearerOptions options)
     {
-        var events = new JwtBearerEvents
+        public JwtBearerEvents ConfigureJwtBearerEvents()
         {
-            OnTokenValidated = OnTokenValidated,
-            OnAuthenticationFailed = OnAuthenticationFailed
-        };
+            var events = new JwtBearerEvents
+            {
+                OnTokenValidated = OnTokenValidated,
+                OnAuthenticationFailed = OnAuthenticationFailed
+            };
 
-        return events;
+            return events;
+        }
     }
 
     private static async Task OnTokenValidated(TokenValidatedContext context)

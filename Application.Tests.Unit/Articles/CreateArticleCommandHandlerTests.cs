@@ -28,11 +28,10 @@ public class CreateArticleCommandHandlerTests
     }
 
     [Fact]
-    public async void Handle_Should_ReturnFailureResult_WhenGeneratedIdIsEmpty()
+    public async Task Handle_Should_ReturnFailureResult_WhenGeneratedIdIsEmpty()
     {
         //Arrange
         var mockArticlesDbSet = new List<Article>()
-            .AsQueryable()
             .BuildMockDbSet();
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
@@ -46,16 +45,15 @@ public class CreateArticleCommandHandlerTests
         var result = await _handler.HandleAsync(command, default);
 
         //Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(Features.Articles.Errors.Article.EmptyId);
+        result.IsError.ShouldBeTrue();
+        result.FirstError.ShouldBe(Features.Articles.Errors.Article.EmptyId);
     }
 
     [Fact]
-    public async void Handle_Should_NotCallSaveChangesAsync_WhenGeneratedIdIsEmpty()
+    public async Task Handle_Should_NotCallSaveChangesAsync_WhenGeneratedIdIsEmpty()
     {
         //Arrange
         var mockArticlesDbSet = new List<Article>()
-            .AsQueryable()
             .BuildMockDbSet();
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
@@ -73,11 +71,10 @@ public class CreateArticleCommandHandlerTests
     }
 
     [Fact]
-    public async void Handle_Should_ReturnFailureResult_WhenGeneratedIdIsNotUnique()
+    public async Task Handle_Should_ReturnFailureResult_WhenGeneratedIdIsNotUnique()
     {
         //Arrange
         var mockArticlesDbSet = new List<Article> {new() {Id = "something-cool", Title = "something-cool"}}
-            .AsQueryable()
             .BuildMockDbSet();
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
@@ -91,16 +88,15 @@ public class CreateArticleCommandHandlerTests
         var result = await _handler.HandleAsync(command, default);
 
         //Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(Features.Articles.Errors.Article.DuplicateId);
+        result.IsError.ShouldBeTrue();
+        result.FirstError.ShouldBe(Features.Articles.Errors.Article.DuplicateId);
     }
 
     [Fact]
-    public async void Handle_Should_NotCallSaveChangesAsync_WhenGeneratedIdIsNotUnique()
+    public async Task Handle_Should_NotCallSaveChangesAsync_WhenGeneratedIdIsNotUnique()
     {
         //Arrange
         var mockArticlesDbSet = new List<Article> {new() {Id = "something-cool", Title = "something-cool"}}
-            .AsQueryable()
             .BuildMockDbSet();
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
@@ -118,17 +114,14 @@ public class CreateArticleCommandHandlerTests
     }
 
     [Fact]
-    public async void Handle_Should_CallSaveChangesAsync_WhenGeneratedIdIsUnique()
+    public async Task Handle_Should_CallSaveChangesAsync_WhenGeneratedIdIsUnique()
     {
         //Arrange
         var mockArticlesDbSet = new List<Article> {new() {Id = "something-cool", Title = "something-cool"}}
-            .AsQueryable()
             .BuildMockDbSet();
         var mockCategoriesDbSet = new List<Category>()
-            .AsQueryable()
             .BuildMockDbSet();
         var mockRevisionsDbSet = new List<Revision>()
-            .AsQueryable()
             .BuildMockDbSet();
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
@@ -148,17 +141,14 @@ public class CreateArticleCommandHandlerTests
     }
 
     [Fact]
-    public async void Handle_Should_ReturnSuccessResultWithArticleId_WhenGeneratedIdIsUnique()
+    public async Task Handle_Should_ReturnSuccessResultWithArticleId_WhenGeneratedIdIsUnique()
     {
         //Arrange
         var mockArticlesDbSet = new List<Article> {new() {Id = "something-cool", Title = "something-cool"}}
-            .AsQueryable()
             .BuildMockDbSet();
         var mockCategoriesDbSet = new List<Category>()
-            .AsQueryable()
             .BuildMockDbSet();
         var mockRevisionsDbSet = new List<Revision>()
-            .AsQueryable()
             .BuildMockDbSet();
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);
@@ -181,27 +171,24 @@ public class CreateArticleCommandHandlerTests
             ),
             Times.Once
         );
-        result.IsError.Should().BeFalse();
-        result.Value.Should().BeOfType<CreateArticleResponse>();
-        result.Value.Id.Should().Be("something-extra-cool");
+        result.IsError.ShouldBeFalse();
+        result.Value.ShouldBeOfType<CreateArticleResponse>();
+        result.Value.Id.ShouldBe("something-extra-cool");
     }
 
     [Fact]
-    public async void Handle_Should_CreateRevisionWithContent_WhenGeneratedIdIsUnique()
+    public async Task Handle_Should_CreateRevisionWithContent_WhenGeneratedIdIsUnique()
     {
         //Arrange
         var mockArticlesDbSet = new List<Article> {new() {Id = "something-cool", Title = "something-cool"}}
-            .AsQueryable()
             .BuildMockDbSet();
         var mockCategoriesDbSet = new List<Category>
             {
                 new() {Id = "category1", Name = "Category 1"},
                 new() {Id = "category2", Name = "Category 2"}
             }
-            .AsQueryable()
             .BuildMockDbSet();
         var mockRevisionsDbSet = new List<Revision>()
-            .AsQueryable()
             .BuildMockDbSet();
 
         _mockDbContext.Setup(x => x.Articles).Returns(mockArticlesDbSet.Object);

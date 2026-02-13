@@ -30,37 +30,40 @@ namespace Application.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddTransient<ISlugHelper, SlugHelperForNonAsciiLanguages>();
+        public IServiceCollection AddApplicationServices()
+        {
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddTransient<ISlugHelper, SlugHelperForNonAsciiLanguages>();
 
-        services.AddScoped<IPermissionService, PermissionService>();
+            services.AddScoped<IPermissionService, PermissionService>();
 
-        services.AddScoped<ICommandHandler<CreateArticleCommand, CreateArticleResponse>, CreateArticleCommandHandler>();
-        services.AddScoped<ICommandHandler<DeleteArticleCommand, DeleteArticleResponse>, DeleteArticleCommandHandler>();
-        services.AddScoped<ICommandHandler<EditArticleCommand, EditArticleResponse>, EditArticleCommandHandler>();
-        services.AddScoped<IQueryHandler<GetArticleQuery, GetArticleResponse>, GetArticleQueryHandler>();
-        services.AddScoped<IQueryHandler<GetPendingRevisionsQuery, GetPendingRevisionsResponse>, GetPendingRevisionsQueryHandler>();
-        services.AddScoped<IQueryHandler<GetPendingRevisionsCountQuery, GetPendingRevisionsCountResponse>, GetPendingRevisionsCountQueryHandler>();
-        services.AddScoped<IQueryHandler<GetRevisionHistoryQuery, GetRevisionHistoryResponse>, GetRevisionHistoryQueryHandler>();
-        services.AddScoped<IQueryHandler<GetRevisionReviewHistoryQuery, GetRevisionReviewHistoryResponse>, GetRevisionReviewHistoryQueryHandler>();
-        services.AddScoped<ICommandHandler<ReviewRevisionCommand, ReviewRevisionResponse>, ReviewRevisionCommandHandler>();
-        services.AddScoped<IQueryHandler<SearchArticlesQuery, SearchArticlesResponse>, SearchArticlesQueryHandler>();
-        services.AddScoped<ICommandHandler<SetRedirectCommand, SetRedirectResponse>, SetRedirectCommandHandler>();
+            services.AddScoped<ICommandHandler<CreateArticleCommand, CreateArticleResponse>, CreateArticleCommandHandler>();
+            services.AddScoped<ICommandHandler<DeleteArticleCommand, DeleteArticleResponse>, DeleteArticleCommandHandler>();
+            services.AddScoped<ICommandHandler<EditArticleCommand, EditArticleResponse>, EditArticleCommandHandler>();
+            services.AddScoped<IQueryHandler<GetArticleQuery, GetArticleResponse>, GetArticleQueryHandler>();
+            services.AddScoped<IQueryHandler<GetPendingRevisionsQuery, GetPendingRevisionsResponse>, GetPendingRevisionsQueryHandler>();
+            services.AddScoped<IQueryHandler<GetPendingRevisionsCountQuery, GetPendingRevisionsCountResponse>, GetPendingRevisionsCountQueryHandler>();
+            services.AddScoped<IQueryHandler<GetRevisionHistoryQuery, GetRevisionHistoryResponse>, GetRevisionHistoryQueryHandler>();
+            services.AddScoped<IQueryHandler<GetRevisionReviewHistoryQuery, GetRevisionReviewHistoryResponse>, GetRevisionReviewHistoryQueryHandler>();
+            services.AddScoped<ICommandHandler<ReviewRevisionCommand, ReviewRevisionResponse>, ReviewRevisionCommandHandler>();
+            services.AddScoped<IQueryHandler<SearchArticlesQuery, SearchArticlesResponse>, SearchArticlesQueryHandler>();
+            services.AddScoped<ICommandHandler<SetRedirectCommand, SetRedirectResponse>, SetRedirectCommandHandler>();
 
-        services.AddScoped<ICommandHandler<RenameUserCommand, RenameUserResponse>, RenameUserCommandHandler>();
-        services.AddScoped<IQueryHandler<GetUserQuery, GetUserResponse>, GetUserQueryHandler>();
+            services.AddScoped<ICommandHandler<RenameUserCommand, RenameUserResponse>, RenameUserCommandHandler>();
+            services.AddScoped<IQueryHandler<GetUserQuery, GetUserResponse>, GetUserQueryHandler>();
 
-        services.AddScoped<ICommandHandler<CreateCategoryCommand, CreateCategoryResponse>, CreateCategoryCommandHandler>();
-        services.AddScoped<ICommandHandler<DeleteCategoryCommand, DeleteCategoryResponse>, DeleteCategoryCommandHandler>();
-        services.AddScoped<IQueryHandler<GetCategoriesQuery, GetCategoriesResponse>, GetCategoriesQueryHandler>();
-        services.AddScoped<IQueryHandler<GetCategoriesTreeQuery, GetCategoriesTreeResponse>, GetCategoriesTreeQueryHandler>();
-        services.AddScoped<IQueryHandler<GetCategoryArticlesQuery, GetCategoryArticlesResponse>, GetCategoryArticlesQueryHandler>();
+            services.AddScoped<ICommandHandler<CreateCategoryCommand, CreateCategoryResponse>, CreateCategoryCommandHandler>();
+            services.AddScoped<ICommandHandler<DeleteCategoryCommand, DeleteCategoryResponse>, DeleteCategoryCommandHandler>();
+            services.AddScoped<IQueryHandler<GetCategoriesQuery, GetCategoriesResponse>, GetCategoriesQueryHandler>();
+            services.AddScoped<IQueryHandler<GetCategoriesTreeQuery, GetCategoriesTreeResponse>, GetCategoriesTreeQueryHandler>();
+            services.AddScoped<IQueryHandler<GetCategoryArticlesQuery, GetCategoryArticlesResponse>, GetCategoryArticlesQueryHandler>();
 
-        services.AddScoped<IQueryHandler<GetNavigationsTreeQuery, GetNavigationsTreeResponse>, GetNavigationsTreeQueryHandler>();
-        services.AddScoped<ICommandHandler<UpdateNavigationsTreeCommand, UpdateNavigationsTreeResponse>, UpdateNavigationsTreeCommandHandler>();
+            services.AddScoped<IQueryHandler<GetNavigationsTreeQuery, GetNavigationsTreeResponse>, GetNavigationsTreeQueryHandler>();
+            services.AddScoped<ICommandHandler<UpdateNavigationsTreeCommand, UpdateNavigationsTreeResponse>, UpdateNavigationsTreeCommandHandler>();
 
-        return services;
+            return services;
+        }
     }
 }
