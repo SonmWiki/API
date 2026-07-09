@@ -7,6 +7,7 @@ using WebApi.Features.Categories;
 using WebApi.Features.Navigations;
 using WebApi.Middlewares;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using WebApi.Features.Users;
 
@@ -34,6 +35,15 @@ builder.Services.Configure<JsonOptions>(options =>
 builder.Services.AddOpenApi(config =>
 {
     config.CustomSchemaIds(x => x.FullName?.Replace("+", ".").Replace(x.Namespace + ".", ""));
+    config.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Info = new OpenApiInfo
+        {
+            Title = "SomniumWiki API | v1",
+            Version = "v1",
+        };
+        return Task.CompletedTask;
+    });
 });
 
 builder.Services.ConfigureAuth(builder.Configuration);
